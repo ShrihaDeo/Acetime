@@ -1,11 +1,44 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import { io } from 'socket.io-client'
+
+// Connect to the syncs Server
+const socket = io('http://localhost:3000');
 
 function App() {
   const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    // This runs when the browser connects to the server
+    socket.on('connect', () => {
+      console.log('Connected to Sync Server with ID:', socket.id);
+    });
+
+    // Listen for updates from other players
+    socket.on('receive-move', (data) => {
+      console.log('Sync update received:', data);
+      // We use data.count to update our screen with the new count from the other player
+      setCount(data.count);
+    });
+
+    // Clean up the connection when the component unmounts
+    return () => {
+      socket.off('connect');
+      socket.off('receive-move');
+    };
+  }, []);
+  
+  // Send update to others when button is clicked
+  const handleCounterClick = () => {
+    const nextCount = count + 1;
+    setCount(nextCount); // Update my own screen
+
+    // Tell the server to tell everyone else
+    socket.emit('send-move', { count: nextCount });
+  };
 
   return (
     <>
@@ -24,7 +57,7 @@ function App() {
         <button
           type="button"
           className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={handleCounterClick}
         >
           Count is {count}
         </button>
