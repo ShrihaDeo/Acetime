@@ -3,7 +3,31 @@
 **AceTime** transforms video calling into a shared interactive space. This platform allows users to stay connected by playing card games together in real-time, combining bi-directional state synchronisation with Peer-to-Peer video communication.
 
 ---
+Since the new backend architecture is now live in the main branch, you need to update your own feature branches so you are working with the latest version.
 
+Please run these commands in your VS Code terminal while you are on your own branch. This will pull my new code into your branch without losing any of your work:
+1. Update your local main
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+2. Switch back to your Feature Branch
+   ```bash
+   git checkout [your-branch-name]
+3. Merge the new main into your branch
+   ```bash
+   git merge main
+   ```
+4. Handle Merge Conflicts
+   If VS Code shows "Merge Conflicts"
+   1. Open the conflicted files.
+   2. Choose **"Accept Both Changes"** or manually merge the logic
+   3. Run ``` git add . ``` and ```git commit -m "merge: sync with main" ``` to finish
+4. Update GitHub
+   ```bash
+   git push origin [your-branch-name]
+   ```
+   
 ## Quick Start
 
 ### 1. Prerequisites
