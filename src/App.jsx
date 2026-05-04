@@ -10,6 +10,10 @@ const socket = io('http://localhost:3000');
 
 function App() {
   const [count, setCount] = useState(0)
+  // Track the Room ID
+  const [room, setRoom] = useState("");
+  // Track if the player has joined a room
+  const [joined, setJoined] = useState(false);
 
   useEffect(() => {
     // This runs when the browser connects to the server
@@ -30,124 +34,70 @@ function App() {
       socket.off('receive-move');
     };
   }, []);
-  
+
+  // Join a room when the player enters a room ID and clicks the button
+  const joinRoom = () => {
+    if (room) {
+      const cleanRoom = room.trim().toLowerCase(); // Remove spaces and make lowercase
+      setRoom(cleanRoom); // Update the room state with the cleaned room ID
+      socket.emit('join-room', room);
+      setJoined(true);
+    } else {
+      alert('Please enter a room ID to join'); // Simple validation to ensure a room ID is entered
+    }
+  }
+
   // Send update to others when button is clicked
   const handleCounterClick = () => {
     const nextCount = count + 1;
-    setCount(nextCount); // Update my own screen
+    setCount(nextCount); // We send the room so the server knows which room to broadcast to
 
-    // Tell the server to tell everyone else
-    socket.emit('send-move', { count: nextCount });
+    // EMIT the move to the server, which will then broadcast it to other players in the same room
+    socket.emit('send-move', { room: room, count: nextCount });
   };
 
   return (
     <>
+      
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
           <img src={reactLogo} className="framework" alt="React logo" />
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={handleCounterClick}
-        >
-          Count is {count}
-        </button>
+
+        {/* --- LOBBY UI --- */}
+        {!joined ? (
+          <div className="lobby-container">
+            <h1>AceTime Lobby</h1>
+            <input 
+              type="text" 
+              placeholder="Enter Room ID (e.g. 123)" 
+              style={{ padding: '10px', borderRadius: '5px' }}
+              onChange={(e) => setRoom(e.target.value)} 
+            />
+            <button onClick={joinRoom} style={{ marginLeft: '10px' }}>Join Game</button>
+          </div>
+        ) : (
+          /* --- GAME UI --- */
+          <div>
+            <h1>Room: {room}</h1>
+            <p>Synchronization Active</p>
+            <button type="button" className="counter" onClick={handleCounterClick}>
+              Count is {count}
+            </button>
+          </div>
+        )}
       </section>
 
       <div className="ticks"></div>
 
       <section id="next-steps">
         <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+          <h2>Strand Progress</h2>
+          <p>Current Status: {joined ? "In Room" : "In Lobby"}</p>
         </div>
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </>
   )
 }

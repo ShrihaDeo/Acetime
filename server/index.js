@@ -6,6 +6,7 @@ import { createServer } from 'http';
 // socket.io is the library that makes real-time communication easy
 import { Server } from 'socket.io';
 
+// Create an Express app and an HTTP server
 const app = express();
 const httpServer = createServer(app);
 
@@ -25,18 +26,51 @@ const io = new Server(httpServer, {
 io.on('connection', (socket) => {
   console.log('User connected to Sync Server:', socket.id);
 
+  // Join a specific room for a game session
+  socket.on('join-room', (roomID) => {
+    const cleanRoomID = roomID.trim().toLowerCase(); // Clean the room ID
+    socket.join(roomID);
+    console.log(`User ${socket.id} joined room ${roomID}`);
+  });
+
   // 3. LISTEN for a move from a player
+  // Send move only to other in the same room
   socket.on('send-move', (data) => {
-    console.log('Action received from client:', data);
-    
-    // 4. BROADCAST to all other players in the session
+    console.log(`Move in room ${data.room}:`, data);
+    // This is where you would add any game logic to validate the move, update the game state on the server, etc.
     // This tells everyone else to move the card on their screen
-    socket.broadcast.emit('receive-move', data);
+    socket.to(data.room).emit('receive-move', data);
   });
 
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected');
+  });
+});
+
+// A simple object to store the 'truth' for each room
+const roomStates = {}; 
+// When  a player joins a room
+io.on('connection', (socket) => {
+  socket.on('join-room', (roomID) => {
+    socket.join(roomID);
+    
+    // If this room already has a count, send it to the NEW player immediately
+    if (roomStates[roomID] !== undefined) {
+      socket.emit('receive-move', { count: roomStates[roomID] });
+    } else {
+      roomStates[roomID] = 0; // Initialise room if it's new
+    }
+    
+    console.log(`User joined ${roomID}. Current room count: ${roomStates[roomID]}`);
+  });
+
+  socket.on('send-move', (data) => {
+    // Update the "Source of Truth" on the server
+    roomStates[data.room] = data.count;
+    
+    // Broadcast to others
+    socket.to(data.room).emit('receive-move', data);
   });
 });
 
