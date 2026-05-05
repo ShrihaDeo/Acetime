@@ -17,6 +17,7 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <video id="localVideo" autoPlay playsInline></video>
+        <video id="otherVideo" autoPlay playsInline></video>
         <div>
           <h1>Get started</h1>
           <p>

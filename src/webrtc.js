@@ -17,21 +17,38 @@ navigator.mediaDevices.getUserMedia(constraints)
         const videoElement = document.querySelector('video#localVideo');
         videoElement.srcObject = stream;
 
-        
+        //answer call
         peer.on("call", function (call) {
             call.answer(stream);   
 
-            call.on("stream", function (remoteStream) {
+            call.on("stream", function (otherStream) {
                 const otherVideo = document.querySelector('video#otherVideo');
-                remoteVideo.srcObject = remoteStream;
+                otherVideo.srcObject = otherStream;
+                
             });
         });
 
+        //call
+        var call = peer.call("dest-peer-id", stream);
+
+        call.on("stream", function (otherStream) {
+        const otherVideo = document.querySelector('video#otherVideo');
+        otherVideo.srcObject = otherStream;
+        });
+
+        
 
     })
     .catch(error => {
         console.error('Error accessing media devices.', error);
     });
+
+
+
+    
+    
+
+
 
     
 

@@ -33,6 +33,15 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined room ${roomID}`);
   });
 
+  socket.on("register-peer", ({room, peerId}) => {
+    console.log(`Peer registered in room ${room}:`, peerId);
+    socket.to(room).emit("peer-joined", peerId);
+  });
+
+  socket.on("disconnect", () => {
+        console.log("A user disconnected:", socket.id);
+    });
+
   // 3. LISTEN for a move from a player
   // Send move only to other in the same room
   socket.on('send-move', (data) => {
