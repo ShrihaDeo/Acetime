@@ -1,7 +1,9 @@
+var socket = io();  
 
 var peer = new Peer();
 peer.on("open", function (id) {
     console.log("My peer ID is: " + id);
+    socket.emit("peer-id", id)
 });
 
 const constraints = {
@@ -29,18 +31,27 @@ navigator.mediaDevices.getUserMedia(constraints)
         });
 
         //call
-        var call = peer.call("dest-peer-id", stream);
+        socket.on("peer-id", function (otherPeerId){
+        console.log("Calling peer:", otherPeerId);
+        var call = peer.call(otherPeerId, stream);
 
         call.on("stream", function (otherStream) {
         const otherVideo = document.querySelector('video#otherVideo');
         otherVideo.srcObject = otherStream;
         });
+    })
 
         
 
     })
     .catch(error => {
         console.error('Error accessing media devices.', error);
+    });
+
+    
+    socket.emit("chat message", "hello");
+    socket.on("chat message", (msg) => {
+        console.log("Received:", msg);
     });
 
 
