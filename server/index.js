@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("peer-id", (id) => {
-    socket.broadcast.emit("peer-id", id); // like Step #5 pattern
+    socket.broadcast.emit("peer-id", id); // like step 5 pattern
 });
 
 
@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// A simple object to store the 'truth' for each room
+
 
 
 // 5. Start the Server
