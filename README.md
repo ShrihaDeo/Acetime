@@ -57,6 +57,12 @@ We have successfully implemented Real-time State Synchronisation
 - **Data Isolation**: Implemented Socket.io Rooms to allow for private, isolated game sessions.
 - **State Persistence**: The server maintains a Single Source of Truth, allowing late-joiners to rehydrate their UI with the current game state.
 
+### ✅ Update: May 6 - Room Sync & UI Integration
+- **UI Integration:** Successfully merged the synchronization engine into the `LandingPage` and `CallScreen` components.
+- **Private Rooms:** Implemented room isolation using Socket.io Rooms. Data is now strictly private to specific session IDs.
+- **State Persistence:** Added a server-side "Source of Truth" to handle late-joiners and page refreshes (State Rehydration).
+- **Verification:** Verified synchronization using random-value data propagation across multiple browser instances.
+
 ### How to test the private rooms
 1. Open three browser tabs at the localhost link provided by Vite.
 2. Tab 1 & 2: Join room Apple. Click the button. They should sync.

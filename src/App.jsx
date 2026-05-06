@@ -9,11 +9,29 @@ const socket = io('http://localhost:3000');
 
 function App() {
   const [page, setPage] = useState('landing')
+  const [roomID, setRoomID] = useState("")
+
+  const handleStartCall = (room) => {
+    console.log("Joining room:", room); // Log the room ID to verify it's being passed correctly
+    setRoomID(room);
+    setPage('call'); // Switch to the call screen
+    socket.emit('join-room', room); // Join the specified room on the server
+  }
 
   return (
     <>
-      {page === 'landing' && <LandingPage onStart={() => setPage('call')} />}
-      {page === 'call' && <CallScreen onLeave={() => setPage('landing')} />}
+      // Show the landing page until the user starts a call, then show the call screen
+      {page === 'landing' && (
+        <LandingPage onStart={handleStartCall} />
+      )}
+      // Pass the socket and room ID to the CallScreen so it can communicate with the server
+      {page === 'call' && (
+        <CallScreen 
+          socket={socket} 
+          room={roomID} 
+          onLeave={() => setPage('landing')} 
+        />
+      )}
     </>
   )
 }
