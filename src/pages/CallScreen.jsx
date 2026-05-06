@@ -1,18 +1,22 @@
 import { useEffect } from 'react'
+import { io } from "socket.io-client";
+import Peer from "peerjs";
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
 
+
+
 function CallScreen({ onLeave }) {
     useEffect(() => {
 
-      var socket = io();  
-
-var peer = new Peer();
+    var socket = io();  
+    var peer = new Peer();
 
 peer.on("open", function (id) {
     console.log("My peer ID is: " + id);
-    socket.emit("peer-id", id)
+    document.title = "Peer: " + id;
+    socket.emit("peer-id", id) //from step 4 emit
 });
 
 const constraints = {
