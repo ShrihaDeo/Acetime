@@ -1,4 +1,4 @@
-import { createGame , buildDeck} from "../game.js";
+import { createGame , buildDeck, checkWinner} from "../game.js";
 
 const deck = buildDeck();
 console.assert(deck.length === 52, 'expected 52, got ' + deck.length)
@@ -11,3 +11,9 @@ const game = createGame(['x', 'y']);
     console.log("y has 7")
     console.assert(game.deck.length === 37, "Expected deck has 37 cards, got" + game.deck.length)
     console.log("deck has 37")
+
+    game.hands['x'] = [];
+    game.hands['y'] = [{ id: '♠A', suit: '♠', value: 'A' }];
+    const winner = checkWinner(game);
+    console.log('winner should be x got ', winner);
+

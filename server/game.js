@@ -1,7 +1,7 @@
 //Game States
 export const SUITS  = ['♠', '♥', '♦', '♣'];
 export const VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-export const cardGames = [LastCard];
+export const cardGames = ["LastCard"];
 
 //Builds the deck
 export function buildDeck() {
@@ -114,6 +114,11 @@ export function nextPlayer(playerID) {
 }
 
 //Check if current player hand is empty. If empty, win
-export function checkWinner(playerID) {
-
+export function checkWinner(state) {
+  for(const id of state.players){
+    if(state.hands[id].length === 0){
+      return id;
+    }
+  }
+  return null;
 }
