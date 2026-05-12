@@ -24,4 +24,5 @@ function LandingPage({ onStart }) {
   )
 }
 
+
 export default LandingPage
