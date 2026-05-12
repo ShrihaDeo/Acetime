@@ -4,6 +4,8 @@ body {
   color: #ffffff;
   margin: 0;
   padding: 0;
+  background: radial-gradient(ellipse at center, #1a0f0a 0%, #0d0705 60%, #000000 100%);
+  min-height: 100vh;
 }
 
 .landing-page {

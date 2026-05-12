@@ -4,31 +4,51 @@ import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
 
+const backgrounds = [
+  {
+    bg: 'radial-gradient(ellipse at center, #1a5c35 0%, #0d3320 60%, #071a10 100%)',
+    suits: ['♠', '♣'],
+    accentColor: '#2ecc71'
+  },
+  {
+    bg: 'radial-gradient(ellipse at center, #5c1a1a 0%, #330d0d 60%, #1a0707 100%)',
+    suits: ['♥', '♦'],
+    accentColor: '#c0392b'
+  },
+  {
+    bg: 'radial-gradient(ellipse at center, #0a0a3d 0%, #05051f 60%, #020210 100%)',
+    suits: ['♠', '♦'],
+    accentColor: '#3498db'
+  },
+]
+
 function CallScreen({ socket, room, onLeave }) {
   const [syncStatus, setSyncStatus] = useState("Waiting for moves...");
+  const [bgIndex, setBgIndex] = useState(0);
   
-  // Ref-based approach for video
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const myStreamRef = useRef(null);
   const peerRef = useRef(null);
 
-  // 1. STATE SYNC LOGIC 
+  // --- SYNC LOGIC ---
   useEffect(() => {
-    socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent moved! Count: ${data.count}`);
-    });
-    return () => socket.off('receive-move');
-  }, [socket]);
+    console.log("Sync listener started for room:", room);
 
-  // 2. WEBRTC & VIDEO LOGIC
+    socket.on('receive-move', (data) => {
+      console.log("Sync received from opponent:", data);
+      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+    });
+
+    return () => socket.off('receive-move');
+  }, [socket, room]);
+
+  // --- VIDEO LOGIC (Centered with object-fit) ---
   useEffect(() => {
     const peer = new Peer();
     peerRef.current = peer;
 
     peer.on("open", (id) => {
-      console.log("My Peer ID:", id);
-      // FIXED: Send Peer ID + Room so only people in the same room call you
       socket.emit("peer-id", { room, peerId: id });
     });
 
@@ -37,7 +57,6 @@ function CallScreen({ socket, room, onLeave }) {
         myStreamRef.current = stream;
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-        // Answer incoming calls
         peer.on("call", (call) => {
           call.answer(stream);
           call.on("stream", (remoteStream) => {
@@ -45,9 +64,7 @@ function CallScreen({ socket, room, onLeave }) {
           });
         });
 
-        // Initiate outgoing calls (Signaled via Socket.io)
         socket.on("peer-id", (otherPeerId) => {
-          console.log("Calling peer in room:", room);
           const call = peer.call(otherPeerId, stream);
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
@@ -56,7 +73,6 @@ function CallScreen({ socket, room, onLeave }) {
       })
       .catch(err => console.error("Camera Error:", err));
 
-    // Cleanup when leaving
     return () => {
       socket.off("peer-id");
       if (peerRef.current) peerRef.current.destroy();
@@ -66,35 +82,75 @@ function CallScreen({ socket, room, onLeave }) {
     };
   }, [socket, room]);
 
-  const testSync = () => {
-    socket.emit('send-move', { room, count: Math.floor(Math.random() * 100) });
-  };
+  const handleCardClick = (i) => {
+    const cardData = { room, cardIndex: i + 1 };
+    console.log("Sending move to server:", cardData);
+    setSyncStatus(`You played card ${i + 1}`);
+    socket.emit('send-move', cardData);
+  }
 
   return (
     <div className="call-screen">
       <div className="left-panel">
         <div className="video-container">
           <div className="main-video">
-            <video ref={remoteVideoRef} autoPlay playsInline style={{ width: '100%', height: '100%' }} />
+            {/* Added objectFit: 'cover' to center the camera */}
+            <video 
+              ref={remoteVideoRef} 
+              autoPlay 
+              playsInline 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+            />
           </div>
           <div className="self-view">
-            <video ref={localVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%' }} />
+             {/* Added objectFit: 'cover' and transform scaleX(-1) to mirror your own face */}
+            <video 
+              ref={localVideoRef} 
+              autoPlay 
+              muted 
+              playsInline 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }} 
+            />
           </div>
         </div>
+
         <div className="controls-bar">
           <button className="control-btn"><img src={Mute} alt="Mute" /></button>
           <button className="control-btn"><img src={VideoOff} alt="Camera" /></button>
           <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} alt="End Call" /></button>
         </div>
       </div>
-      <div className="right-panel">
+
+      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
         <div className="game-area">
-          <h3 style={{color: 'white'}}>Room: {room}</h3>
-          <p style={{color: 'white'}}>{syncStatus}</p>
+          <h3 style={{color: 'white', margin: '0'}}>Room: {room}</h3>
+          <p style={{color: backgrounds[bgIndex].accentColor, fontSize: '14px', fontWeight: 'bold'}}>{syncStatus}</p>
+          
+          <button onClick={() => setBgIndex((prev) => (prev + 1) % backgrounds.length)} className="bg-cycle-btn">
+             Change Color
+          </button>
+
+          <div className="opponent-hand">
+            <div className="card-placeholder"></div>
+            <div className="card-placeholder"></div>
+            <div className="card-placeholder"></div>
+          </div>
+
           <div className="game-table">
-            <div className="card-placeholder" onClick={testSync} style={{cursor: 'pointer', border: '2px solid yellow'}}>
-               <p style={{fontSize: '10px', color: 'white', textAlign: 'center'}}>Click to Sync</p>
-            </div>
+            <div className="card-placeholder" style={{ border: '2px dashed white' }}></div>
+          </div>
+
+          <div className="player-hand">
+            {[0, 1, 2].map((i) => (
+              <div 
+                key={i} 
+                className="card-placeholder" 
+                onClick={() => handleCardClick(i)} 
+                style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#3a3a3c'}}
+              >
+                <span style={{color: 'white'}}>Card {i+1}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

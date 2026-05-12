@@ -18,7 +18,8 @@
 
 .right-panel {
   width: 50%;
-  background-color: #1d1d1f;
+  position: relative;
+  overflow: hidden;
 }
 
 .video-container {
@@ -95,6 +96,8 @@
   height: 100%;
   padding: 20px;
   box-sizing: border-box;
+  position: relative;
+  
 }
 
 .opponent-hand, .player-hand {
@@ -116,4 +119,104 @@
   background-color: #2c2c2e;
   border-radius: 8px;
   border: 2px dashed #3a3a3c;
+}
+
+.room-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.suits-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.suit {
+  position: absolute;
+  font-size: 200px;
+  opacity: 0.04;
+  color: #ffffff;
+}
+
+.suit.red {
+  color: #8b0000;
+  opacity: 0.06;
+}
+
+.bg-cycle-btn {
+  position: absolute;
+  top: -20px;
+  right: 30px;
+  background-color: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.4);
+}
+
+.suit:nth-child(1) { top: -40px; left: -40px; transform: rotate(-15deg); }
+.suit:nth-child(2) { top: -40px; right: -40px; transform: rotate(15deg); }
+.suit:nth-child(3) { bottom: -40px; left: -40px; transform: rotate(15deg); }
+.suit:nth-child(4) { bottom: -40px; right: -40px; transform: rotate(-15deg); }
+
+.table-suits {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.table-suit {
+  position: absolute;
+  font-size: 300px;
+  opacity: 0.06;
+}
+
+.table-suit:nth-child(1) {
+  top: -60px;
+  left: -40px;
+  transform: rotate(-15deg);
+}
+
+.table-suit:nth-child(2) {
+  bottom: -60px;
+  right: -40px;
+  transform: rotate(15deg);
+}
+
+.corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: inherit;
+  opacity: 0.4;
+}
+
+.corner.tl { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
+.corner.tr { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
+.corner.bl { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
+.corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
+
+.game-area h3 {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  margin: 0;
+  color: white;
 }
