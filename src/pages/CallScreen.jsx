@@ -1,7 +1,7 @@
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
-
+import { useEffect, useState } from 'react'
 const backgrounds = [
   {
     bg: 'radial-gradient(ellipse at center, #1a5c35 0%, #0d3320 60%, #071a10 100%)',
