@@ -33,8 +33,14 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined room ${roomID}`);
   });
 
-  socket.on("peer-id", (id) => {
-    socket.broadcast.emit("peer-id", id); // like Step #5 pattern
+  // Inside io.on('connection', (socket) => { ... })
+
+socket.on("peer-id", (data) => {
+  // data should now be an object: { room: "apple", peerId: "xxxx-yyyy" }
+  console.log(`Forwarding PeerID ${data.peerId} to room ${data.room}`);
+  
+  // Only tell people in the SAME room to call this ID
+  socket.to(data.room).emit("peer-id", data.peerId);
 });
 
 
