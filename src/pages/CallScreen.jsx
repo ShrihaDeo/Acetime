@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Peer from "peerjs"
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
@@ -21,6 +22,53 @@ function CallScreen({socket, room , onLeave }) {
     socket.emit('send-move', { room, count: Math.floor(Math.random() * 100) });
   };
 
+  useEffect(() => {
+    const peer = new Peer();
+
+    peer.on("open", function (id) {
+      console.log("My peer ID is:", id);
+      socket.emit("peer-id", id);
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(function (stream) {
+
+        // Show your camera
+        const localVideo = document.querySelector("#local-video");
+        localVideo.srcObject = stream;
+        localVideo.play();
+
+        //answer call
+        peer.on("call", function (call) {
+          call.answer(stream);
+          call.on("stream", function (remoteStream) {
+            const remoteVideo = document.querySelector("#remote-video");
+            remoteVideo.srcObject = remoteStream;
+            remoteVideo.play();
+          });
+        });
+
+        //code for calling
+        socket.on("peer-id", function (otherPeerId) {
+          const call = peer.call(otherPeerId, stream);
+          call.on("stream", function (remoteStream) {
+            const remoteVideo = document.querySelector("#remote-video");
+            remoteVideo.srcObject = remoteStream;
+            remoteVideo.play();
+          });
+        });
+
+        })
+      .catch(function (err) {
+        console.error("Error:", err);
+      });
+
+      return () => {
+      socket.off("peer-id");
+      peer.destroy();
+    };
+
+    }, [socket]);
 
   return (
     <div className="call-screen">
