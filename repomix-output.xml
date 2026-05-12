@@ -1,0 +1,1065 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  favicon.svg
+  icons.svg
+server/
+  index.js
+src/
+  assets/
+    ace_logo.svg
+    end_call.svg
+    hero.png
+    mute.svg
+    react.svg
+    spade.svg
+    video_off.svg
+    vite.svg
+  pages/
+    CallScreen.jsx
+    LandingPage.jsx
+    RoomPage.jsx
+  App.css
+  App.jsx
+  index.css
+  main.jsx
+.gitignore
+eslint.config.js
+index.html
+package.json
+README.md
+vite.config.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="public/favicon.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="46" fill="none" viewBox="0 0 48 46"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z" style="fill:#863bff;fill:color(display-p3 .5252 .23 1);fill-opacity:1"/><mask id="a" width="48" height="46" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M25.842 44.938c-.664.844-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.183c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.498 0-3.579-1.842-3.579H1.133c-.92 0-1.456-1.04-.92-1.787L9.91.473c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.578 1.842 3.578h11.377c.943 0 1.473 1.088.89 1.832L25.843 44.94z" style="fill:#000;fill-opacity:1"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#ede6ff" rx="5.508" ry="14.704" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -4.47 31.516)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#ede6ff" rx="10.399" ry="29.851" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -39.328 7.883)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#7e14ff" rx="5.508" ry="30.487" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -25.913 -14.639)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -32.644 -3.334)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -34.34 30.47)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#ede6ff" rx="14.072" ry="22.078" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="rotate(93.35 24.506 48.493)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx=".387" cy="8.972" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(39.51 .387 8.972)"/></g><g filter="url(#k)"><ellipse cx="47.523" cy="-6.092" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 47.523 -6.092)"/></g><g filter="url(#l)"><ellipse cx="41.412" cy="6.333" fill="#47bfff" rx="5.971" ry="9.665" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 41.412 6.333)"/></g><g filter="url(#m)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#n)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#o)"><ellipse cx="35.651" cy="29.907" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 35.651 29.907)"/></g><g filter="url(#p)"><ellipse cx="38.418" cy="32.4" fill="#47bfff" rx="5.971" ry="15.297" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 38.418 32.4)"/></g></g><defs><filter id="b" width="60.045" height="41.654" x="-19.77" y="16.149" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-54.613" y="-7.533" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-49.64" y="2.03" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-45.045" y="20.029" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-43.513" y="21.178" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="15.756" y="-17.901" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-27.636" y="-22.853" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="20.116" y="-38.415" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="24.641" y="-11.323" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="8.244" y="-2.416" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="18.713" y="10.588" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter></defs></svg>
+</file>
+
+<file path="public/icons.svg">
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="bluesky-icon" viewBox="0 0 16 17">
+    <g clip-path="url(#bluesky-clip)"><path fill="#08060d" d="M7.75 7.735c-.693-1.348-2.58-3.86-4.334-5.097-1.68-1.187-2.32-.981-2.74-.79C.188 2.065.1 2.812.1 3.251s.241 3.602.398 4.13c.52 1.744 2.367 2.333 4.07 2.145-2.495.37-4.71 1.278-1.805 4.512 3.196 3.309 4.38-.71 4.987-2.746.608 2.036 1.307 5.91 4.93 2.746 2.72-2.746.747-4.143-1.747-4.512 1.702.189 3.55-.4 4.07-2.145.156-.528.397-3.691.397-4.13s-.088-1.186-.575-1.406c-.42-.19-1.06-.395-2.741.79-1.755 1.24-3.64 3.752-4.334 5.099"/></g>
+    <defs><clipPath id="bluesky-clip"><path fill="#fff" d="M.1.85h15.3v15.3H.1z"/></clipPath></defs>
+  </symbol>
+  <symbol id="discord-icon" viewBox="0 0 20 19">
+    <path fill="#08060d" d="M16.224 3.768a14.5 14.5 0 0 0-3.67-1.153c-.158.286-.343.67-.47.976a13.5 13.5 0 0 0-4.067 0c-.128-.306-.317-.69-.476-.976A14.4 14.4 0 0 0 3.868 3.77C1.546 7.28.916 10.703 1.231 14.077a14.7 14.7 0 0 0 4.5 2.306q.545-.748.965-1.587a9.5 9.5 0 0 1-1.518-.74q.191-.14.372-.293c2.927 1.369 6.107 1.369 8.999 0q.183.152.372.294-.723.437-1.52.74.418.838.963 1.588a14.6 14.6 0 0 0 4.504-2.308c.37-3.911-.63-7.302-2.644-10.309m-9.13 8.234c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.894 0 1.614.82 1.599 1.82.001 1-.705 1.82-1.6 1.82m5.91 0c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.893 0 1.614.82 1.599 1.82 0 1-.706 1.82-1.6 1.82"/>
+  </symbol>
+  <symbol id="documentation-icon" viewBox="0 0 21 20">
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="m15.5 13.333 1.533 1.322c.645.555.967.833.967 1.178s-.322.623-.967 1.179L15.5 18.333m-3.333-5-1.534 1.322c-.644.555-.966.833-.966 1.178s.322.623.966 1.179l1.534 1.321"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M17.167 10.836v-4.32c0-1.41 0-2.117-.224-2.68-.359-.906-1.118-1.621-2.08-1.96-.599-.21-1.349-.21-2.848-.21-2.623 0-3.935 0-4.983.369-1.684.591-3.013 1.842-3.641 3.428C3 6.449 3 7.684 3 10.154v2.122c0 2.558 0 3.838.706 4.726q.306.383.713.671c.76.536 1.79.64 3.581.66"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M3 10a2.78 2.78 0 0 1 2.778-2.778c.555 0 1.209.097 1.748-.047.48-.129.854-.503.982-.982.145-.54.048-1.194.048-1.749a2.78 2.78 0 0 1 2.777-2.777"/>
+  </symbol>
+  <symbol id="github-icon" viewBox="0 0 19 19">
+    <path fill="#08060d" fill-rule="evenodd" d="M9.356 1.85C5.05 1.85 1.57 5.356 1.57 9.694a7.84 7.84 0 0 0 5.324 7.44c.387.079.528-.168.528-.376 0-.182-.013-.805-.013-1.454-2.165.467-2.616-.935-2.616-.935-.349-.91-.864-1.143-.864-1.143-.71-.48.051-.48.051-.48.787.051 1.2.805 1.2.805.695 1.194 1.817.857 2.268.649.064-.507.27-.857.49-1.052-1.728-.182-3.545-.857-3.545-3.87 0-.857.31-1.558.8-2.104-.078-.195-.349-1 .077-2.078 0 0 .657-.208 2.14.805a7.5 7.5 0 0 1 1.946-.26c.657 0 1.328.092 1.946.26 1.483-1.013 2.14-.805 2.14-.805.426 1.078.155 1.883.078 2.078.502.546.799 1.247.799 2.104 0 3.013-1.818 3.675-3.558 3.87.284.247.528.714.528 1.454 0 1.052-.012 1.896-.012 2.156 0 .208.142.455.528.377a7.84 7.84 0 0 0 5.324-7.441c.013-4.338-3.48-7.844-7.773-7.844" clip-rule="evenodd"/>
+  </symbol>
+  <symbol id="social-icon" viewBox="0 0 20 20">
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M12.5 6.667a4.167 4.167 0 1 0-8.334 0 4.167 4.167 0 0 0 8.334 0"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M2.5 16.667a5.833 5.833 0 0 1 8.75-5.053m3.837.474.513 1.035c.07.144.257.282.414.309l.93.155c.596.1.736.536.307.965l-.723.73a.64.64 0 0 0-.152.531l.207.903c.164.715-.213.991-.84.618l-.872-.52a.63.63 0 0 0-.577 0l-.872.52c-.624.373-1.003.094-.84-.618l.207-.903a.64.64 0 0 0-.152-.532l-.723-.729c-.426-.43-.289-.864.306-.964l.93-.156a.64.64 0 0 0 .412-.31l.513-1.034c.28-.562.735-.562 1.012 0"/>
+  </symbol>
+  <symbol id="x-icon" viewBox="0 0 19 19">
+    <path fill="#08060d" fill-rule="evenodd" d="M1.893 1.98c.052.072 1.245 1.769 2.653 3.77l2.892 4.114c.183.261.333.48.333.486s-.068.089-.152.183l-.522.593-.765.867-3.597 4.087c-.375.426-.734.834-.798.905a1 1 0 0 0-.118.148c0 .01.236.017.664.017h.663l.729-.83c.4-.457.796-.906.879-.999a692 692 0 0 0 1.794-2.038c.034-.037.301-.34.594-.675l.551-.624.345-.392a7 7 0 0 1 .34-.374c.006 0 .93 1.306 2.052 2.903l2.084 2.965.045.063h2.275c1.87 0 2.273-.003 2.266-.021-.008-.02-1.098-1.572-3.894-5.547-2.013-2.862-2.28-3.246-2.273-3.266.008-.019.282-.332 2.085-2.38l2-2.274 1.567-1.782c.022-.028-.016-.03-.65-.03h-.674l-.3.342a871 871 0 0 1-1.782 2.025c-.067.075-.405.458-.75.852a100 100 0 0 1-.803.91c-.148.172-.299.344-.99 1.127-.304.343-.32.358-.345.327-.015-.019-.904-1.282-1.976-2.808L6.365 1.85H1.8zm1.782.91 8.078 11.294c.772 1.08 1.413 1.973 1.425 1.984.016.017.241.02 1.05.017l1.03-.004-2.694-3.766L7.796 5.75 5.722 2.852l-1.039-.004-1.039-.004z" clip-rule="evenodd"/>
+  </symbol>
+</svg>
+</file>
+
+<file path="src/assets/ace_logo.svg">
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512" xml:space="preserve">
+<rect x="64" y="96" style="fill:#F2F2F4;" width="288" height="416"/>
+<rect x="208" y="96" style="fill:#DFDFE1;" width="144" height="416"/>
+<path style="fill:#FF4F19;" d="M208,369.941l-54.99-54.989c-15.29-15.294-15.29-40.173-0.002-55.462
+	c15.136-15.136,39.664-15.291,54.992-0.467c15.326-14.822,39.856-14.67,54.99,0.467l0.002,0.002
+	c15.288,15.29,15.288,40.17,0.002,55.461L208,369.941z"/>
+<polygon style="fill:#CFCDD2;" points="448,416 400,416 400,48 160,48 160,0 448,0 "/>
+<polygon style="fill:#AEADB3;" points="304,0 304,48 400,48 400,416 448,416 448,0 "/>
+<path style="fill:#AF2E08;" d="M262.992,259.488l-0.002-0.002c-15.134-15.138-39.664-15.29-54.99-0.467v110.92l54.994-54.992
+	C278.28,299.658,278.28,274.778,262.992,259.488z"/>
+</svg>
+</file>
+
+<file path="src/assets/end_call.svg">
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512.456 512.456" xml:space="preserve">
+<g transform="translate(-1)">
+	<g>
+		<g>
+			<path d="M506.845,376.187c-2.507-4.739-5.667-9.463-9.428-14.215c-8.571-10.83-20.228-21.791-34.287-32.906
+				c-9.809-7.755-20.237-15.145-30.657-21.961c-6.267-4.1-11.191-7.129-14.123-8.847c-24.748-14.091-53.259-12.224-67.985,11.503
+				c-0.684,0.813-1.554,1.841-2.569,3.033c-2.775,3.261-5.591,6.519-8.261,9.539c-0.571,0.645-0.571,0.645-1.142,1.287
+				c-4.448,4.994-8.5,9.183-8.381,9.102c-16.25,10.998-26.86,10.129-41.23-4.241c-9.845-9.845-26.329-7.774-33.432,4.2
+				l-42.411,71.488c-4.974,8.385-3.631,19.076,3.263,25.97c90.916,90.916,181.583,111.883,257.669,35.797l22.933-22.933
+				C514.455,425.352,518.524,398.246,506.845,376.187z M466.634,412.833l-22.933,22.933c-52.76,52.76-114.173,41.95-185.458-24.338
+				l21.685-36.552c23.487,12.662,48.852,10.201,74.057-6.858c4.166-2.84,8.778-7.607,16.272-16.022
+				c0.625-0.703,0.625-0.703,1.246-1.405c2.866-3.242,5.849-6.694,8.785-10.144c1.761-2.069,3.122-3.686,3.91-4.63l2.223-3.224
+				c0.637-1.135,3.593-1.371,10.589,2.611c2.129,1.25,6.466,3.918,12.106,7.607c9.425,6.165,18.842,12.839,27.554,19.727
+				c11.686,9.238,21.099,18.09,27.291,25.913c2.233,2.822,3.966,5.412,5.173,7.693C472.054,401.659,471.037,408.429,466.634,412.833
+				z"/>
+			<path d="M109.286,300.518l71.488-42.411c11.974-7.104,14.045-23.588,4.2-33.432c-14.368-14.368-15.238-24.996-4.206-41.281
+				c-0.088,0.13,4.083-3.911,9.038-8.321c0.654-0.582,0.654-0.582,1.313-1.164c3.018-2.665,6.273-5.475,9.531-8.244
+				c1.194-1.014,2.223-1.883,3.035-2.566c23.736-14.725,25.608-43.254,11.645-67.781c-1.853-3.165-4.883-8.087-8.983-14.353
+				c-6.817-10.418-14.208-20.843-21.963-30.65c-11.113-14.054-22.074-25.706-32.902-34.275c-4.752-3.76-9.476-6.92-14.221-9.43
+				C115.209-5.067,88.103-0.997,70.453,16.653L47.519,39.587C-28.566,115.672-7.599,206.34,83.317,297.255
+				C90.211,304.149,100.901,305.492,109.286,300.518z M77.689,69.757l22.933-22.933c4.403-4.403,11.174-5.419,16.683-2.503
+				c2.289,1.21,4.879,2.943,7.701,5.176c7.823,6.19,16.674,15.6,25.911,27.281c6.888,8.71,13.562,18.125,19.728,27.548
+				c3.689,5.638,6.358,9.974,7.741,12.334c3.848,6.762,3.61,9.74,2.476,10.376l-3.208,2.21c-0.945,0.787-2.563,2.146-4.632,3.905
+				c-3.45,2.932-6.904,5.913-10.148,8.778c-0.718,0.635-0.718,0.635-1.436,1.273c-8.44,7.513-13.207,12.131-16.016,16.294
+				c-17.049,25.168-19.506,50.539-6.841,74.033l-36.553,21.685C35.739,183.929,24.929,122.517,77.689,69.757z"/>
+			<path d="M443.206,70.245c-8.331-8.331-21.839-8.331-30.17,0l-384,384c-8.331,8.331-8.331,21.839,0,30.17
+				c8.331,8.331,21.839,8.331,30.17,0l384-384C451.537,92.083,451.537,78.576,443.206,70.245z"/>
+		</g>
+	</g>
+</g>
+</svg>
+</file>
+
+<file path="src/assets/mute.svg">
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="800px" width="800px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 512 512"  xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#000000;}
+</style>
+<g>
+	<path class="st0" d="M432.343,250.966V224.85h-34.597v26.116c0,18.513-3.565,36.199-10.048,52.413l26.124,26.13
+		C425.667,305.872,432.329,279.194,432.343,250.966z"/>
+	<path class="st0" d="M200.745,89.854c0.022-15.257,6.181-28.976,16.214-39.052c10.076-10.047,23.773-16.192,39.031-16.213
+		c15.279,0.021,28.984,6.166,39.052,16.213c10.054,10.076,16.214,23.795,16.214,39.052v137.079l34.029,34.036
+		c0.38-3.277,0.568-6.626,0.568-10.004V89.854C345.815,40.26,305.606,0.035,255.989,0c-47.001,0.035-85.586,36.185-89.496,82.18
+		l34.251,34.251V89.854z"/>
+	<path class="st0" d="M393.672,360.943l-24.615-24.614l-37.22-37.22l-25.462-25.463l-105.63-105.63l-34.589-34.59L84.601,51.873
+		L58.808,77.666l107.348,107.347v65.952c0.029,49.596,40.26,89.804,89.833,89.84c18.685-0.014,35.962-5.842,50.335-15.617
+		l37.112,37.105c-24.133,18.995-54.41,30.408-87.447,30.408c-39.096,0-74.439-15.869-100.161-41.554
+		c-25.721-25.743-41.575-61.087-41.575-100.182V224.85H79.643v26.116c0.036,89.445,66.901,163.274,153.292,174.658V512h46.131
+		v-86.377c33.526-4.42,64.07-18.268,88.943-38.758l59.391,59.391l25.793-25.793L393.672,360.943z M255.989,306.209
+		c-15.258-0.014-28.977-6.18-39.031-16.213c-10.032-10.054-16.192-23.774-16.214-39.031v-31.362l80.455,80.454
+		C273.639,303.96,265.102,306.203,255.989,306.209z"/>
+</g>
+</svg>
+</file>
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/assets/spade.svg">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" enable-background="new 0 0 76.00 76.00" xml:space="preserve">
+	<path fill="#000000" fill-opacity="1" stroke-width="0.2" stroke-linejoin="round" d="M 40.874,51.9409C 41.0523,54.7257 41.5633,57.4933 42.407,60.2438L 33.96,60.2438C 34.639,56.9995 35.15,54.2318 35.493,51.9409L 35.6268,46.3438C 36.052,45.8911 36.4293,45.8911 36.7585,46.3438C 35.8394,47.99 34.8585,49.3344 33.8159,50.377C 32.3344,51.8586 30.1429,52.5993 27.2415,52.5993C 25.1563,52.5993 23.469,51.8586 22.1794,50.377C 20.5264,48.724 19.6999,46.4433 19.6999,43.535C 19.6999,40.2495 22.9271,34.2478 29.3815,25.5298L 38.1783,13.8522L 47.1089,25.4578C 53.481,33.5584 56.6671,39.5842 56.6671,43.535C 56.6671,46.4364 55.8406,48.7171 54.1875,50.377C 52.7059,51.8586 50.9363,52.5993 48.8786,52.5993C 46.1623,52.5993 43.9366,51.8277 42.2012,50.2844C 40.6373,48.7205 39.7731,47.4516 39.6085,46.4776C 39.9514,46.313 40.1229,46.2924 40.1229,46.4159L 40.874,51.9409 Z "/>
+</svg>
+</file>
+
+<file path="src/assets/video_off.svg">
+<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5 5C3.34315 5 2 6.34315 2 8V16C2 17.6569 3.34315 19 5 19H14C15.3527 19 16.4962 18.1048 16.8705 16.8745M17 12L20.6343 8.36569C21.0627 7.93731 21.2769 7.72312 21.4608 7.70865C21.6203 7.69609 21.7763 7.76068 21.8802 7.88238C22 8.02265 22 8.32556 22 8.93137V15.0686C22 15.6744 22 15.9774 21.8802 16.1176C21.7763 16.2393 21.6203 16.3039 21.4608 16.2914C21.2769 16.2769 21.0627 16.0627 20.6343 15.6343L17 12ZM17 12V9.8C17 8.11984 17 7.27976 16.673 6.63803C16.3854 6.07354 15.9265 5.6146 15.362 5.32698C14.7202 5 13.8802 5 12.2 5H9.5M2 2L22 22" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</file>
+
+<file path="src/assets/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="77" height="47" fill="none" aria-labelledby="vite-logo-title" viewBox="0 0 77 47"><title id="vite-logo-title">Vite</title><style>.parenthesis{fill:#000}@media (prefers-color-scheme:dark){.parenthesis{fill:#fff}}</style><path fill="#9135ff" d="M40.151 45.71c-.663.844-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.493c-.92 0-1.457-1.04-.92-1.788l7.479-10.471c1.07-1.498 0-3.578-1.842-3.578H15.443c-.92 0-1.456-1.04-.92-1.788l9.696-13.576c.213-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.472c-1.07 1.497 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.087.89 1.83L40.153 45.712z"/><mask id="a" width="48" height="47" x="14" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M40.047 45.71c-.663.843-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.389c-.92 0-1.457-1.04-.92-1.788l7.479-10.472c1.07-1.497 0-3.578-1.842-3.578H15.34c-.92 0-1.456-1.04-.92-1.788l9.696-13.575c.213-.297.556-.474.92-.474H53.93c.92 0 1.456 1.04.92 1.788L47.37 13.03c-1.07 1.498 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.088.89 1.831L40.049 45.712z"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#eee6ff" rx="5.508" ry="14.704" transform="rotate(269.814 20.96 11.29)scale(-1 1)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#eee6ff" rx="10.399" ry="29.851" transform="rotate(89.814 -16.902 -8.275)scale(1 -1)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#8900ff" rx="5.508" ry="30.487" transform="rotate(89.814 -19.197 -7.127)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.928 4.177)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.738 5.52)scale(1 -1)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#eee6ff" rx="14.072" ry="22.078" transform="rotate(93.35 31.245 55.578)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx="14.592" cy="9.743" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(39.51 14.592 9.743)"/></g><g filter="url(#k)"><ellipse cx="61.728" cy="-5.321" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 61.728 -5.32)"/></g><g filter="url(#l)"><ellipse cx="55.618" cy="7.104" fill="#00c2ff" rx="5.971" ry="9.665" transform="rotate(37.892 55.618 7.104)"/></g><g filter="url(#m)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#n)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#o)"><ellipse cx="49.857" cy="30.678" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 49.857 30.678)"/></g><g filter="url(#p)"><ellipse cx="52.623" cy="33.171" fill="#00c2ff" rx="5.971" ry="15.297" transform="rotate(37.892 52.623 33.17)"/></g></g><path d="M6.919 0c-9.198 13.166-9.252 33.575 0 46.789h6.215c-9.25-13.214-9.196-33.623 0-46.789zm62.424 0h-6.215c9.198 13.166 9.252 33.575 0 46.789h6.215c9.25-13.214 9.196-33.623 0-46.789" class="parenthesis"/><defs><filter id="b" width="60.045" height="41.654" x="-5.564" y="16.92" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-40.407" y="-6.762" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-35.435" y="2.801" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-30.84" y="20.8" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-29.307" y="21.949" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="29.961" y="-17.13" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-13.43" y="-22.082" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="34.321" y="-37.644" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="38.847" y="-10.552" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="22.45" y="-1.645" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="32.919" y="11.36" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter></defs></svg>
+</file>
+
+<file path="src/pages/RoomPage.jsx">
+import { useState } from 'react';
+
+// This is the room page component that shows the room ID and a button to join the call.
+
+function RoomPage({ onJoin }) {
+
+    const [room, setRoom] = useState('');
+    const [error, setError] = useState('');
+
+    const handleJoin = () => {
+        if (room.trim() === '') {
+            setError('Please enter a valid room name.');
+            return;
+        }
+        if(!/^\d+$/.test(room)) {
+            setError('Room name must be a number.');
+            return;
+        }
+        setError('');
+        onJoin(room);
+    }
+  return (
+
+    <div>
+    <div className="suits-bg">
+  <span className="suit red">♥</span>
+  <span className="suit">♠</span>
+  <span className="suit red">♦</span>
+  <span className="suit">♣</span>
+    </div>
+    <div className="room-page">
+      <h1>Join or Create a Room</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+        <input
+
+            type="text"
+            placeholder="Enter Room ID..."
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+            style={{ padding: '12px', borderRadius: '20px', border: '1px solid #ccc', marginRight: '10px' }}
+        />
+        <button onClick={handleJoin}>Join / Create</button>
+    </div>
+    </div>
+  )
+}
+
+export default RoomPage
+</file>
+
+<file path="eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+])
+</file>
+
+<file path="vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <title>acetime</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="src/pages/LandingPage.jsx">
+import CardLogo from '../assets/ace_logo.svg'
+import Spade from '../assets/spade.svg'
+
+function LandingPage({ onStart }) {
+  return (
+    <div>
+      <div className="suits-bg">
+        <span className="suit red">♥</span>
+        <span className="suit">♠</span>
+        <span className="suit red">♦</span>
+        <span className="suit">♣</span>
+      </div>
+      <div className="landing-page">
+        <img src={CardLogo} alt="AceTime Logo" style={{width: '150px', marginBottom: '20px'}} />
+        <h1>
+          <span style={{fontWeight: '400', fontSize: '50px'}}>Welcome to </span>
+          <img src={Spade} alt="A" style={{width: '90px', verticalAlign: 'middle', marginRight: '-15px', filter: 'invert(1)', marginBottom: '10px'}} />
+          <span style={{fontWeight: '700', fontSize: '64px'}}>ceTime</span>
+        </h1>
+        <button onClick={onStart}>Create or Join a Room</button>
+        <h2>Start a call to connect & play with friends!</h2>
+      </div>
+    </div>
+  )
+}
+
+
+export default LandingPage
+</file>
+
+<file path="src/App.css">
+.call-screen {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100%;
+}
+
+.left-panel {
+  width: 50%;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 100vh;
+}
+
+.right-panel {
+  width: 50%;
+  position: relative;
+  overflow: hidden;
+  /* This creates a subtle casino-style "dotted" felt texture */
+  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.video-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  height: 80vh;
+  min-height: 200px;
+}
+
+.main-video {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background-color: #2c2c2e;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.self-view {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 240px;
+  height: 180px;
+  background-color: #3a3a3c;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.controls-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  width: 100%;
+}
+
+.controls-left {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.control-btn {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #3a3a3c;
+  border: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.control-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.end-call {
+  background-color: #ff3b30;
+  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+}
+
+.game-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  
+}
+
+.opponent-hand, .player-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+}
+
+.game-table {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-placeholder {
+  width: 80px;
+  height: 120px;
+  background-color: #2c2c2e;
+  border-radius: 8px;
+  border: 2px dashed #3a3a3c;
+}
+
+.room-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.suits-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.suit {
+  position: absolute;
+  font-size: 200px;
+  opacity: 0.04;
+  color: #ffffff;
+}
+
+.suit.red {
+  color: #8b0000;
+  opacity: 0.06;
+}
+
+.bg-cycle-btn {
+  position: absolute;
+  top: -20px;
+  right: 30px;
+  background-color: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.4);
+}
+
+.suit:nth-child(1) { top: -40px; left: -40px; transform: rotate(-15deg); }
+.suit:nth-child(2) { top: -40px; right: -40px; transform: rotate(15deg); }
+.suit:nth-child(3) { bottom: -40px; left: -40px; transform: rotate(15deg); }
+.suit:nth-child(4) { bottom: -40px; right: -40px; transform: rotate(-15deg); }
+
+.table-suits {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.table-suit {
+  position: absolute;
+  font-size: 300px;
+  opacity: 0.06;
+}
+
+.table-suit:nth-child(1) {
+  top: -60px;
+  left: -40px;
+  transform: rotate(-15deg);
+}
+
+.table-suit:nth-child(2) {
+  bottom: -60px;
+  right: -40px;
+  transform: rotate(15deg);
+}
+
+.corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: inherit;
+  opacity: 0.4;
+}
+
+.corner.tl { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
+.corner.tr { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
+.corner.bl { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
+.corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
+
+.game-area h3 {
+  position: absolute;
+  top: 20px; /* Moved up slightly */
+  left: 30px;
+  margin: 0;
+  color: white;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+
+.status-text {
+  position: absolute;
+  top: 45px; /* Moved below the H3 */
+  left: 30px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.video-placeholder {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1c1c1e;
+  color: #444;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 12px;
+}
+</file>
+
+<file path="src/index.css">
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #1d1d1f;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(ellipse at center, #1a0f0a 0%, #0d0705 60%, #000000 100%);
+  min-height: 100vh;
+}
+
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+button{
+  background-color:  #0071e3;
+  color: white;
+  border: 1px solid #0071e4;
+  padding: 12px 32px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 980px;
+  box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4);
+
+  margin-top: 50px;
+}
+
+h1{
+  font-size: 64px;
+  font-weight: 700;
+}
+
+h2{
+  font-size: 28px;
+  font-weight: 200;
+  margin-top: 100px;
+}
+
+#root {
+
+  height: 100vh;
+  width: 100%;
+}
+</file>
+
+<file path="src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="README.md">
+# AceTime: Real-Time Collaborative Card Play 🃏🎥
+
+**AceTime** transforms video calling into a shared interactive space. This platform allows users to stay connected by playing card games together in real-time, combining bi-directional state synchronisation with Peer-to-Peer video communication.
+
+---
+Since the new backend architecture is now live in the main branch, you need to update your own feature branches so you are working with the latest version.
+
+Please run these commands in your VS Code terminal while you are on your own branch. This will pull my new code into your branch without losing any of your work:
+1. Update your local main
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+2. Switch back to your Feature Branch
+   ```bash
+   git checkout [your-branch-name]
+3. Merge the new main into your branch
+   ```bash
+   git merge main
+   ```
+4. Handle Merge Conflicts
+   If VS Code shows "Merge Conflicts"
+   1. Open the conflicted files.
+   2. Choose **"Accept Both Changes"** or manually merge the logic
+   3. Run ``` git add . ``` and ```git commit -m "merge: sync with main" ``` to finish
+4. Update GitHub
+   ```bash
+   git push origin [your-branch-name]
+   ```
+   
+## Quick Start
+
+### 1. Prerequisites
+Ensure you have **Node.js** installed on your machine.
+
+### 2. Installation
+Clone the repository and install the dependencies for both the frontend and backend:
+```bash
+git clone https://github.com/ShrihaDeo/Acetime.git
+cd Acetime
+npm install
+```
+### 3. Start the Backend
+Open a terminal tab and run:
+```bash
+node server/index.js
+```
+### 4. Start the Frontend
+Open a second terminal tab and run:
+```bash
+npm run dev
+```
+
+### Current Progress (Week 6)
+We have successfully implemented Real-time State Synchronisation 
+- **Bi-directional Sync**: User actions in one client are propagated instantly to all other clients.
+- **Data Isolation**: Implemented Socket.io Rooms to allow for private, isolated game sessions.
+- **State Persistence**: The server maintains a Single Source of Truth, allowing late-joiners to rehydrate their UI with the current game state.
+
+### ✅ Update: May 6 - Room Sync & UI Integration
+- **UI Integration:** Successfully merged the synchronization engine into the `LandingPage` and `CallScreen` components.
+- **Private Rooms:** Implemented room isolation using Socket.io Rooms. Data is now strictly private to specific session IDs.
+- **State Persistence:** Added a server-side "Source of Truth" to handle late-joiners and page refreshes (State Rehydration).
+- **Verification:** Verified synchronization using random-value data propagation across multiple browser instances.
+
+### How to test the private rooms
+1. Open three browser tabs at the localhost link provided by Vite.
+2. Tab 1 & 2: Join room Apple. Click the button. They should sync.
+3. Tab 3: Join room Banana. It should stay at 0, proving the rooms are private.
+4. Refresh Test: Refresh Tab 1. Notice the count stays the same; the server now remembers the state for that room.
+
+### Techinical Research & References
+- **Socket.io Rooms**: https://socket.io/docs/v4/rooms/
+- **React State Sync**: https://react.dev/learn/synchronizing-with-effects
+- **CORS Policy**: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
+- **Modern ES Modules**: https://nodejs.org/api/esm.html
+</file>
+
+<file path="package.json">
+{
+  "name": "acetime",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "peerjs": "^1.5.5",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "vite": "^8.0.10"
+  }
+}
+</file>
+
+<file path="server/index.js">
+// server/index.js
+// express is the framework that turn Node.js into a web server
+import express from 'express';
+// handles the raw connection between computers
+import { createServer } from 'http';
+// socket.io is the library that makes real-time communication easy
+import { Server } from 'socket.io';
+
+// Create an Express app and an HTTP server
+const app = express();
+const httpServer = createServer(app);
+
+// 1. Initialise Socket.io with CORS, CORS stands for Cross-Origin Resource Sharing
+// It’s a security feature in web browsers that restricts web pages from making requests to a different domain than the one that served the web page.
+// This allows your React app (on port 5173) to talk to this server (on port 3000)
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
+// 2. Handle Connections
+// Whenever a player opens the website, the function triggers
+// Each player get a unique socket.id
+io.on('connection', (socket) => {
+  console.log('User connected to Sync Server:', socket.id);
+
+  // Join a specific room for a game session
+  socket.on('join-room', (roomID) => {
+    const cleanRoomID = roomID.trim().toLowerCase(); // Clean the room ID
+    socket.join(roomID);
+    console.log(`User ${socket.id} joined room ${roomID}`);
+  });
+
+  // Inside io.on('connection', (socket) => { ... })
+
+socket.on("peer-id", (data) => {
+  // data should now be an object: { room: "apple", peerId: "xxxx-yyyy" }
+  console.log(`Forwarding PeerID ${data.peerId} to room ${data.room}`);
+  
+  // Only tell people in the SAME room to call this ID
+  socket.to(data.room).emit("peer-id", data.peerId);
+});
+
+
+  // 3. LISTEN for a move from a player
+  // Send move only to other in the same room
+  socket.on('send-move', (data) => {
+    console.log(`Move in room ${data.room}:`, data);
+    // This is where you would add any game logic to validate the move, update the game state on the server, etc.
+    // This tells everyone else to move the card on their screen
+    socket.to(data.room).emit('receive-move', data);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+// A simple object to store the 'truth' for each room
+
+
+// 5. Start the Server
+// Tells the server to start listening for traffic on port 3000
+const PORT = 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Sync Server running on http://localhost:${PORT}`);
+});
+</file>
+
+<file path="src/pages/CallScreen.jsx">
+import { useEffect, useState, useRef } from 'react'
+import Peer from "peerjs"
+import EndCall from '../assets/end_call.svg'
+import VideoOff from '../assets/video_off.svg'
+import Mute from '../assets/mute.svg'
+
+const backgrounds = [
+  { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', accentColor: '#2ecc71' },
+  { bg: 'radial-gradient(circle, #5c1a1a 0%, #1a0707 100%)', accentColor: '#c0392b' },
+  { bg: 'radial-gradient(circle, #0a0a3d 0%, #020210 100%)', accentColor: '#3498db' },
+]
+
+function CallScreen({ socket, room, onLeave }) {
+  const [syncStatus, setSyncStatus] = useState("System Ready");
+  const [bgIndex, setBgIndex] = useState(0);
+  const [isOpponentJoined, setIsOpponentJoined] = useState(false); // Track the video state
+  
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const peerRef = useRef(null);
+  const myStreamRef = useRef(null);
+
+  // 1. SYNC: Listen for opponent actions
+  useEffect(() => {
+    socket.on('receive-move', (data) => {
+      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+    });
+    return () => socket.off('receive-move');
+  }, [socket]);
+
+  // 2. VIDEO: Edward's WebRTC implementation
+  useEffect(() => {
+    const peer = new Peer();
+    peerRef.current = peer;
+
+    peer.on("open", (id) => {
+      socket.emit("peer-id", { room, peerId: id });
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+      myStreamRef.current = stream;
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
+      peer.on("call", (call) => {
+        call.answer(stream);
+        call.on("stream", (remoteStream) => {
+          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+          setIsOpponentJoined(true); // Someone is here!
+        });
+      });
+
+      socket.on("peer-id", (otherPeerId) => {
+        const call = peer.call(otherPeerId, stream);
+        call.on("stream", (remoteStream) => {
+          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+          setIsOpponentJoined(true); // Someone is here!
+        });
+      });
+    });
+
+    return () => {
+      socket.off("peer-id");
+      if (peerRef.current) peerRef.current.destroy();
+      if (myStreamRef.current) {
+        myStreamRef.current.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [socket, room]);
+
+  const handleCardClick = (i) => {
+    setSyncStatus(`You played card ${i + 1}`);
+    socket.emit('send-move', { room, cardIndex: i + 1 });
+  }
+
+  return (
+    <div className="call-screen">
+      <div className="left-panel">
+        <div className="video-container">
+          <div className="main-video">
+            {/* Show placeholder if box is empty */}
+            {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
+            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
+          </div>
+          <div className="self-view">
+            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
+          </div>
+        </div>
+        <div className="controls-bar">
+          <button className="control-btn"><img src={Mute} /></button>
+          <button className="control-btn"><img src={VideoOff} /></button>
+          <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
+        </div>
+      </div>
+
+      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
+        <div className="game-area">
+          <h3>Room: {room}</h3>
+          <p className="sync-status-text" style={{color: backgrounds[bgIndex].accentColor}}>{syncStatus}</p>
+
+          <button onClick={() => setBgIndex((prev) => (prev + 1) % backgrounds.length)} className="bg-cycle-btn">Change Color</button>
+          
+          <div className="opponent-hand">
+             <div className="card-placeholder"></div>
+             <div className="card-placeholder"></div>
+             <div className="card-placeholder"></div>
+          </div>
+          
+          <div className="game-table">
+            <div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div>
+          </div>
+          
+          <div className="player-hand">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'}}>
+                Card {i+1}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default CallScreen;
+</file>
+
+<file path="src/App.jsx">
+import { useState } from 'react'
+import LandingPage from './pages/LandingPage'
+import CallScreen from './pages/CallScreen'
+import RoomPage from './pages/RoomPage'
+import './App.css'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:3000');
+
+function App() {
+  const [page, setPage] = useState('landing')
+  const [roomID, setRoomID] = useState("")
+
+  const handleStartCall = (room) => {
+    setRoomID(room);
+    setPage('call');
+    socket.emit('join-room', room);
+  }
+
+  return (
+    <div className="call-screen">
+      {/* LEFT PANEL */}
+      <div className="left-panel">
+        <div className="video-container">
+          <div className="main-video">
+            {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
+            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
+          </div>
+          <div className="self-view">
+            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
+          </div>
+        </div>
+        {/* ... controls ... */}
+      </div>
+  
+      {/* RIGHT PANEL */}
+      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
+        <div className="game-area">
+          <h3>Room: {room}</h3>
+          {/* ✅ FIXED: Use the 'status-text' class instead of inline styles */}
+          <p className="status-text" style={{color: backgrounds[bgIndex].accentColor}}>
+             {syncStatus}
+          </p>
+          
+          {/* ... rest of the table ... */}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App
+</file>
+
+</files>
