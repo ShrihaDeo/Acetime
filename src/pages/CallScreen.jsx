@@ -22,14 +22,19 @@ function CallScreen({socket, room , onLeave }) {
     socket.emit('send-move', { room, count: Math.floor(Math.random() * 100) });
   };
 
+  //webrtc and peerjs video and call code
   useEffect(() => {
+    //create a new peer
     const peer = new Peer();
 
+    //for the peer connecting and giving peer id
     peer.on("open", function (id) {
       console.log("My peer ID is:", id);
+      //send peer id to server for other players to call
       socket.emit("peer-id", id);
     });
 
+    //access for camera and video
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(function (stream) {
 
@@ -38,9 +43,11 @@ function CallScreen({socket, room , onLeave }) {
         localVideo.srcObject = stream;
         localVideo.play();
 
-        //answer call
+        ///answer call
         peer.on("call", function (call) {
+          //sends back back to caller
           call.answer(stream);
+          //shows video stream when caller sends it
           call.on("stream", function (remoteStream) {
             const remoteVideo = document.querySelector("#remote-video");
             remoteVideo.srcObject = remoteStream;
@@ -48,9 +55,11 @@ function CallScreen({socket, room , onLeave }) {
           });
         });
 
-        //code for calling
+        ///code for calling other player
         socket.on("peer-id", function (otherPeerId) {
+          //start a webrtc call to other person
           const call = peer.call(otherPeerId, stream);
+          //shows video stream
           call.on("stream", function (remoteStream) {
             const remoteVideo = document.querySelector("#remote-video");
             remoteVideo.srcObject = remoteStream;
@@ -63,9 +72,10 @@ function CallScreen({socket, room , onLeave }) {
         console.error("Error:", err);
       });
 
+      //cleanup for after the video call
       return () => {
       socket.off("peer-id");
-      peer.destroy();
+      peer.destroy(); //close peerjs connection
     };
 
     }, [socket]);
