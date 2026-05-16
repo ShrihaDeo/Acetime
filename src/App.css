@@ -1,184 +1,255 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+.call-screen {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100%;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+.left-panel {
+  width: 50%;
+  background-color: #000000;
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 100vh;
 }
 
-#next-steps {
+.right-panel {
+  width: 50%;
+  position: relative;
+  overflow: hidden;
+  /* This creates the subtle "felt dots" texture over the color */
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0);
+  background-size: 28px 24px;
+  transition: background 0.5s ease;
+}
+
+.video-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  height: 80vh;
+  min-height: 200px;
+}
+
+.main-video {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background-color: #2c2c2e;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.self-view {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 240px;
+  height: 180px;
+  background-color: #3a3a3c;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.controls-bar {
   display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  width: 100%;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.controls-left {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
 }
 
-#next-steps ul {
-  list-style: none;
+.control-btn {
+  width: 52px;
+  height: 52px;
   padding: 0;
   display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #3a3a3c;
+  border: none;
+  cursor: pointer;
+  box-shadow: none;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+.control-btn img {
+  width: 24px;
+  height: 24px;
 }
 
-.ticks {
+.end-call {
+  background-color: #ff3b30;
+  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+}
+
+.game-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
   position: relative;
+  
+}
+
+.opponent-hand, .player-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+}
+
+.game-table {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-placeholder {
+  width: 80px;
+  height: 120px;
+  background-color: #2c2c2e;
+  border-radius: 8px;
+  border: 2px dashed #3a3a3c;
+}
+
+.room-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.suits-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.suit {
+  position: absolute;
+  font-size: 200px;
+  opacity: 0.04;
+  color: #ffffff;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+.suit.red {
+  color: #8b0000;
+  opacity: 0.06;
+}
+
+.bg-cycle-btn {
+  position: absolute;
+  top: -20px;
+  right: 30px;
+  background-color: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.4);
+}
+
+.suit:nth-child(1) { top: -40px; left: -40px; transform: rotate(-15deg); }
+.suit:nth-child(2) { top: -40px; right: -40px; transform: rotate(15deg); }
+.suit:nth-child(3) { bottom: -40px; left: -40px; transform: rotate(15deg); }
+.suit:nth-child(4) { bottom: -40px; right: -40px; transform: rotate(-15deg); }
+
+.table-suits {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* So you can still click cards through them */
+  display: flex;
+  justify-content: space-between;
+}
+
+.table-suit {
+  position: absolute;
+  font-size: 350px; /* Make them huge */
+  opacity: 0.07;    /* Make them very faint/ghostly */
+  user-select: none;
+}
+
+.table-suit:nth-child(1) {
+  top: -80px;
+  left: -60px;
+  transform: rotate(-15deg);
+}
+
+.table-suit:nth-child(2) {
+  bottom: -80px;
+  right: -60px;
+  transform: rotate(15deg);
+}
+
+/* 3. The Table Corners */
+.corner {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.corner.tl { top: 20px; left: 20px; border-top: 3px solid; border-left: 3px solid; border-radius: 10px 0 0 0; }
+.corner.tr { top: 20px; right: 20px; border-top: 3px solid; border-right: 3px solid; border-radius: 0 10px 0 0; }
+.corner.bl { bottom: 20px; left: 20px; border-bottom: 3px solid; border-left: 3px solid; border-radius: 0 0 0 10px; }
+.corner.br { bottom: 20px; right: 20px; border-bottom: 3px solid; border-right: 3px solid; border-radius: 0 0 10px 0; }
+
+.game-area h3 {
+  position: absolute;
+  top: 20px; /* Moved up slightly */
+  left: 30px;
+  margin: 0;
+  color: white;
+  font-size: 1.1rem;
+  z-index: 10;
+}
+
+
+.status-text {
+  position: absolute;
+  top: 45px; /* Moved below the H3 */
+  left: 30px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.video-placeholder {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1c1c1e;
+  color: #444;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 12px;
 }
