@@ -3,6 +3,7 @@ import Peer from "peerjs"
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
+import Card from '../components/Card' // New component from teammate
 
 const backgrounds = [
   { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', suits: ['♠', '♣'], accentColor: '#2ecc71' },
@@ -15,25 +16,37 @@ function CallScreen({ socket, room, onLeave }) {
   const [bgIndex, setBgIndex] = useState(0);
   const [isOpponentJoined, setIsOpponentJoined] = useState(false);
   
-  // Teammate's new states for controls
+  // Teammate's new states for hardware controls
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
 
-  // Edward's Professional Refs
+  // Professional Refs for Video Stability
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
   const myStreamRef = useRef(null);
 
+  // Teammate's logic for generating 7 starting cards
+  const randomCards = () => {
+    const suits = ['♠', '♥', '♦', '♣']
+    const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+    return Array.from({length: 7}, () => {
+      const suit = suits[Math.floor(Math.random() * 4)]
+      const value = values[Math.floor(Math.random() * 13)]
+      return { id: `${suit}${value}${Math.random()}`, suit, value }
+    })
+  }
+  const [playerHand] = useState(randomCards);
+
   // 1. STATE SYNC LOGIC
   useEffect(() => {
     socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+      setSyncStatus(`Opponent played: ${data.cardValue} of ${data.cardSuit}`);
     });
     return () => socket.off('receive-move');
   }, [socket]);
 
-  // 2. VIDEO & P2P LOGIC (Fixed for reliability)
+  // 2. VIDEO & P2P LOGIC (RESTORED Race-Condition Fix)
   useEffect(() => {
     const peer = new Peer(undefined, {
         config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }] }
@@ -41,16 +54,15 @@ function CallScreen({ socket, room, onLeave }) {
     peerRef.current = peer;
 
     peer.on("open", (id) => {
-      console.log("My Peer ID:", id);
       socket.emit("peer-id", { room, peerId: id });
     });
 
+    // We only set up listeners AFTER the camera is ready to avoid null streams
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((stream) => {
         myStreamRef.current = stream;
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-        // Answer incoming calls
         peer.on("call", (call) => {
           call.answer(stream);
           call.on("stream", (remoteStream) => {
@@ -59,9 +71,7 @@ function CallScreen({ socket, room, onLeave }) {
           });
         });
 
-        // Handle outgoing calls (Signaling)
         socket.on("peer-id", (otherPeerId) => {
-          console.log("Calling peer...");
           const call = peer.call(otherPeerId, stream);
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
@@ -102,9 +112,14 @@ function CallScreen({ socket, room, onLeave }) {
     }
   };
 
-  const handleCardClick = (i) => {
-    setSyncStatus(`You played card ${i + 1}`);
-    socket.emit('send-move', { room, cardIndex: i + 1 });
+  const handleCardClick = (card) => {
+    setSyncStatus(`You played ${card.value} of ${card.suit}`);
+    // Sync the actual card data now!
+    socket.emit('send-move', { 
+        room, 
+        cardValue: card.value, 
+        cardSuit: card.suit 
+    });
   }
 
   return (
@@ -122,11 +137,11 @@ function CallScreen({ socket, room, onLeave }) {
 
         <div className="controls-bar">
           <div className="controls-left">
-            <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} alt="Mute" /></button>
-            <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} alt="Camera" /></button>
+            <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} /></button>
+            <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} /></button>
           </div>
           <div className="controls-right">
-            <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} alt="End Call" /></button>
+            <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
           </div>
         </div>
       </div>
@@ -148,24 +163,23 @@ function CallScreen({ socket, room, onLeave }) {
         </div>
 
         <div className="game-area">
-          <div className="game-header-info">
-             <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>Room: {room}</h3>
-             <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>{syncStatus}</p>
-          </div>
+          <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>Room: {room}</h3>
+          <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>{syncStatus}</p>
 
           <button onClick={cycleBackground} className="bg-cycle-btn">Change Theme</button>
           
           <div className="opponent-hand">
-             <div className="card-placeholder"></div><div className="card-placeholder"></div><div className="card-placeholder"></div>
+            {/* Show 7 card backs for the opponent */}
+            {[0,1,2,3,4,5,6].map(i => (
+              <div key={i} className="card card-back"></div>
+            ))}
           </div>
           
           <div className="game-table"><div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div></div>
           
           <div className="player-hand">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
-                Card {i+1}
-              </div>
+            {playerHand.map((card) => (
+              <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
             ))}
           </div>
         </div>
