@@ -15,7 +15,7 @@ const httpServer = createServer(app);
 // This allows your React app (on port 5173) to talk to this server (on port 3000)
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://192.168.4.97:5173"],
     methods: ["GET", "POST"]
   }
 });

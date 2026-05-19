@@ -27,6 +27,7 @@ function CallScreen({ socket, room, onLeave }) {
   const [bgIndex, setBgIndex] = useState(0);
   const [isOpponentJoined, setIsOpponentJoined] = useState(false);
   
+  // Refs for video elements and PeerJS connection
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
@@ -47,12 +48,10 @@ function CallScreen({ socket, room, onLeave }) {
       socket.emit("peer-id", { room, peerId: id });
     });
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-      myStreamRef.current = stream;
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+    
 
       peer.on("call", (call) => {
-        call.answer(stream);
+        call.answer(myStreamRef.current);
         call.on("stream", (remoteStream) => {
           if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
           setIsOpponentJoined(true);
@@ -60,12 +59,17 @@ function CallScreen({ socket, room, onLeave }) {
       });
 
       socket.on("peer-id", (otherPeerId) => {
-        const call = peer.call(otherPeerId, stream);
+        const call = peer.call(otherPeerId, myStreamRef.current);
         call.on("stream", (remoteStream) => {
           if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
           setIsOpponentJoined(true);
         });
       });
+
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+      myStreamRef.current = stream;
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
     });
 
     return () => {

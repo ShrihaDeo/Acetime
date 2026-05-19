@@ -6,7 +6,7 @@ import './App.css'
 import { io } from 'socket.io-client'
 
 // Establish the single socket connection for the entire app
-const socket = io('http://localhost:3000');
+const socket = io('https://taste-joining-omission.ngrok-free.dev');
 
 function App() {
   const [page, setPage] = useState('landing')
