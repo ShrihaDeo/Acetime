@@ -3,6 +3,7 @@ import Peer from "peerjs"
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
+<<<<<<< Updated upstream
 
 const backgrounds = [
   { 
@@ -105,6 +106,10 @@ function CallScreen({ socket, room, onLeave }) {
     socket.emit('send-move', { room, cardIndex: i + 1 });
   }
 
+=======
+import { useNavigate } from "react-router-dom";
+function CallScreen({ onLeave }) {
+>>>>>>> Stashed changes
   return (
     <div className="call-screen">
       <div className="left-panel">
