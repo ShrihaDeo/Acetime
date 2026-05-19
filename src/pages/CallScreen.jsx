@@ -3,6 +3,8 @@ import Peer from "peerjs"
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
+import Card from '../components/Card'
+
 
 const backgrounds = [
   { 
@@ -26,12 +28,24 @@ function CallScreen({ socket, room, onLeave }) {
   const [syncStatus, setSyncStatus] = useState("System Ready");
   const [bgIndex, setBgIndex] = useState(0);
   const [isOpponentJoined, setIsOpponentJoined] = useState(false);
-  
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
   const myStreamRef = useRef(null);
 
+  const randomCards = () => {
+    const suits = ['♠', '♥', '♦', '♣']
+    const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+    return Array.from({length: 7}, () => {
+      const suit = suits[Math.floor(Math.random() * 4)]
+      const value = values[Math.floor(Math.random() * 13)]
+      return { id: `${suit}${value}${Math.random()}`, suit, value }
+    })
+  }
+
+  const [playerHand] = useState(randomCards)
   useEffect(() => {
     socket.on('receive-move', (data) => {
       setSyncStatus(`Opponent played card ${data.cardIndex}!`);
@@ -80,10 +94,26 @@ function CallScreen({ socket, room, onLeave }) {
     };
   }, [socket, room]);
 
-  // ✅ ADDED: The missing function to change backgrounds
+  // ADDED: The missing function to change backgrounds
   const cycleBackground = () => {
     setBgIndex((prev) => (prev + 1) % backgrounds.length);
   };
+
+const toggleMute = () => {
+  if (!myStreamRef.current) return;
+  myStreamRef.current.getAudioTracks().forEach(track => {
+    track.enabled = !track.enabled;
+  });
+  setIsMuted(prev => !prev);
+};
+
+const toggleCamera = () => {
+  if (!myStreamRef.current) return;
+  myStreamRef.current.getVideoTracks().forEach(track => {
+    track.enabled = !track.enabled;
+  });
+  setIsCameraOff(prev => !prev);
+};
 
   const handleCardClick = (i) => {
     setSyncStatus(`You played card ${i + 1}`);
@@ -103,15 +133,22 @@ function CallScreen({ socket, room, onLeave }) {
           </div>
         </div>
         <div className="controls-bar">
-          <button className="control-btn"><img src={Mute} /></button>
-          <button className="control-btn"><img src={VideoOff} /></button>
-          <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
-        </div>
+          <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}>
+            <img src={Mute} />
+          </button>
+          <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}>
+            <img src={VideoOff} />
+          </button>
+          <button onClick={onLeave} className="control-btn end-call">
+            <img src={EndCall} />
+          </button>
+    </div>
+
       </div>
 
       <div className="right-panel" style={{ 
           background: backgrounds[bgIndex].bg,
-          // ✅ ADDED: This creates the "Cool" Casino felt pattern dots
+          // ADDED: This creates the felt pattern dots
           backgroundImage: `radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0), ${backgrounds[bgIndex].bg}`,
           backgroundSize: '30px 30px, 100% 100%'
       }}>
@@ -147,9 +184,9 @@ function CallScreen({ socket, room, onLeave }) {
           <button onClick={cycleBackground} className="bg-cycle-btn">Change Table Theme</button>
           
           <div className="opponent-hand">
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
+            {[0,1,2,3,4,5,6].map(i => (
+          <div key={i} className="card card-back"></div>
+            ))}
           </div>
           
           <div className="game-table">
@@ -157,11 +194,10 @@ function CallScreen({ socket, room, onLeave }) {
           </div>
           
           <div className="player-hand">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
-                Card {i+1}
-              </div>
+            {playerHand.map((card, i) => (
+              <Card key={card.id} card={card} onClick={() => handleCardClick(i)} disabled={false} />
             ))}
+
           </div>
         </div>
       </div>
