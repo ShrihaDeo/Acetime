@@ -14,12 +14,8 @@
     "peerjs": "^1.5.5",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-<<<<<<< Updated upstream
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
-=======
-    "react-router-dom": "^7.14.2"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
