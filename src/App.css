@@ -253,3 +253,84 @@
   text-transform: uppercase;
   border-radius: 12px;
 }
+
+.card {
+  width: 80px;
+  height: 120px;
+  background: white;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease;
+  user-select: none;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card-red {
+  color: #e74c3c;
+}
+
+.card-black {
+  color: #1a1a1a;
+}
+
+.card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.card-corner.top-left {
+  top: 6px;
+  left: 8px;
+}
+
+.card-corner.bottom-right {
+  bottom: 6px;
+  right: 8px;
+  transform: rotate(180deg);
+}
+
+.card-center {
+  font-size: 32px;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #1a1a2e 25%, #16213e 50%, #1a1a2e 75%);
+  border: 2px solid #3a3a5c;
+  cursor: default;
+}
+
+.player-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+}
+
+.opponent-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 10px;
+}
