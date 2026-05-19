@@ -26,7 +26,8 @@ function CallScreen({ socket, room, onLeave }) {
   const [syncStatus, setSyncStatus] = useState("System Ready");
   const [bgIndex, setBgIndex] = useState(0);
   const [isOpponentJoined, setIsOpponentJoined] = useState(false);
-  
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
@@ -85,6 +86,20 @@ function CallScreen({ socket, room, onLeave }) {
     setBgIndex((prev) => (prev + 1) % backgrounds.length);
   };
 
+  const toggleMute = () => {
+  myStreamRef.current.getAudioTracks().forEach(track => {
+    track.enabled = !track.enabled;
+  });
+  setIsMuted(prev => !prev);
+  };
+
+  const toggleCamera = () => {
+  myStreamRef.current.getVideoTracks().forEach(track => {
+    track.enabled = !track.enabled;
+  });
+  setIsCameraOff(prev => !prev);
+  };
+
   const handleCardClick = (i) => {
     setSyncStatus(`You played card ${i + 1}`);
     socket.emit('send-move', { room, cardIndex: i + 1 });
@@ -103,8 +118,8 @@ function CallScreen({ socket, room, onLeave }) {
           </div>
         </div>
         <div className="controls-bar">
-          <button className="control-btn"><img src={Mute} /></button>
-          <button className="control-btn"><img src={VideoOff} /></button>
+          <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} /></button>
+          <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} /></button>
           <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
         </div>
       </div>
