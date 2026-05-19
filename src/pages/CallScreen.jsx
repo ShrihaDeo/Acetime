@@ -66,7 +66,16 @@ function CallScreen({ socket, room, onLeave }) {
         });
       });
 
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+      navigator.mediaDevices.getUserMedia({ video: {
+        width: { ideal: 1920 },//for best quality
+        height: { ideal: 1080 },
+        frameRate:{ideal: 60}, 
+        },
+        audio: {
+        echoCancellation: true, 
+        noiseSuppression: true,      
+      }
+      }).then((stream) => {
       myStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
