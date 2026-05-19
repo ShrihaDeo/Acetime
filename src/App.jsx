@@ -5,8 +5,10 @@ import RoomPage from './pages/RoomPage'
 import './App.css'
 import { io } from 'socket.io-client'
 
-// Establish the single socket connection for the entire app
-const socket = io('http://localhost:3000');
+const socket = io(window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : 'https://acetime-backend.onrender.com' // You'll get this from Render
+);
 
 function App() {
   const [page, setPage] = useState('landing')
