@@ -6,7 +6,7 @@ import './App.css'
 import { io } from 'socket.io-client'
 
 // Establish the single socket connection for the entire app
-const socket = io('https://localhost:3000');
+const socket = io('http://localhost:3000');
 
 function App() {
   const [page, setPage] = useState('landing')

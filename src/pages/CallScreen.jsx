@@ -36,7 +36,19 @@ function CallScreen({ socket, room, onLeave }) {
       return { id: `${suit}${value}${Math.random()}`, suit, value }
     })
   }
-  const [playerHand] = useState(randomCards);
+  const [gameState, setGameState] = useState(null);
+
+  useEffect(() => {
+  // Listen for the server to deal the cards
+  socket.on('game-init', (serverGameState) => {
+    console.log("Cards Dealt from Server:", serverGameState);
+    setGameState(serverGameState);
+    setIsOpponentJoined(true); // Assume opponent is there once game starts
+  });
+
+  return () => socket.off('game-init');
+}, [socket]);
+  
 
   // 1. STATE SYNC LOGIC
   useEffect(() => {
@@ -169,19 +181,37 @@ function CallScreen({ socket, room, onLeave }) {
           <button onClick={cycleBackground} className="bg-cycle-btn">Change Theme</button>
           
           <div className="opponent-hand">
-            {/* Show 7 card backs for the opponent */}
-            {[0,1,2,3,4,5,6].map(i => (
-              <div key={i} className="card card-back"></div>
-            ))}
+            {/* We look at the other player's ID in the gameState.hands object */}
+            {gameState && Object.keys(gameState.hands)
+              .filter(id => id !== socket.id)
+              .map(opponentId => 
+                gameState.hands[opponentId].map((card, i) => (
+                  <div key={i} className="card card-back"></div>
+               ))
+            )
+          }
           </div>
           
-          <div className="game-table"><div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div></div>
-          
-          <div className="player-hand">
-            {playerHand.map((card) => (
-              <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
-            ))}
-          </div>
+         <div className="game-table">
+            {/* Show the top card of the discard pile from the server */}
+            {gameState ? (
+                <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} />
+            ) : (
+                <div className="card-placeholder">Waiting for players...</div>
+            )}
+        </div>
+
+        {/* --- PLAYER HAND --- */}
+        <div className="player-hand">
+  {/* Add the check 'gameState &&' so it doesn't crash while waiting */}
+  {gameState && gameState.hands[socket.id] ? (
+    gameState.hands[socket.id].map((card) => (
+      <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
+    ))
+  ) : (
+    <div style={{color: 'white'}}>Waiting for second player to deal cards...</div>
+  )}
+</div>
         </div>
       </div>
     </div>

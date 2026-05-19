@@ -44,6 +44,9 @@ public/
   favicon.svg
   icons.svg
 server/
+  test/
+    test.js
+  game.js
   index.js
 src/
   assets/
@@ -55,6 +58,9 @@ src/
     spade.svg
     video_off.svg
     vite.svg
+  components/
+    Card.jsx
+    Cards.jsx
   pages/
     CallScreen.jsx
     LandingPage.jsx
@@ -211,6 +217,54 @@ This section contains the contents of the repository's files.
 <svg xmlns="http://www.w3.org/2000/svg" width="77" height="47" fill="none" aria-labelledby="vite-logo-title" viewBox="0 0 77 47"><title id="vite-logo-title">Vite</title><style>.parenthesis{fill:#000}@media (prefers-color-scheme:dark){.parenthesis{fill:#fff}}</style><path fill="#9135ff" d="M40.151 45.71c-.663.844-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.493c-.92 0-1.457-1.04-.92-1.788l7.479-10.471c1.07-1.498 0-3.578-1.842-3.578H15.443c-.92 0-1.456-1.04-.92-1.788l9.696-13.576c.213-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.472c-1.07 1.497 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.087.89 1.83L40.153 45.712z"/><mask id="a" width="48" height="47" x="14" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M40.047 45.71c-.663.843-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.389c-.92 0-1.457-1.04-.92-1.788l7.479-10.472c1.07-1.497 0-3.578-1.842-3.578H15.34c-.92 0-1.456-1.04-.92-1.788l9.696-13.575c.213-.297.556-.474.92-.474H53.93c.92 0 1.456 1.04.92 1.788L47.37 13.03c-1.07 1.498 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.088.89 1.831L40.049 45.712z"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#eee6ff" rx="5.508" ry="14.704" transform="rotate(269.814 20.96 11.29)scale(-1 1)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#eee6ff" rx="10.399" ry="29.851" transform="rotate(89.814 -16.902 -8.275)scale(1 -1)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#8900ff" rx="5.508" ry="30.487" transform="rotate(89.814 -19.197 -7.127)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.928 4.177)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.738 5.52)scale(1 -1)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#eee6ff" rx="14.072" ry="22.078" transform="rotate(93.35 31.245 55.578)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx="14.592" cy="9.743" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(39.51 14.592 9.743)"/></g><g filter="url(#k)"><ellipse cx="61.728" cy="-5.321" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 61.728 -5.32)"/></g><g filter="url(#l)"><ellipse cx="55.618" cy="7.104" fill="#00c2ff" rx="5.971" ry="9.665" transform="rotate(37.892 55.618 7.104)"/></g><g filter="url(#m)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#n)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#o)"><ellipse cx="49.857" cy="30.678" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 49.857 30.678)"/></g><g filter="url(#p)"><ellipse cx="52.623" cy="33.171" fill="#00c2ff" rx="5.971" ry="15.297" transform="rotate(37.892 52.623 33.17)"/></g></g><path d="M6.919 0c-9.198 13.166-9.252 33.575 0 46.789h6.215c-9.25-13.214-9.196-33.623 0-46.789zm62.424 0h-6.215c9.198 13.166 9.252 33.575 0 46.789h6.215c9.25-13.214 9.196-33.623 0-46.789" class="parenthesis"/><defs><filter id="b" width="60.045" height="41.654" x="-5.564" y="16.92" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-40.407" y="-6.762" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-35.435" y="2.801" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-30.84" y="20.8" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-29.307" y="21.949" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="29.961" y="-17.13" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-13.43" y="-22.082" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="34.321" y="-37.644" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="38.847" y="-10.552" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="22.45" y="-1.645" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="32.919" y="11.36" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter></defs></svg>
 </file>
 
+<file path="src/components/Card.jsx">
+function Card({ card, onClick, disabled }) {
+  return (
+    <div className={`card ${card.isRed ? 'card-red' : 'card-black'} ${disabled ? 'card-disabled' : ''}`} onClick={ !disabled ? onClick : null}>
+        <span className ="card-corner top-left">
+            <span className="card-value">{card.value}</span>
+            <span className="card-suit">{card.suit}</span>
+        </span>
+        <span className="card-center">{card.suit}</span>
+        <span className="card-corner bottom-right">
+            <span className="card-value">{card.value}</span>
+            <span className="card-suit">{card.suit}</span>
+        </span>
+
+
+
+    </div>
+  );
+}
+
+export default Card;
+</file>
+
+<file path="src/components/Cards.jsx">
+function Card({ card, onClick, disabled }) {
+  const isRed = card.suit === '♥' || card.suit === '♦'
+  
+  return (
+    <div 
+      className={`card ${isRed ? 'card-red' : 'card-black'} ${disabled ? 'card-disabled' : ''}`}
+      onClick={!disabled ? onClick : null}
+    >
+      <span className="card-corner top-left">
+        <span className="card-value">{card.value}</span>
+        <span className="card-suit">{card.suit}</span>
+      </span>
+      <span className="card-center">{card.suit}</span>
+      <span className="card-corner bottom-right">
+        <span className="card-value">{card.value}</span>
+        <span className="card-suit">{card.suit}</span>
+      </span>
+    </div>
+  )
+}
+
+export default Card
+</file>
+
 <file path="src/pages/RoomPage.jsx">
 import { useState } from 'react';
 
@@ -294,6 +348,135 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 })
+</file>
+
+<file path="server/test/test.js">
+import { createGame, buildDeck, checkWinner, playTurn, isLegalPlay, drawCard} from "../game.js";
+
+const deck = buildDeck();
+console.assert(deck.length === 52, 'expected 52, got ' + deck.length)
+console.log("deck has 52 cards") 
+
+const game = createGame(['x', 'y'], 'LastCard');
+console.assert(game.hands['x'].length === 7, "Expected x has 7, got " + game.hands['x'].length)
+console.log("x has 7")
+console.assert(game.hands['y'].length === 7, "Expected y has 7, got " + + game.hands['y'].length)
+console.log("y has 7")
+console.assert(game.deck.length === 37, "Expected deck has 37 cards, got" + game.deck.length)
+console.log("deck has 37")
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// get the top card of the discard pile to find a legal card for x
+const topCard = game.discard[game.discard.length - 1];
+let cardToPlay = null;
+
+// loop through x's hand and find a card that matches suit or value
+for (const c of game.hands['x']) {
+  if (c.suit === topCard.suit || c.value === topCard.value) {
+    cardToPlay = c.id;  // found a legal card
+    break;              // stop looking
+  }
+}
+
+console.log('top of discard:', game.discard[game.discard.length - 1]);  // see what needs to be matched
+
+// declared outside so y's turn can also access it
+let newState = null;
+
+if (!cardToPlay) {
+  console.log('x has no legal card to play — must draw');
+  const { newState: drawnState } = drawCard(game, 'x', "LastCard");
+  console.log('x hand size:', drawnState.hands['x'].length);
+} else {
+  // renamed to xState so it doesnt shadow the outer newState
+  const { newState: xState, error } = playTurn(game, 'LastCard', 'x', cardToPlay);
+
+  if (error) {
+    console.log('error:', error);  // illegal play — expected if card doesnt match
+  } else {
+    newState = xState;  // assign to outer variable so y's turn can use it
+    console.log('card played ' + cardToPlay);
+    console.log('discard length:', newState.discard.length);  // should be 2
+    console.log('x hand size:', newState.hands['x'].length);  // should be 6
+  }
+}
+
+console.log('top of discard:', game.discard[game.discard.length - 1]);
+
+// only run y's turn if x successfully played
+if (newState) {
+  // now find a legal card for y using the NEW state
+  const newTopCard = newState.discard[newState.discard.length - 1];
+  let cardToPlay2 = null;
+
+  // loop through y's hand and find a card that matches the new top card
+  for (const c of newState.hands['y']) {
+    if (c.suit === newTopCard.suit || c.value === newTopCard.value) {
+      cardToPlay2 = c.id;
+      break;
+    }
+  }
+
+  if (!cardToPlay2) {
+    console.log('y has no legal card to play — must draw');
+    const { newState: drawnState2 } = drawCard(newState, 'y', "LastCard");
+    console.log('y hand size:', drawnState2.hands['y'].length);
+  } else {
+    const { newState: newState2, error: error2 } = playTurn(newState, 'LastCard', 'y', cardToPlay2);
+    if (error2) {
+      console.log('error:', error2);
+    } else {
+      console.log('y played a card ' + cardToPlay2);
+      console.log('discard length:', newState2.discard.length);  // should be 3
+      console.log('y hand size:', newState2.hands['y'].length);  // should be 6
+    }
+  }
+}
+
+// ── Test draw 2 ────────────────────────────────────────────────────────────────
+// force a 2 into x's hand that matches the top card's suit
+const topCard2 = game.discard[game.discard.length - 1];
+game.hands['x'][0] = { id: topCard2.suit + '2', suit: topCard2.suit, value: '2' };
+
+console.log('--------------------------------------------------------------------------------------------------------------------------');
+console.log("Testing Drawing 2");
+console.log('top of discard:', topCard2);
+
+// x plays the 2
+const { newState: drawState, error: drawError } = playTurn(game, 'LastCard', 'x', topCard2.suit + '2');
+
+if (drawError) {
+  console.log('error:', drawError);
+} else {
+  console.log('x played a 2');
+  console.assert(drawState.drawStack === 2, 'Expected drawStack 2, got ' + drawState.drawStack);
+  console.log('draw stack is', drawState.drawStack);  // should be 2
+
+  // y must draw — they have no 2 to stack
+  const { newState: afterDraw, error: drawErr } = drawCard(drawState, 'y', 'LastCard');
+
+  if (drawErr) {
+    console.log('error:', drawErr);
+  } else {
+    console.log('y drew cards');
+    // y started with 7 cards and drew 2 so should have 9
+    console.assert(afterDraw.hands['y'].length === 9, 'Expected y to have 9 cards, got ' + afterDraw.hands['y'].length);
+    console.log('y hand size:', afterDraw.hands['y'].length);  // should be 9
+    // draw stack should be reset to 0 after drawing
+    console.assert(afterDraw.drawStack === 0, 'Expected drawStack 0, got ' + afterDraw.drawStack);
+    console.log('draw stack reset to', afterDraw.drawStack);  // should be 0
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*game.hands['x'] = [];
+game.hands['y'] = [{ id: '♠A', suit: '♠', value: 'A' }];
+const winner1 = checkWinner(game, 'y', 'LastCard');
+console.log('Y should not be winner ', winner1);
+const winner2 = checkWinner(game, 'x', 'LastCard');
+console.log('winner should be x got ', winner2);*/
 </file>
 
 <file path="index.html">
@@ -397,21 +580,6 @@ h2{
 }
 </file>
 
-<file path="src/main.jsx">
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-
-
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-</file>
-
 <file path=".gitignore">
 # Logs
 logs
@@ -437,6 +605,271 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+</file>
+
+<file path="server/game.js">
+//Game States
+export const SUITS = ["♠", "♥", "♦", "♣"];
+export const VALUES = ["A","2","3","4","5","6","7","8","9","10","J","Q","K",];
+export const cardGames = ["LastCard"];
+
+//Builds the deck
+export function buildDeck() {
+  const deck = [];
+
+  //Should create 52 cards
+  for (const suit of SUITS) {
+    for (const value of VALUES) {
+      deck.push({
+        id: `${suit}${value}`,
+        suit: suit,
+        value: value,
+      });
+    }
+  }
+
+  //Function to shuffle the deck
+  function shuffle() {
+    for (let i = 0; i < deck.length; i++) {
+      let j = Math.floor(Math.random() * deck.length);
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck; //returns the shuffled deck
+  }
+
+  return shuffle(); //returns whatever shuffle returns which is the shuffled deck.
+}
+
+//Creates the game state
+export function createGame(playerIDS, selectedGame) {
+  const deck = buildDeck();
+  const hands = {};
+  let startCard = null;
+
+  //Some games may have different starting hands, etc.
+  if (selectedGame == "LastCard") {
+    //For each of the players give 7 cards each (does it by P1-> gives 7 cards, then P2)
+    for (const id of playerIDS) {
+      hands[id] = [];
+      for (let i = 0; i < 7; i++) {
+        hands[id].push(deck.shift()); //there should be 38 cards remaining at this stage
+      }
+    }
+
+    startCard = deck[0];
+    deck.shift(); // now there should be 37 cards remaining
+  }
+
+  return {
+    players: playerIDS,
+    hands,
+    deck, //Just as clarification 'deck' is the pile of cards you draw from
+    discard: [startCard], //And discard or the discardpile is the pile of cards you actually play on e.g 2, you play 2
+    currSuit: startCard.suit,
+    currIndex: 0,
+    direction: 1,
+    drawStack: 0,
+    winner: null,
+    log: "Game Started!",
+  };
+}
+
+//NOTE: Deleted start game function as the server does not wait, it reacts to events will implement with socket.io
+
+//Logic for each player's turn in card game| Used AI to debug 15/5/26
+export function playTurn(state, selectedGame, playerID, cardPlayed) {
+  switch (selectedGame) {
+    case "LastCard": {
+      //Sets the hand to whatever cards the player has (per player)
+      const hand = state.hands[playerID];
+      //Just creates the variables
+      let card = null;
+      let cardIndex = -1;
+
+      //Cycles through the players hand and sees if the hand contains the appropriate card
+      for (let i = 0; i < hand.length; i++) {
+        if (hand[i].id === cardPlayed) {
+          card = hand[i];
+          cardIndex = i;
+          break;
+        }
+      }
+
+      //if the card is not in the hand then draw a card and then it is the next players turn
+      if (cardIndex === -1) {
+        drawCard(state, playerID, selectedGame);
+        return { state, error: "Card not in hand!" };
+      }
+
+      //Top card of the discard pile
+      const topCard = state.discard[state.discard.length - 1];
+
+      //Checks if the card that the player wants to play is a legal move
+      if (!isLegalPlay(topCard, card, selectedGame)) {
+        return { state, error: "Is not legal play!" };
+      }
+
+      //creates the new hand for the player without the played card | we use 'i' here because we need to skip a certain position
+      const newHand = [];
+      for (let i = 0; i < hand.length; i++) {
+        if (i !== cardIndex) {
+          newHand.push(hand[i]);
+        }
+      }
+
+      //builds a new discard pile with the new added card on top
+      const discardPile = [];
+      for (const c of state.discard) {
+        discardPile.push(c); //Push just means that the card is added to the end of the array
+      }
+      discardPile.push(card);
+
+      //the new updated state
+      let newState = {
+        ...state, //'...' just means to 'copy' of in this case state, and here we are changing hands discard pile and the current suit
+        hands: { ...state.hands, [playerID]: newHand },
+        discard: discardPile,
+        currSuit: card.suit,
+        log: playerID + " played " + card.value + card.suit,
+      };
+
+      // apply special effects after building state
+      newState = applyCardEffect(newState, playerID, card, selectedGame);
+
+      //simply checks if the player has finished their hand
+      const winner = checkWinner(newState, playerID, selectedGame);
+      if (winner) {
+        console.log(playerID + " is the winner!");
+        return { newState: { ...newState, winner }, error: null };
+      }
+
+      //only advance for the normal cards
+      if (card.value !== "8" && card.value !== "2") {
+        newState = nextPlayer(newState);
+      }
+
+      return { newState, error: null }; //error: just gives the caller indication if whether or not something went wrong
+    }
+  }
+}
+
+//Checks if the card a player has drawn works as turn
+export function isLegalPlay(topCard, cardPlayed, selectedGame) {
+  //if played card is a special card such as .... if not, just play card like normal
+  if (selectedGame == "LastCard") {
+    if (cardPlayed.suit == topCard.suit || cardPlayed.value == topCard.value) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+}
+
+//If the played card is a special card such as ...., apply effects
+export function applyCardEffect(state, playerID, card, selectedGame) {
+  switch (selectedGame) {
+    case "LastCard": {
+      if (card.value === "2") {
+        return {
+          ...state,
+          drawStack: state.drawStack + 2,
+          log:
+            playerID + " player 2- draw stack is now" + (state.drawStack + 2),
+        };
+      }
+
+      /* Code lwk doesnt matter at the moment teehee
+    if(card.value === '8'){
+      const skipped = nextPlayer(state,playerID);
+      //Since there are only 2 players at the moment (15/5/26)
+      return{
+        ...skipped,
+        log: playerID + " played 8, his turn is skipped!"
+      }
+    }
+    */
+
+      //NOTE: maybe will later on implement the special effect of 'A' Reversing the play, but atm only have 2 players
+
+      //J is just a wildcard- anything goes, the rest of them are just placeholders so program works smoothely
+      if (card.value === "J" || card.value === "8" || card.value === "A") {
+        return {
+          ...state,
+          log: playerID + " played J — suit changed to " + state.currSuit,
+        };
+      }
+    }
+  }
+
+  // normal card — no effect
+  return state;
+}
+
+//Draws card from pile, adds to player hand, then removes from pile
+export function drawCard(state, playerID, selectedGame) {
+  switch (selectedGame) {
+    case "LastCard": {
+      if (state.deck.length === 0) {
+        return { state, error: "Deck is empty" };
+      }
+
+      //if drawStack active, draw that many — otherwise draw 1 | Generated by AI 15/5/26
+      const count = state.drawStack > 0 ? state.drawStack : 1;
+
+      //creates new deck array
+      const newDeck = [];
+
+      //Copies the deck
+      for (const c of state.deck) {
+        newDeck.push(c);
+      }
+
+      //copies the current players hand
+      const newHand = [];
+      for (const c of state.hands[playerID]) {
+        newHand.push(c);
+      }
+
+      //Determines how many cards to draw
+      for (let i = 0; i < count; i++) {
+        if (newDeck.length === 0) break;
+        newHand.push(newDeck.shift());
+      }
+
+      //NOTE: we want to copy the deck because we want to avoid mutating the original state, this may cause bugs as other parts of the code might hold a reference to the old state
+
+      let newState = {
+        ...state,
+        deck: newDeck,
+        hands: { ...state.hands, [playerID]: newHand },
+        drawStack: 0,
+        log: playerID + " drew a card",
+      };
+
+      return { newState: nextPlayer(newState, playerID), error: null };
+    }
+  }
+}
+
+//Change next player. (able to add reverse card effects and such in future) | Code Generated with AI 15/5/26
+export function nextPlayer(state, playerID) {
+  const total = state.players.length;
+  const next = (state.currIndex + state.direction + total) % total;
+  return { ...state, currIndex: next };
+}
+
+//Check for selected games' win condition
+export function checkWinner(state, playerID, selectedGame) {
+  if (selectedGame == "LastCard") {
+    //If current player hand is empty. If empty, win
+    if (state.hands[playerID].length === 0) {
+      console.log(playerID + " wins!");
+      return playerID;
+    }
+  }
+  return null;
+}
 </file>
 
 <file path="src/App.css">
@@ -695,6 +1128,103 @@ dist-ssr
   text-transform: uppercase;
   border-radius: 12px;
 }
+
+.card {
+  width: 80px;
+  height: 120px;
+  background: white;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease;
+  user-select: none;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card-red {
+  color: #e74c3c;
+}
+
+.card-black {
+  color: #1a1a1a;
+}
+
+.card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.card-corner.top-left {
+  top: 6px;
+  left: 8px;
+}
+
+.card-corner.bottom-right {
+  bottom: 6px;
+  right: 8px;
+  transform: rotate(180deg);
+}
+
+.card-center {
+  font-size: 32px;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #1a1a2e 25%, #16213e 50%, #1a1a2e 75%);
+  border: 2px solid #3a3a5c;
+  cursor: default;
+}
+
+.player-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+}
+
+.opponent-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 10px;
+}
+</file>
+
+<file path="src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+
+
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
 </file>
 
 <file path="README.md">
@@ -811,79 +1341,58 @@ We have successfully implemented Real-time State Synchronisation
 </file>
 
 <file path="server/index.js">
-// server/index.js
-// express is the framework that turn Node.js into a web server
 import express from 'express';
-// handles the raw connection between computers
 import { createServer } from 'http';
-// socket.io is the library that makes real-time communication easy
 import { Server } from 'socket.io';
+import { createGame } from './game.js'; // 1. Import teammate's logic
 
-// Create an Express app and an HTTP server
 const app = express();
 const httpServer = createServer(app);
-
-// 1. Initialise Socket.io with CORS, CORS stands for Cross-Origin Resource Sharing
-// It’s a security feature in web browsers that restricts web pages from making requests to a different domain than the one that served the web page.
-// This allows your React app (on port 5173) to talk to this server (on port 3000)
 const io = new Server(httpServer, {
-  cors: {
-    origin: ["http://localhost:5173", "http://192.168.4.97:5173"],
-    methods: ["GET", "POST"]
-  }
+  cors: { origin: "*" } // Allows all origins for testing
 });
 
-const roomStates = {}; // This will hold the game state for each room 
+const roomStates = {}; 
 
-// 2. Handle Connections
-// Whenever a player opens the website, the function triggers
-// Each player get a unique socket.id
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // 1. Join Room & State Rehydration
   socket.on('join-room', (roomID) => {
     const cleanRoom = roomID.trim().toLowerCase();
     socket.join(cleanRoom);
     
-    // Send existing state to the person who just joined
-    if (roomStates[cleanRoom] !== undefined) {
-      socket.emit('receive-move', { count: roomStates[cleanRoom] });
-    } else {
-      roomStates[cleanRoom] = 0; 
+    const clients = io.sockets.adapter.rooms.get(cleanRoom);
+    
+    // 2. TRIGGER DEAL: When exactly 2 players are in the room
+    if (clients.size === 2) {
+        const playerIds = Array.from(clients);
+        // Create the official game state using the teammate's logic
+        roomStates[cleanRoom] = createGame(playerIds, "LastCard");
+        
+        // Send the initial game state to everyone in the room
+        io.to(cleanRoom).emit('game-init', roomStates[cleanRoom]);
+        console.log(`🎮 Game Started in Room: ${cleanRoom}`);
     }
-    console.log(`User ${socket.id} joined room: ${cleanRoom}`);
   });
 
-
-  // 2. Video Signaling (Room Isolated)
   socket.on("peer-id", (data) => {
-    // data = { room, peerId }
     socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
   });
-  
 
-
-  // 3. Game Move Sync (Room Isolated)
   socket.on('send-move', (data) => {
-    // data = { room, cardIndex }
     const cleanRoom = data.room.trim().toLowerCase();
-    roomStates[cleanRoom] = data.cardIndex;
+    // Later: update roomStates[cleanRoom] using playTurn()
     socket.to(cleanRoom).emit('receive-move', data);
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
 });
 
-
-// 5. Start the Server
-// Tells the server to start listening for traffic on port 3000
 const PORT = 3000;
 httpServer.listen(PORT, () => {
-  console.log(`Sync Server running on http://localhost:${PORT}`);
+  console.log(`Sync Server with Game Logic running on port ${PORT}`);
 });
 </file>
 
@@ -896,7 +1405,7 @@ import './App.css'
 import { io } from 'socket.io-client'
 
 // Establish the single socket connection for the entire app
-const socket = io('https://taste-joining-omission.ngrok-free.dev');
+const socket = io('http://localhost:3000');
 
 function App() {
   const [page, setPage] = useState('landing')
@@ -941,6 +1450,7 @@ import Peer from "peerjs"
 import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
+import Card from '../components/Card' // New component from teammate
 
 const backgrounds = [
   { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', suits: ['♠', '♣'], accentColor: '#2ecc71' },
@@ -953,25 +1463,48 @@ function CallScreen({ socket, room, onLeave }) {
   const [bgIndex, setBgIndex] = useState(0);
   const [isOpponentJoined, setIsOpponentJoined] = useState(false);
   
-  // Teammate's new states for controls
+  // Teammate's new states for hardware controls
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
 
-  // Edward's Professional Refs
+  // Professional Refs for Video Stability
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
   const myStreamRef = useRef(null);
 
+  // Teammate's logic for generating 7 starting cards
+  const randomCards = () => {
+    const suits = ['♠', '♥', '♦', '♣']
+    const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+    return Array.from({length: 7}, () => {
+      const suit = suits[Math.floor(Math.random() * 4)]
+      const value = values[Math.floor(Math.random() * 13)]
+      return { id: `${suit}${value}${Math.random()}`, suit, value }
+    })
+  }
+  const [gameState, setGameState] = useState(null);
+
+  seEffect(() => {
+  // Listen for the server to deal the cards
+  socket.on('game-init', (serverGameState) => {
+    console.log("Cards Dealt from Server:", serverGameState);
+    setGameState(serverGameState);
+  });
+
+  return () => socket.off('game-init');
+}, [socket]);
+  
+
   // 1. STATE SYNC LOGIC
   useEffect(() => {
     socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+      setSyncStatus(`Opponent played: ${data.cardValue} of ${data.cardSuit}`);
     });
     return () => socket.off('receive-move');
   }, [socket]);
 
-  // 2. VIDEO & P2P LOGIC (Fixed for reliability)
+  // 2. VIDEO & P2P LOGIC (RESTORED Race-Condition Fix)
   useEffect(() => {
     const peer = new Peer(undefined, {
         config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }] }
@@ -979,16 +1512,15 @@ function CallScreen({ socket, room, onLeave }) {
     peerRef.current = peer;
 
     peer.on("open", (id) => {
-      console.log("My Peer ID:", id);
       socket.emit("peer-id", { room, peerId: id });
     });
 
+    // We only set up listeners AFTER the camera is ready to avoid null streams
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((stream) => {
         myStreamRef.current = stream;
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-        // Answer incoming calls
         peer.on("call", (call) => {
           call.answer(stream);
           call.on("stream", (remoteStream) => {
@@ -997,9 +1529,7 @@ function CallScreen({ socket, room, onLeave }) {
           });
         });
 
-        // Handle outgoing calls (Signaling)
         socket.on("peer-id", (otherPeerId) => {
-          console.log("Calling peer...");
           const call = peer.call(otherPeerId, stream);
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
@@ -1040,9 +1570,14 @@ function CallScreen({ socket, room, onLeave }) {
     }
   };
 
-  const handleCardClick = (i) => {
-    setSyncStatus(`You played card ${i + 1}`);
-    socket.emit('send-move', { room, cardIndex: i + 1 });
+  const handleCardClick = (card) => {
+    setSyncStatus(`You played ${card.value} of ${card.suit}`);
+    // Sync the actual card data now!
+    socket.emit('send-move', { 
+        room, 
+        cardValue: card.value, 
+        cardSuit: card.suit 
+    });
   }
 
   return (
@@ -1060,11 +1595,11 @@ function CallScreen({ socket, room, onLeave }) {
 
         <div className="controls-bar">
           <div className="controls-left">
-            <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} alt="Mute" /></button>
-            <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} alt="Camera" /></button>
+            <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} /></button>
+            <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} /></button>
           </div>
           <div className="controls-right">
-            <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} alt="End Call" /></button>
+            <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
           </div>
         </div>
       </div>
@@ -1086,26 +1621,43 @@ function CallScreen({ socket, room, onLeave }) {
         </div>
 
         <div className="game-area">
-          <div className="game-header-info">
-             <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>Room: {room}</h3>
-             <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>{syncStatus}</p>
-          </div>
+          <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>Room: {room}</h3>
+          <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>{syncStatus}</p>
 
           <button onClick={cycleBackground} className="bg-cycle-btn">Change Theme</button>
           
           <div className="opponent-hand">
-             <div className="card-placeholder"></div><div className="card-placeholder"></div><div className="card-placeholder"></div>
+            {/* We look at the other player's ID in the gameState.hands object */}
+            {gameState && Object.keys(gameState.hands)
+              .filter(id => id !== socket.id)
+              .map(opponentId => 
+                gameState.hands[opponentId].map((card, i) => (
+                  <div key={i} className="card card-back"></div>
+               ))
+            )
+          }
           </div>
           
-          <div className="game-table"><div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div></div>
-          
-          <div className="player-hand">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
-                Card {i+1}
-              </div>
-            ))}
-          </div>
+         <div className="game-table">
+            {/* Show the top card of the discard pile from the server */}
+            {gameState ? (
+                <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} />
+            ) : (
+                <div className="card-placeholder">Waiting for players...</div>
+            )}
+        </div>
+
+        {/* --- PLAYER HAND --- */}
+        <div className="player-hand">
+  {/* Add the check 'gameState &&' so it doesn't crash while waiting */}
+  {gameState && gameState.hands[socket.id] ? (
+    gameState.hands[socket.id].map((card) => (
+      <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
+    ))
+  ) : (
+    <div style={{color: 'white'}}>Waiting for second player to deal cards...</div>
+  )}
+</div>
         </div>
       </div>
     </div>
