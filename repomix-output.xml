@@ -346,6 +346,99 @@ function LandingPage({ onStart }) {
 export default LandingPage
 </file>
 
+<file path="src/index.css">
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #1d1d1f;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(ellipse at center, #1a0f0a 0%, #0d0705 60%, #000000 100%);
+  min-height: 100vh;
+}
+
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+button{
+  background-color:  #0071e3;
+  color: white;
+  border: 1px solid #0071e4;
+  padding: 12px 32px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 980px;
+  box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4);
+
+  margin-top: 50px;
+}
+
+h1{
+  font-size: 64px;
+  font-weight: 700;
+}
+
+h2{
+  font-size: 28px;
+  font-weight: 200;
+  margin-top: 100px;
+}
+
+#root {
+
+  height: 100vh;
+  width: 100%;
+}
+</file>
+
+<file path="src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
 <file path="src/App.css">
 .call-screen {
   display: flex;
@@ -369,9 +462,10 @@ export default LandingPage
   width: 50%;
   position: relative;
   overflow: hidden;
-  /* This creates a subtle casino-style "dotted" felt texture */
-  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 0);
-  background-size: 24px 24px;
+  /* This creates the subtle "felt dots" texture over the color */
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0);
+  background-size: 28px 24px;
+  transition: background 0.5s ease;
 }
 
 .video-container {
@@ -530,40 +624,43 @@ export default LandingPage
   height: 100%;
   top: 0;
   left: 0;
-  pointer-events: none;
-  overflow: hidden;
+  pointer-events: none; /* So you can still click cards through them */
+  display: flex;
+  justify-content: space-between;
 }
 
 .table-suit {
   position: absolute;
-  font-size: 300px;
-  opacity: 0.06;
+  font-size: 350px; /* Make them huge */
+  opacity: 0.07;    /* Make them very faint/ghostly */
+  user-select: none;
 }
 
 .table-suit:nth-child(1) {
-  top: -60px;
-  left: -40px;
+  top: -80px;
+  left: -60px;
   transform: rotate(-15deg);
 }
 
 .table-suit:nth-child(2) {
-  bottom: -60px;
-  right: -40px;
+  bottom: -80px;
+  right: -60px;
   transform: rotate(15deg);
 }
 
+/* 3. The Table Corners */
 .corner {
   position: absolute;
-  width: 40px;
-  height: 40px;
-  border-color: inherit;
-  opacity: 0.4;
+  width: 50px;
+  height: 50px;
+  opacity: 0.3;
+  pointer-events: none;
 }
 
-.corner.tl { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
-.corner.tr { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
-.corner.bl { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
-.corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
+.corner.tl { top: 20px; left: 20px; border-top: 3px solid; border-left: 3px solid; border-radius: 10px 0 0 0; }
+.corner.tr { top: 20px; right: 20px; border-top: 3px solid; border-right: 3px solid; border-radius: 0 10px 0 0; }
+.corner.bl { bottom: 20px; left: 20px; border-bottom: 3px solid; border-left: 3px solid; border-radius: 0 0 0 10px; }
+.corner.br { bottom: 20px; right: 20px; border-bottom: 3px solid; border-right: 3px solid; border-radius: 0 0 10px 0; }
 
 .game-area h3 {
   position: absolute;
@@ -598,99 +695,6 @@ export default LandingPage
   text-transform: uppercase;
   border-radius: 12px;
 }
-</file>
-
-<file path="src/index.css">
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #1d1d1f;
-  color: #ffffff;
-  margin: 0;
-  padding: 0;
-  background: radial-gradient(ellipse at center, #1a0f0a 0%, #0d0705 60%, #000000 100%);
-  min-height: 100vh;
-}
-
-.landing-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  gap: 20px;
-}
-
-button{
-  background-color:  #0071e3;
-  color: white;
-  border: 1px solid #0071e4;
-  padding: 12px 32px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 980px;
-  box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4);
-
-  margin-top: 50px;
-}
-
-h1{
-  font-size: 64px;
-  font-weight: 700;
-}
-
-h2{
-  font-size: 28px;
-  font-weight: 200;
-  margin-top: 100px;
-}
-
-#root {
-
-  height: 100vh;
-  width: 100%;
-}
-</file>
-
-<file path="src/main.jsx">
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-
-
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-</file>
-
-<file path=".gitignore">
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 </file>
 
 <file path="README.md">
@@ -824,42 +828,48 @@ const httpServer = createServer(app);
 // This allows your React app (on port 5173) to talk to this server (on port 3000)
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://192.168.4.97:5173"],
     methods: ["GET", "POST"]
   }
 });
+
+const roomStates = {}; // This will hold the game state for each room 
 
 // 2. Handle Connections
 // Whenever a player opens the website, the function triggers
 // Each player get a unique socket.id
 io.on('connection', (socket) => {
-  console.log('User connected to Sync Server:', socket.id);
+  console.log('User connected:', socket.id);
 
-  // Join a specific room for a game session
+  // 1. Join Room & State Rehydration
   socket.on('join-room', (roomID) => {
-    const cleanRoomID = roomID.trim().toLowerCase(); // Clean the room ID
-    socket.join(roomID);
-    console.log(`User ${socket.id} joined room ${roomID}`);
+    const cleanRoom = roomID.trim().toLowerCase();
+    socket.join(cleanRoom);
+    
+    // Send existing state to the person who just joined
+    if (roomStates[cleanRoom] !== undefined) {
+      socket.emit('receive-move', { count: roomStates[cleanRoom] });
+    } else {
+      roomStates[cleanRoom] = 0; 
+    }
+    console.log(`User ${socket.id} joined room: ${cleanRoom}`);
   });
 
-  // Inside io.on('connection', (socket) => { ... })
 
-socket.on("peer-id", (data) => {
-  // data should now be an object: { room: "apple", peerId: "xxxx-yyyy" }
-  console.log(`Forwarding PeerID ${data.peerId} to room ${data.room}`);
+  // 2. Video Signaling (Room Isolated)
+  socket.on("peer-id", (data) => {
+    // data = { room, peerId }
+    socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
+  });
   
-  // Only tell people in the SAME room to call this ID
-  socket.to(data.room).emit("peer-id", data.peerId);
-});
 
 
-  // 3. LISTEN for a move from a player
-  // Send move only to other in the same room
+  // 3. Game Move Sync (Room Isolated)
   socket.on('send-move', (data) => {
-    console.log(`Move in room ${data.room}:`, data);
-    // This is where you would add any game logic to validate the move, update the game state on the server, etc.
-    // This tells everyone else to move the card on their screen
-    socket.to(data.room).emit('receive-move', data);
+    // data = { room, cardIndex }
+    const cleanRoom = data.room.trim().toLowerCase();
+    roomStates[cleanRoom] = data.cardIndex;
+    socket.to(cleanRoom).emit('receive-move', data);
   });
 
   // Handle disconnection
@@ -867,8 +877,6 @@ socket.on("peer-id", (data) => {
     console.log('User disconnected');
   });
 });
-
-// A simple object to store the 'truth' for each room
 
 
 // 5. Start the Server
@@ -879,134 +887,6 @@ httpServer.listen(PORT, () => {
 });
 </file>
 
-<file path="src/pages/CallScreen.jsx">
-import { useEffect, useState, useRef } from 'react'
-import Peer from "peerjs"
-import EndCall from '../assets/end_call.svg'
-import VideoOff from '../assets/video_off.svg'
-import Mute from '../assets/mute.svg'
-
-const backgrounds = [
-  { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', accentColor: '#2ecc71' },
-  { bg: 'radial-gradient(circle, #5c1a1a 0%, #1a0707 100%)', accentColor: '#c0392b' },
-  { bg: 'radial-gradient(circle, #0a0a3d 0%, #020210 100%)', accentColor: '#3498db' },
-]
-
-function CallScreen({ socket, room, onLeave }) {
-  const [syncStatus, setSyncStatus] = useState("System Ready");
-  const [bgIndex, setBgIndex] = useState(0);
-  const [isOpponentJoined, setIsOpponentJoined] = useState(false); // Track the video state
-  
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const peerRef = useRef(null);
-  const myStreamRef = useRef(null);
-
-  // 1. SYNC: Listen for opponent actions
-  useEffect(() => {
-    socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
-    });
-    return () => socket.off('receive-move');
-  }, [socket]);
-
-  // 2. VIDEO: Edward's WebRTC implementation
-  useEffect(() => {
-    const peer = new Peer();
-    peerRef.current = peer;
-
-    peer.on("open", (id) => {
-      socket.emit("peer-id", { room, peerId: id });
-    });
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-      myStreamRef.current = stream;
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
-      peer.on("call", (call) => {
-        call.answer(stream);
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          setIsOpponentJoined(true); // Someone is here!
-        });
-      });
-
-      socket.on("peer-id", (otherPeerId) => {
-        const call = peer.call(otherPeerId, stream);
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          setIsOpponentJoined(true); // Someone is here!
-        });
-      });
-    });
-
-    return () => {
-      socket.off("peer-id");
-      if (peerRef.current) peerRef.current.destroy();
-      if (myStreamRef.current) {
-        myStreamRef.current.getTracks().forEach(t => t.stop());
-      }
-    };
-  }, [socket, room]);
-
-  const handleCardClick = (i) => {
-    setSyncStatus(`You played card ${i + 1}`);
-    socket.emit('send-move', { room, cardIndex: i + 1 });
-  }
-
-  return (
-    <div className="call-screen">
-      <div className="left-panel">
-        <div className="video-container">
-          <div className="main-video">
-            {/* Show placeholder if box is empty */}
-            {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
-            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
-          </div>
-          <div className="self-view">
-            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
-          </div>
-        </div>
-        <div className="controls-bar">
-          <button className="control-btn"><img src={Mute} /></button>
-          <button className="control-btn"><img src={VideoOff} /></button>
-          <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
-        </div>
-      </div>
-
-      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
-        <div className="game-area">
-          <h3>Room: {room}</h3>
-          <p className="sync-status-text" style={{color: backgrounds[bgIndex].accentColor}}>{syncStatus}</p>
-
-          <button onClick={() => setBgIndex((prev) => (prev + 1) % backgrounds.length)} className="bg-cycle-btn">Change Color</button>
-          
-          <div className="opponent-hand">
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
-          </div>
-          
-          <div className="game-table">
-            <div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div>
-          </div>
-          
-          <div className="player-hand">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'}}>
-                Card {i+1}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default CallScreen;
-</file>
-
 <file path="src/App.jsx">
 import { useState } from 'react'
 import LandingPage from './pages/LandingPage'
@@ -1015,7 +895,8 @@ import RoomPage from './pages/RoomPage'
 import './App.css'
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:3000');
+// Establish the single socket connection for the entire app
+const socket = io('https://taste-joining-omission.ngrok-free.dev');
 
 function App() {
   const [page, setPage] = useState('landing')
@@ -1028,8 +909,144 @@ function App() {
   }
 
   return (
+    <>
+      {/* Page 1: Landing */}
+      {page === 'landing' && (
+        <LandingPage onStart={() => setPage('room')} />
+      )}
+      
+      {/* Page 2: Room Entry */}
+      {page === 'room' && (
+        <RoomPage onJoin={handleStartCall} />
+      )}
+      
+      {/* Page 3: The actual Game/Video Screen */}
+      {page === 'call' && (
+        <CallScreen 
+          socket={socket} 
+          room={roomID} 
+          onLeave={() => setPage('landing')} 
+        />
+      )}
+    </>
+  )
+}
+
+export default App
+</file>
+
+<file path="src/pages/CallScreen.jsx">
+import { useEffect, useState, useRef } from 'react'
+import Peer from "peerjs"
+import EndCall from '../assets/end_call.svg'
+import VideoOff from '../assets/video_off.svg'
+import Mute from '../assets/mute.svg'
+
+const backgrounds = [
+  { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', suits: ['♠', '♣'], accentColor: '#2ecc71' },
+  { bg: 'radial-gradient(circle, #5c1a1a 0%, #1a0707 100%)', suits: ['♥', '♦'], accentColor: '#c0392b' },
+  { bg: 'radial-gradient(circle, #0a0a3d 0%, #020210 100%)', suits: ['♣', '♦'], accentColor: '#3498db' },
+]
+
+function CallScreen({ socket, room, onLeave }) {
+  const [syncStatus, setSyncStatus] = useState("System Ready");
+  const [bgIndex, setBgIndex] = useState(0);
+  const [isOpponentJoined, setIsOpponentJoined] = useState(false);
+  
+  // Teammate's new states for controls
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+
+  // Edward's Professional Refs
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const peerRef = useRef(null);
+  const myStreamRef = useRef(null);
+
+  // 1. STATE SYNC LOGIC
+  useEffect(() => {
+    socket.on('receive-move', (data) => {
+      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+    });
+    return () => socket.off('receive-move');
+  }, [socket]);
+
+  // 2. VIDEO & P2P LOGIC (Fixed for reliability)
+  useEffect(() => {
+    const peer = new Peer(undefined, {
+        config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }] }
+    });
+    peerRef.current = peer;
+
+    peer.on("open", (id) => {
+      console.log("My Peer ID:", id);
+      socket.emit("peer-id", { room, peerId: id });
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        myStreamRef.current = stream;
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
+        // Answer incoming calls
+        peer.on("call", (call) => {
+          call.answer(stream);
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+            setIsOpponentJoined(true);
+          });
+        });
+
+        // Handle outgoing calls (Signaling)
+        socket.on("peer-id", (otherPeerId) => {
+          console.log("Calling peer...");
+          const call = peer.call(otherPeerId, stream);
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+            setIsOpponentJoined(true);
+          });
+        });
+      })
+      .catch(err => console.error("Camera Error:", err));
+
+    return () => {
+      socket.off("peer-id");
+      if (peerRef.current) peerRef.current.destroy();
+      if (myStreamRef.current) {
+        myStreamRef.current.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [socket, room]);
+
+  // --- CONTROL FUNCTIONS ---
+  
+  const cycleBackground = () => setBgIndex((prev) => (prev + 1) % backgrounds.length);
+
+  const toggleMute = () => {
+    if (myStreamRef.current) {
+        myStreamRef.current.getAudioTracks().forEach(track => {
+            track.enabled = !track.enabled;
+        });
+        setIsMuted(prev => !prev);
+    }
+  };
+
+  const toggleCamera = () => {
+    if (myStreamRef.current) {
+        myStreamRef.current.getVideoTracks().forEach(track => {
+            track.enabled = !track.enabled;
+        });
+        setIsCameraOff(prev => !prev);
+    }
+  };
+
+  const handleCardClick = (i) => {
+    setSyncStatus(`You played card ${i + 1}`);
+    socket.emit('send-move', { room, cardIndex: i + 1 });
+  }
+
+  return (
     <div className="call-screen">
-      {/* LEFT PANEL */}
       <div className="left-panel">
         <div className="video-container">
           <div className="main-video">
@@ -1040,26 +1057,62 @@ function App() {
             <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
           </div>
         </div>
-        {/* ... controls ... */}
+
+        <div className="controls-bar">
+          <div className="controls-left">
+            <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} alt="Mute" /></button>
+            <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} alt="Camera" /></button>
+          </div>
+          <div className="controls-right">
+            <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} alt="End Call" /></button>
+          </div>
+        </div>
       </div>
-  
-      {/* RIGHT PANEL */}
-      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
+
+      <div className="right-panel" style={{ 
+          background: backgrounds[bgIndex].bg,
+          backgroundImage: `radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0), ${backgrounds[bgIndex].bg}`,
+          backgroundSize: '30px 30px, 100% 100%'
+      }}>
+        
+        <div className="table-suits">
+          <span className="table-suit" style={{ color: backgrounds[bgIndex].accentColor }}>{backgrounds[bgIndex].suits[0]}</span>
+          <span className="table-suit" style={{ color: backgrounds[bgIndex].accentColor }}>{backgrounds[bgIndex].suits[1]}</span>
+        </div>
+
+        <div className="table-corners" style={{ color: backgrounds[bgIndex].accentColor }}>
+          <span className="corner tl"></span><span className="corner tr"></span>
+          <span className="corner bl"></span><span className="corner br"></span>
+        </div>
+
         <div className="game-area">
-          <h3>Room: {room}</h3>
-          {/* ✅ FIXED: Use the 'status-text' class instead of inline styles */}
-          <p className="status-text" style={{color: backgrounds[bgIndex].accentColor}}>
-             {syncStatus}
-          </p>
+          <div className="game-header-info">
+             <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>Room: {room}</h3>
+             <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>{syncStatus}</p>
+          </div>
+
+          <button onClick={cycleBackground} className="bg-cycle-btn">Change Theme</button>
           
-          {/* ... rest of the table ... */}
+          <div className="opponent-hand">
+             <div className="card-placeholder"></div><div className="card-placeholder"></div><div className="card-placeholder"></div>
+          </div>
+          
+          <div className="game-table"><div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div></div>
+          
+          <div className="player-hand">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
+                Card {i+1}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default App
+export default CallScreen;
 </file>
 
 </files>
