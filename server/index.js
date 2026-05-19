@@ -6,7 +6,10 @@ import { createGame } from './game.js'; // 1. Import teammate's logic
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: "*" } // Allows all origins for testing
+  cors: {
+    origin: "*", 
+    methods: ["GET", "POST"]
+  }
 });
 
 const roomStates = {}; 
