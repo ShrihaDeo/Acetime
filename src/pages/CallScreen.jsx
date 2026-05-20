@@ -39,6 +39,18 @@ function CallScreen({ socket, room, onLeave }) {
     };
   }, [socket]);
 
+  useEffect(() => {
+    socket.on('opponent-disconnected', () => {
+      setIsOpponentJoined(false);
+      setSyncStatus('Opponent disconnected — waiting for them to rejoin...');
+      // Clear the remote video
+      const remoteVideo = document.querySelector('video#remote-video');
+      if (remoteVideo) remoteVideo.srcObject = null;
+    });
+  
+    return () => socket.off('opponent-disconnected');
+  }, [socket]);
+
     useEffect(() => {
     const peer = new Peer();
     let myStream = null;
