@@ -45,17 +45,43 @@ function CallScreen({ socket, room, onLeave }) {
   // 3. VIDEO & P2P LOGIC
   useEffect(() => {
     const peer = new Peer(undefined, {
-      config: {
-        'iceServers': [
-          { url: 'stun:stun.l.google.com:19302' },
-          { url: 'stun:stun1.l.google.com:19302' }
-        ]
-      }
+      config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }] }
     });
     peerRef.current = peer;
 
+    // Helper function to send our ID
+    const sendMyId = () => {
+      if (peer.id) {
+        console.log("📤 Sending Peer ID to room:", peer.id);
+        socket.emit("peer-id", { room, peerId: peer.id });
+      }
+    };
+
     peer.on("open", (id) => {
-      socket.emit("peer-id", { room, peerId: id });
+      console.log("✅ My Peer ID is:", id);
+      sendMyId();
+    });
+
+    // ✅ Listen for the server asking us to re-send our ID
+    socket.on('request-peer-id', () => {
+      sendMyId();
+    });
+
+    // ✅ Move this OUTSIDE the camera block so we never miss a signal
+    socket.on("peer-id", (otherPeerId) => {
+      if (otherPeerId === peer.id) return; // Don't call yourself
+      console.log("📡 Opponent ID received:", otherPeerId);
+      
+      // Delay call slightly to ensure both sides are ready
+      setTimeout(() => {
+        const call = peer.call(otherPeerId, myStreamRef.current);
+        if (call) {
+          call.on("stream", (remoteStream) => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+            setIsOpponentJoined(true);
+          });
+        }
+      }, 1000);
     });
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -64,27 +90,19 @@ function CallScreen({ socket, room, onLeave }) {
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
         peer.on("call", (call) => {
+          console.log("📞 Answering incoming call");
           call.answer(stream);
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
             setIsOpponentJoined(true);
           });
         });
-
-        socket.on("peer-id", (otherPeerId) => {
-          setTimeout(() => {
-            const call = peer.call(otherPeerId, stream);
-            call.on("stream", (remoteStream) => {
-              if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-              setIsOpponentJoined(true);
-            });
-          }, 1500); 
-        });
       })
       .catch(err => console.error("Camera Error:", err));
 
     return () => {
       socket.off("peer-id");
+      socket.off("request-peer-id");
       if (peerRef.current) peerRef.current.destroy();
       if (myStreamRef.current) {
         myStreamRef.current.getTracks().forEach(t => t.stop());

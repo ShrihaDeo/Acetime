@@ -27,25 +27,27 @@ io.on('connection', (socket) => {
     const cleanRoom = roomID.trim().toLowerCase();
     socket.join(cleanRoom);
     
-    // Check if room is full (2 players)
     const clients = io.sockets.adapter.rooms.get(cleanRoom);
     
     if (clients.size === 2) {
         const playerIds = Array.from(clients);
-        // Create the official game state if it doesn't exist
         if (!roomStates[cleanRoom]) {
             roomStates[cleanRoom] = createGame(playerIds, "LastCard");
         }
-        // Send the initial game state to everyone in the room
         io.to(cleanRoom).emit('game-init', roomStates[cleanRoom]);
-        console.log(`🎮 Game Started in Room: ${cleanRoom}`);
-    } else if (roomStates[cleanRoom]) {
-        // If someone refreshes/rejoins, send them the current state
-        socket.emit('game-init', roomStates[cleanRoom]);
-    }
+        
+        // ✅ NEW: Tell everyone in the room to exchange Peer IDs again
+        // This ensures the person who was waiting and the new person both get IDs
+        io.to(cleanRoom).emit('request-peer-id'); 
+        
+        console.log(`Game Started & Peer IDs requested in: ${cleanRoom}`);
+         } else if (roomStates[cleanRoom]) {
+            // If someone refreshes/rejoins, send them the current state
+            socket.emit('game-init', roomStates[cleanRoom]);
+       }
     
-    console.log(`User ${socket.id} joined room: ${cleanRoom}`);
-  });
+        console.log(`User ${socket.id} joined room: ${cleanRoom}`);
+      });
 
   // --- VIDEO SIGNALING ---
   socket.on("peer-id", (data) => {
