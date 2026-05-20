@@ -6,21 +6,15 @@ import { createGame } from './game.js';
 const app = express();
 const httpServer = createServer(app);
 
-// 1. Initialise Socket.io with CORS
-const io = new Server(httpServer, {
-  cors: {
-    // Allow both local development and your Render frontend
-    origin: ["http://localhost:5173", "https://acetime.onrender.com"], 
-    methods: ["GET", "POST"]
-  }
-});
+const io = new Server(httpServer, { cors: { origin: "*" } });
+
 
 // A simple object to store the 'Source of Truth' for each room
 const roomStates = {}; 
 
 // 2. Handle ALL Connections in ONE block
 io.on('connection', (socket) => {
-  console.log('✅ User connected:', socket.id);
+  console.log('User connected:', socket.id);
 
   // --- JOIN ROOM & STATE REHYDRATION ---
   socket.on('join-room', (roomID) => {
@@ -28,8 +22,11 @@ io.on('connection', (socket) => {
     socket.join(cleanRoom);
     
     const clients = io.sockets.adapter.rooms.get(cleanRoom);
+
+    // safety check
+    const numClients = clients ? clients.size : 0;
     
-    if (clients.size === 2) {
+    if (numClients === 2) {
         const playerIds = Array.from(clients);
         if (!roomStates[cleanRoom]) {
             roomStates[cleanRoom] = createGame(playerIds, "LastCard");
@@ -71,7 +68,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('❌ User disconnected');
+    console.log('User disconnected');
   });
 });
 
@@ -79,6 +76,6 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`---------------------------------------`);
-  console.log(`🚀 Master Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
   console.log(`---------------------------------------`);
 });

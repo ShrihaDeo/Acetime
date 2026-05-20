@@ -18,112 +18,90 @@ function CallScreen({ socket, room, onLeave }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [gameState, setGameState] = useState(null);
-
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const peerRef = useRef(null);
+  
+  // Keep refs for hardware toggle but use his querySelectors for display
   const myStreamRef = useRef(null);
 
-  // 1. GAME INITIALIZATION
+  // 1. GAME & SYNC LOGIC
   useEffect(() => {
     socket.on('game-init', (serverGameState) => {
-      console.log("🎴 Cards Dealt from Server:", serverGameState);
       setGameState(serverGameState);
-      setIsOpponentJoined(true); 
+      setIsOpponentJoined(true);
     });
-    return () => socket.off('game-init');
-  }, [socket]);
 
-  // 2. STATE SYNC LOGIC
-  useEffect(() => {
     socket.on('receive-move', (data) => {
       setSyncStatus(`Opponent played: ${data.cardValue} of ${data.cardSuit}`);
     });
-    return () => socket.off('receive-move');
-  }, [socket]);
-
-  // 3. VIDEO & P2P LOGIC
-  useEffect(() => {
-    const peer = new Peer(undefined, {
-      config: { 'iceServers': [{ url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun1.l.google.com:19302' }] }
-    });
-    peerRef.current = peer;
-
-    // Helper function to send our ID
-    const sendMyId = () => {
-      if (peer.id) {
-        console.log("📤 Sending Peer ID to room:", peer.id);
-        socket.emit("peer-id", { room, peerId: peer.id });
-      }
-    };
-
-    peer.on("open", (id) => {
-      console.log("✅ My Peer ID is:", id);
-      sendMyId();
-    });
-
-    // ✅ Listen for the server asking us to re-send our ID
-    socket.on('request-peer-id', () => {
-      sendMyId();
-    });
-
-    // ✅ Move this OUTSIDE the camera block so we never miss a signal
-    socket.on("peer-id", (otherPeerId) => {
-      if (otherPeerId === peer.id) return; // Don't call yourself
-      console.log("📡 Opponent ID received:", otherPeerId);
-      
-      // Delay call slightly to ensure both sides are ready
-      setTimeout(() => {
-        const call = peer.call(otherPeerId, myStreamRef.current);
-        if (call) {
-          call.on("stream", (remoteStream) => {
-            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-            setIsOpponentJoined(true);
-          });
-        }
-      }, 1000);
-    });
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        myStreamRef.current = stream;
-        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
-        peer.on("call", (call) => {
-          console.log("📞 Answering incoming call");
-          call.answer(stream);
-          call.on("stream", (remoteStream) => {
-            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-            setIsOpponentJoined(true);
-          });
-        });
-      })
-      .catch(err => console.error("Camera Error:", err));
 
     return () => {
-      socket.off("peer-id");
-      socket.off("request-peer-id");
-      if (peerRef.current) peerRef.current.destroy();
-      if (myStreamRef.current) {
-        myStreamRef.current.getTracks().forEach(t => t.stop());
-      }
+      socket.off('game-init');
+      socket.off('receive-move');
+    };
+  }, [socket]);
+
+  // 2. TEAMMATE'S VIDEO CODE (RESTORED EXACTLY)
+  useEffect(() => {
+    const peer = new Peer();
+
+    peer.on("open", function (id) {
+        console.log("My peer ID is: " + id);
+        socket.emit("peer-id", { room, peerId: id }); // Added room to keep your isolation
+    });
+
+    const constraints = { video: true, audio: true };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+            myStreamRef.current = stream;
+            const videoElement = document.querySelector('video#local-video');
+            if (videoElement) videoElement.srcObject = stream;
+
+            // Answer call
+            peer.on("call", function (call) {
+                call.answer(stream);   
+                call.on("stream", function (otherStream) {
+                    const otherVideo = document.querySelector('video#remote-video');
+                    if (otherVideo) {
+                        otherVideo.srcObject = otherStream;
+                        setIsOpponentJoined(true);
+                    }
+                });
+            });
+
+            // Call
+            socket.on("peer-id", function (otherPeerId) {
+                console.log("Calling peer:", otherPeerId);
+                var call = peer.call(otherPeerId, stream);
+                call.on("stream", function (otherStream) {
+                    const otherVideo = document.querySelector('video#remote-video');
+                    if (otherVideo) {
+                        otherVideo.srcObject = otherStream;
+                        setIsOpponentJoined(true);
+                    }
+                });
+            });
+        })
+        .catch(error => console.error('Error accessing media devices.', error));
+
+    return () => {
+        socket.off("peer-id");
+        peer.destroy();
+        if (myStreamRef.current) {
+            myStreamRef.current.getTracks().forEach(track => track.stop());
+        }
     };
   }, [socket, room]);
 
   const cycleBackground = () => setBgIndex((prev) => (prev + 1) % backgrounds.length);
 
   const toggleMute = () => {
-    if (myStreamRef.current) {
-        myStreamRef.current.getAudioTracks().forEach(t => t.enabled = !t.enabled);
-        setIsMuted(prev => !prev);
-    }
+    myStreamRef.current.getAudioTracks().forEach(track => track.enabled = !track.enabled);
+    setIsMuted(prev => !prev);
   };
 
   const toggleCamera = () => {
-    if (myStreamRef.current) {
-        myStreamRef.current.getVideoTracks().forEach(t => t.enabled = !t.enabled);
-        setIsCameraOff(prev => !prev);
-    }
+    myStreamRef.current.getVideoTracks().forEach(track => track.enabled = !track.enabled);
+    setIsCameraOff(prev => !prev);
   };
 
   const handleCardClick = (card) => {
@@ -137,12 +115,13 @@ function CallScreen({ socket, room, onLeave }) {
         <div className="video-container">
           <div className="main-video">
             {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
-            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
+            <video id="remote-video" autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover'}} />
           </div>
           <div className="self-view">
-            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
+            <video id="local-video" autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
           </div>
         </div>
+
         <div className="controls-bar">
           <div className="controls-left">
             <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} /></button>
@@ -167,25 +146,20 @@ function CallScreen({ socket, room, onLeave }) {
           <span className="corner tl"></span><span className="corner tr"></span>
           <span className="corner bl"></span><span className="corner br"></span>
         </div>
-
         <div className="game-area">
           <div className="game-header-info">
              <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>Room: {room}</h3>
              <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>{syncStatus}</p>
           </div>
-
           <button onClick={cycleBackground} className="bg-cycle-btn">Change Theme</button>
-          
           <div className="opponent-hand">
             {gameState && Object.keys(gameState.hands).filter(id => id !== socket.id).map(oppId => 
                 gameState.hands[oppId].map((_, i) => <div key={i} className="card card-back"></div>)
             )}
           </div>
-          
           <div className="game-table">
             {gameState ? <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} /> : <div className="card-placeholder">Waiting...</div>}
           </div>
-          
           <div className="player-hand">
             {gameState && gameState.hands[socket.id] ? (
               gameState.hands[socket.id].map((card) => (
