@@ -7,17 +7,19 @@ import { io } from 'socket.io-client'
 
 const socket = io(window.location.hostname === 'localhost' 
   ? 'http://localhost:3000' 
-  : 'https://acetime-backend.onrender.com' // You'll get this from Render
+  : 'https://acetime-backend.onrender.com' 
 );
 
 function App() {
   const [page, setPage] = useState('landing')
   const [roomID, setRoomID] = useState("")
+  const [nickname, setNickname] = useState("") 
 
   const handleStartCall = (room) => {
     setRoomID(room);
+    setNickname(name);
     setPage('call');
-    socket.emit('join-room', room);
+    socket.emit('join-room', { room, nickname: name });
   }
 
   return (
@@ -37,6 +39,7 @@ function App() {
         <CallScreen 
           socket={socket} 
           room={roomID} 
+          nickname={nickname}
           onLeave={() => setPage('landing')} 
         />
       )}

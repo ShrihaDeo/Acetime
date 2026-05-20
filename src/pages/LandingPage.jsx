@@ -1,5 +1,4 @@
 import CardLogo from '../assets/ace_logo.svg'
-import Spade from '../assets/spade.svg'
 
 function LandingPage({ onStart }) {
   return (
@@ -10,19 +9,42 @@ function LandingPage({ onStart }) {
         <span className="suit red">♦</span>
         <span className="suit">♣</span>
       </div>
+
       <div className="landing-page">
-        <img src={CardLogo} alt="AceTime Logo" style={{width: '150px', marginBottom: '20px'}} />
-        <h1>
-          <span style={{fontWeight: '400', fontSize: '50px'}}>Welcome to </span>
-          <img src={Spade} alt="A" style={{width: '90px', verticalAlign: 'middle', marginRight: '-15px', filter: 'invert(1)', marginBottom: '10px'}} />
-          <span style={{fontWeight: '700', fontSize: '64px'}}>ceTime</span>
+        <img src={CardLogo} alt="AceTime Logo" className="landing-logo" />
+
+        <div className="gold-line" style={{ marginBottom: '24px' }} />
+
+        <h1 className="landing-title">
+          Ace<span className="accent">Time</span>
         </h1>
-        <button onClick={onStart}>Create or Join a Room</button>
-        <h2>Start a call to connect & play with friends!</h2>
+
+        <p className="landing-subtitle">
+          Video call your friends. Play cards together.<br />
+          No account. No download. Just share a room code.
+        </p>
+
+        <button className="landing-cta" onClick={onStart}>
+          Create or Join a Room
+        </button>
+
+        <div className="landing-badges">
+          <span className="badge">
+            <span className="badge-dot" />
+            Peer-to-peer video
+          </span>
+          <span className="badge">
+            <span className="badge-dot" style={{ background: '#c0392b', boxShadow: '0 0 6px #c0392b' }} />
+            Live card games
+          </span>
+          <span className="badge">
+            <span className="badge-dot" style={{ background: '#7c3aed', boxShadow: '0 0 6px #7c3aed' }} />
+            No account needed
+          </span>
+        </div>
       </div>
     </div>
   )
 }
-
 
 export default LandingPage

@@ -11,13 +11,21 @@ const io = new Server(httpServer, { cors: { origin: "*" } });
 
 // A simple object to store the 'Source of Truth' for each room
 const roomStates = {}; 
+const roomNicknames = {}; // Store nicknames for each player in each room
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  socket.on('join-room', (roomID) => {
-    const cleanRoom = roomID.trim().toLowerCase();
+  socket.on('join-room', ({ room, nickname }) => {
+    const cleanRoom = room.trim().toLowerCase();
     socket.join(cleanRoom);
+
+    // Store nickname
+    if (!roomNicknames[cleanRoom]) roomNicknames[cleanRoom] = {};
+    roomNicknames[cleanRoom][socket.id] = nickname || 'Player';
+
+    // Broadcast updated nicknames to everyone in the room
+    io.to(cleanRoom).emit('nicknames-update', roomNicknames[cleanRoom]);
 
     const clients = io.sockets.adapter.rooms.get(cleanRoom);
     const numClients = clients ? clients.size : 0;
@@ -54,19 +62,22 @@ io.on('connection', (socket) => {
             players: newPlayers,
             hands: newHands,
           };
+          // Remap nickname too
+          if (roomNicknames[cleanRoom][ghostId]) {
+            roomNicknames[cleanRoom][newId] = roomNicknames[cleanRoom][ghostId];
+            delete roomNicknames[cleanRoom][ghostId];
+          }
         }
       }
 
       io.to(cleanRoom).emit('game-init', roomStates[cleanRoom]);
       io.to(cleanRoom).emit('request-peer-id');
-      console.log(`Game updated and peer IDs requested in: ${cleanRoom}`);
 
     } else if (roomStates[cleanRoom]) {
-      // First player back in an existing room — just rehydrate their state
       socket.emit('game-init', roomStates[cleanRoom]);
     }
 
-    console.log(`User ${socket.id} joined room: ${cleanRoom}`);
+    console.log(`${nickname} (${socket.id}) joined room: ${cleanRoom}`);
   });
 
   socket.on("peer-id", (data) => {
@@ -95,6 +106,12 @@ io.on('connection', (socket) => {
       }
     }
   });
+
+  // Handle camera status updates
+  socket.on('camera-status', (data) => {
+    socket.to(data.room.trim().toLowerCase()).emit('camera-status', data);
+  });
+
 });
 
 // 3. START THE SERVER (ONLY ONCE!)
