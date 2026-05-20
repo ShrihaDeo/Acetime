@@ -39,56 +39,81 @@ function CallScreen({ socket, room, onLeave }) {
     };
   }, [socket]);
 
-  // 2. TEAMMATE'S VIDEO CODE (RESTORED EXACTLY)
-  useEffect(() => {
+    useEffect(() => {
     const peer = new Peer();
+    let myStream = null;
+    let myPeerId = null;
+    let pendingPeerId = null; // buffer if peer-id arrives before camera is ready
 
-    peer.on("open", function (id) {
-        console.log("My peer ID is: " + id);
-        socket.emit("peer-id", { room, peerId: id }); // Added room to keep your isolation
+    const callPeer = (otherPeerId) => {
+      if (!myStream) {
+        console.log("Stream not ready yet, buffering peer ID");
+        pendingPeerId = otherPeerId;
+        return;
+      }
+      console.log("Calling peer:", otherPeerId);
+      const call = peer.call(otherPeerId, myStream);
+      call.on("stream", (otherStream) => {
+        const otherVideo = document.querySelector("video#remote-video");
+        if (otherVideo) {
+          otherVideo.srcObject = otherStream;
+          setIsOpponentJoined(true);
+        }
+      });
+    };
+
+    peer.on("open", (id) => {
+      console.log("My peer ID:", id);
+      myPeerId = id;
+      socket.emit("peer-id", { room, peerId: id });
     });
 
-    const constraints = { video: true, audio: true };
+    socket.on("request-peer-id", () => {
+      if (myPeerId) {
+        console.log("Re-emitting peer ID:", myPeerId);
+        socket.emit("peer-id", { room, peerId: myPeerId });
+      }
+    });
 
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-            myStreamRef.current = stream;
-            const videoElement = document.querySelector('video#local-video');
-            if (videoElement) videoElement.srcObject = stream;
+    socket.on("peer-id", (otherPeerId) => {
+      callPeer(otherPeerId);
+    });
 
-            // Answer call
-            peer.on("call", function (call) {
-                call.answer(stream);   
-                call.on("stream", function (otherStream) {
-                    const otherVideo = document.querySelector('video#remote-video');
-                    if (otherVideo) {
-                        otherVideo.srcObject = otherStream;
-                        setIsOpponentJoined(true);
-                    }
-                });
-            });
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        myStream = stream;
+        myStreamRef.current = stream;
 
-            // Call
-            socket.on("peer-id", function (otherPeerId) {
-                console.log("Calling peer:", otherPeerId);
-                var call = peer.call(otherPeerId, stream);
-                call.on("stream", function (otherStream) {
-                    const otherVideo = document.querySelector('video#remote-video');
-                    if (otherVideo) {
-                        otherVideo.srcObject = otherStream;
-                        setIsOpponentJoined(true);
-                    }
-                });
-            });
-        })
-        .catch(error => console.error('Error accessing media devices.', error));
+        const localVideo = document.querySelector("video#local-video");
+        if (localVideo) localVideo.srcObject = stream;
+
+        // If a peer ID arrived before the camera was ready, call them now
+        if (pendingPeerId) {
+          console.log("Stream now ready, calling buffered peer:", pendingPeerId);
+          callPeer(pendingPeerId);
+          pendingPeerId = null;
+        }
+
+        peer.on("call", (call) => {
+          call.answer(stream);
+          call.on("stream", (otherStream) => {
+            const otherVideo = document.querySelector("video#remote-video");
+            if (otherVideo) {
+              otherVideo.srcObject = otherStream;
+              setIsOpponentJoined(true);
+            }
+          });
+        });
+      })
+      .catch((err) => console.error("Camera/mic error:", err));
 
     return () => {
-        socket.off("peer-id");
-        peer.destroy();
-        if (myStreamRef.current) {
-            myStreamRef.current.getTracks().forEach(track => track.stop());
-        }
+      socket.off("peer-id");
+      socket.off("request-peer-id");
+      peer.destroy();
+      if (myStreamRef.current) {
+        myStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
     };
   }, [socket, room]);
 
