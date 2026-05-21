@@ -18,13 +18,13 @@ export function buildDeck() {
     }
   }
 
-  //Function to shuffle the deck
+  // Fisher-Yates, picks j from remaining unshuffled range
   function shuffle() {
-    for (let i = 0; i < deck.length; i++) {
-      let j = Math.floor(Math.random() * deck.length);
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
       [deck[i], deck[j]] = [deck[j], deck[i]];
     }
-    return deck; //returns the shuffled deck
+    return deck;
   }
 
   return shuffle(); //returns whatever shuffle returns which is the shuffled deck.
@@ -88,7 +88,7 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
       //if the card is not in the hand then draw a card and then it is the next players turn
       if (cardIndex === -1) {
         drawCard(state, playerID, selectedGame);
-        return { state, error: "Card not in hand!" };
+        return { newState: state, error: "Card not in hand!" };
       }
 
       //Top card of the discard pile
@@ -96,7 +96,7 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
 
       //Checks if the card that the player wants to play is a legal move
       if (!isLegalPlay(topCard, card, selectedGame)) {
-        return { state, error: "Is not legal play!" };
+        return { newState: state, error: "Is not legal play!" };
       }
 
       //creates the new hand for the player without the played card | we use 'i' here because we need to skip a certain position
@@ -143,18 +143,18 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
   }
 }
 
-//Checks if the card a player has drawn works as turn
+//Checks if the card played is a legal move based on the top card of the discard pile and the rules of the game
 export function isLegalPlay(topCard, cardPlayed, selectedGame) {
-  //if played card is a special card such as .... if not, just play card like normal
-  if (selectedGame == "LastCard") {
-    if (cardPlayed.suit == topCard.suit || cardPlayed.value == topCard.value) {
+  if (selectedGame === "LastCard") {
+    if (cardPlayed.value === 'J') return true;  // Jack is always legal
+    if (cardPlayed.suit === topCard.suit || cardPlayed.value === topCard.value) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
-  
 }
+  
+
 
 //If the played card is a special card such as ...., apply effects
 export function applyCardEffect(state, playerID, card, selectedGame) {
