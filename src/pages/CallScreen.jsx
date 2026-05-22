@@ -5,6 +5,7 @@ import VideoOff from '../assets/video_off.svg'
 import Mute     from '../assets/mute.svg'
 import Card     from '../components/Card'
 
+
 const backgrounds = [
   {
     bg: 'radial-gradient(circle at 30% 40%, #0d3d20 0%, #050f08 100%)',
@@ -55,6 +56,25 @@ function Avatar({ name, size = 72 }) {
 }
 
 function CallScreen({ socket, room, nickname, onLeave }) {
+  // Tracks whether the chat panel is visible or hidden. Start as false.
+  const [chatOpen, setChatOpen]     = useState(false)
+  // Tracks what the user is currently typing in the input box
+  const [chatInput, setChatInput]   = useState('')
+  // An array of all messages in the conversation. 
+  // Starts with one one welcome message from the assistant.
+  const [chatMessages, setChatMessages] = useState([
+    {
+      role: 'assistant',
+      text: "Hi! I'm your game assistant 🃏 Ask me anything about the rules!"
+    }
+  ])
+  // true while waiting for Gemini to respond
+  // used to show the loading dots and disable the button
+  const [chatLoading, setChatLoading] = useState(false)
+  // ref attached to an invisible div at the bottom of the chat
+  // used to auto scroll down when new messages arrive
+  const chatEndRef = useRef(null)
+
   const [syncStatus, setSyncStatus]             = useState('Waiting for opponent...')
   const [bgIndex, setBgIndex]                   = useState(0)
   const [isOpponentJoined, setIsOpponentJoined] = useState(false)
@@ -140,24 +160,24 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       ]
     }
   })
-      
-    
   
 
-    const callPeer = (otherId) => {
-      if (!myStreamRef.current) { pendingPeerIdRef.current = otherId; return }
-      console.log("Calling peer:", otherId)
-      const call = peer.call(otherId, myStreamRef.current)
-      call.on('stream', (s) => {
-        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
-        setIsOpponentJoined(true)
-        setSyncStatus('Connected! ✨')
-      })
-    }
+  // Call a peer by their ID, sending them our video stream.
+  // This is triggered when we learn the other peer's ID from the server.
+  const callPeer = (otherId) => {
+    if (!myStreamRef.current) { pendingPeerIdRef.current = otherId; return }
+    console.log("Calling peer:", otherId)
+    const call = peer.call(otherId, myStreamRef.current)
+    call.on('stream', (s) => {
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
+      setIsOpponentJoined(true)
+      etSyncStatus('Connected! ✨')
+    })
+  }
 
-    peer.on('open', id => socket.emit('peer-id', { room, peerId: id }))
-    socket.on('request-peer-id', () => { if (peer.id) socket.emit('peer-id', { room, peerId: peer.id }) })
-    socket.on('peer-id', callPeer)
+  peer.on('open', id => socket.emit('peer-id', { room, peerId: id }))
+  socket.on('request-peer-id', () => { if (peer.id) socket.emit('peer-id', { room, peerId: peer.id }) })
+  socket.on('peer-id', callPeer)
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(stream => {
@@ -218,6 +238,83 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       setTimeout(() => setCopied(false), 2000)
     })
   }
+  
+  // ── Gemini AI Assistant ─────────────────────────────────────
+  const askAI = async () => {
+    // Don't do anything if input is empty or already waiting for a response
+    if (!chatInput.trim() || chatLoading) return
+  
+    const userMessage = chatInput.trim()
+    setChatInput('') // clear the input box immediately
+    setChatLoading(true) // show loading dots
+  
+    // Add user message to chat immediately
+    setChatMessages(prev => [...prev, { role: 'user', text: userMessage }])
+  
+    // Auto scroll to bottom
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+  
+    try {
+      // Call Gemini API with the current game context and user question
+      // This is async so await waits for it to finish
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // Contains a system prompt telling Gemini it's a card game assistant
+          // Plus the current game context (player names, hand size)
+          // Plus the user's actual question.
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `You are a helpful game assistant for a card game called LastCard (similar to Uno). 
+                
+                Game rules:
+                - Each player starts with 7 cards
+                - Match the top card by suit or value to play
+                - Jacks are wild — play on anything
+                - Playing a 2 forces the opponent to draw 2 cards
+                - First player to empty their hand wins
+                - You must say "Last Card!" when you have one card left
+                
+                Current game info:
+                - Players: ${Object.values(nicknames).join(' vs ')}
+                - Cards in your hand: ${gameState?.hands[socket.id]?.length ?? 'unknown'}
+                
+                Answer this question briefly and helpfully: ${userMessage}`
+              }]
+            }],
+            generationConfig: {
+              maxOutputTokens: 200,
+              temperature: 0.7,
+            }
+          })
+        }
+      )
+  
+      const data = await response.json()
+      // Dig into the response to get the text out
+      const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text 
+        ?? "Sorry, I couldn't get a response. Try again!"
+  
+      // Add AI response to chat
+      setChatMessages(prev => [...prev, { role: 'assistant', text: aiText }])
+
+      // Scroll to bottom again after AI responds
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+  
+    } catch (err) {
+      console.error('Gemini error:', err)
+      setChatMessages(prev => [...prev, { 
+        role: 'assistant', 
+        text: "Something went wrong. Check your connection and try again." 
+      }])
+    } finally { // always runs
+      // Always turn off loading, whether it succeeded or failed
+      setChatLoading(false)
+    }
+  }
 
   return (
     <div className="call-screen">
@@ -277,6 +374,149 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           </div>
         </div>
 
+        {/* Chat panel*/}
+        {chatOpen && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'rgba(15,15,26,0.95)',
+            border: '1px solid rgba(180,77,255,0.25)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            flexShrink: 0,
+            maxHeight: '260px',
+          }}>
+
+            {/* Header */}
+            <div style={{
+              padding: '8px 14px',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}>
+              <span>🤖</span>
+              <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--neon-purple)' }}>
+                Game Assistant
+              </span>
+              <span style={{
+                marginLeft: 'auto',
+                fontSize: '10px',
+                color: 'var(--text-muted)',
+                background: 'rgba(180,77,255,0.1)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                border: '1px solid rgba(180,77,255,0.2)',
+              }}>
+                Powered by Gemini
+              </span>
+            </div>
+
+            {/* Messages list */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '10px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              minHeight: '120px',
+              maxHeight: '160px',
+            }}>
+              {chatMessages.map((msg, i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                }}>
+                  <div style={{
+                    maxWidth: '85%',
+                    padding: '7px 11px',
+                    borderRadius: msg.role === 'user'
+                      ? '12px 12px 2px 12px'
+                      : '12px 12px 12px 2px',
+                    background: msg.role === 'user'
+                      ? 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))'
+                      : 'rgba(255,255,255,0.06)',
+                    border: msg.role === 'assistant'
+                      ? '1px solid rgba(255,255,255,0.08)'
+                      : 'none',
+                    fontSize: '12px',
+                    lineHeight: '1.4',
+                    color: 'var(--text-primary)',
+                  }}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+
+              {/* Loading dots — only show while waiting for Gemini */}
+              {chatLoading && (
+                <div style={{ display: 'flex', gap: '4px', padding: '4px 0' }}>
+                  {[0, 1, 2].map(i => (
+                    <div key={i} style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: 'var(--neon-purple)',
+                      animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
+                    }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Invisible div at the bottom — scrolled into view when new messages arrive */}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input row */}
+            <div style={{
+              padding: '8px 10px',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex',
+              gap: '8px',
+            }}>
+              <input
+                style={{
+                  flex: 1,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '8px',
+                  padding: '7px 12px',
+                  color: 'var(--text-primary)',
+                  fontSize: '12px',
+                  outline: 'none',
+                  fontFamily: "'Inter', sans-serif",
+                }}
+                placeholder="Ask about the rules..."
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && askAI()}
+                disabled={chatLoading}
+              />
+              <button
+                onClick={askAI}
+                disabled={chatLoading}
+                style={{
+                  padding: '7px 12px',
+                  background: chatLoading
+                    ? 'rgba(180,77,255,0.2)'
+                    : 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: 'white',
+                  fontSize: '12px',
+                  cursor: chatLoading ? 'not-allowed' : 'pointer',
+                  fontFamily: "'Inter', sans-serif",
+                  marginTop: 0,
+                  flexShrink: 0,
+                }}
+              >
+                {chatLoading ? '...' : 'Ask'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="controls-bar">
           <div className="controls-left">
             <button
@@ -293,7 +533,21 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             >
               <img src={VideoOff} alt="Camera" />
             </button>
+
+            {/* AI button*/} 
+            <button
+            className={`control-btn ${chatOpen ? 'active' : ''}`}
+            onClick={() => setChatOpen(p => !p)}
+            title="AI Assistant"
+            style={{
+              fontSize: '18px',
+              backgroundColor: chatOpen ? 'rgba(180,77,255,0.3)' : ''
+            }} 
+            >
+              🤖
+            </button>
           </div>
+
           <div className="controls-right">
             <button className="control-btn end-call" onClick={onLeave} title="Leave">
               <img src={EndCall} alt="End call" />
