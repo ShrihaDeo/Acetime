@@ -111,7 +111,38 @@ function CallScreen({ socket, room, nickname, onLeave }) {
 
   // ── WebRTC ──────────────────────────────────────────────────
   useEffect(() => {
-    const peer = new Peer()
+    const peer = new Peer(undefined, {
+      config: {
+        iceServers: [
+          {
+            urls: "stun:stun.relay.metered.ca:80",
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:80",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:443",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+      ]
+    }
+  })
+      
+    
+  
 
     const callPeer = (otherId) => {
       if (!myStreamRef.current) { pendingPeerIdRef.current = otherId; return }
