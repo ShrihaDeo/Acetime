@@ -133,6 +133,69 @@ io.on('connection', (socket) => {
 
 });
 
+// Allow Express to read JSON request bodies
+app.use(express.json())
+
+// Gemini proxy route — key never touches the browser
+app.post('/api/ask', async (req, res) => {
+  const { question, playerNames, handSize } = req.body
+
+  if (!question || question.trim() === '') {
+    return res.status(400).json({ error: 'Question is required' })
+  }
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `You are a helpful game assistant for a card game called LastCard (similar to Uno).
+              
+              Game rules:
+              - Each player starts with 7 cards
+              - Match the top card by suit or value to play
+              - Jacks are wild — play on anything
+              - Playing a 2 forces the opponent to draw 2 cards
+              - First player to empty their hand wins
+              - Say "Last Card!" when you have one card left
+              
+              Current game info:
+              - Players: ${playerNames ?? 'Unknown'}
+              - Cards in hand: ${handSize ?? 'Unknown'}
+              
+              Answer briefly in 2-3 sentences: ${question}`
+            }]
+          }],
+          generationConfig: {
+            maxOutputTokens: 150,
+            temperature: 0.7,
+          }
+        })
+      }
+    )
+
+    if (!response.ok) {
+      const err = await response.json()
+      console.error('Gemini error:', err)
+      return res.status(response.status).json({ error: err.error?.message ?? 'Gemini request failed' })
+    }
+
+    const data = await response.json()
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+      ?? "Sorry, I couldn't generate a response."
+
+    res.json({ text })
+
+  } catch (err) {
+    console.error('Server error calling Gemini:', err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // 3. START THE SERVER (ONLY ONCE!)
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, '0.0.0.0', () => {

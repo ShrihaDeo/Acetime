@@ -241,77 +241,52 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   
   // ── Gemini AI Assistant ─────────────────────────────────────
   const askAI = async () => {
-    // Don't do anything if input is empty or already waiting for a response
     if (!chatInput.trim() || chatLoading) return
   
     const userMessage = chatInput.trim()
-    setChatInput('') // clear the input box immediately
-    setChatLoading(true) // show loading dots
+    setChatInput('')
+    setChatLoading(true)
   
-    // Add user message to chat immediately
     setChatMessages(prev => [...prev, { role: 'user', text: userMessage }])
-  
-    // Auto scroll to bottom
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   
     try {
-      // Call Gemini API with the current game context and user question
-      // This is async so await waits for it to finish
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          // Contains a system prompt telling Gemini it's a card game assistant
-          // Plus the current game context (player names, hand size)
-          // Plus the user's actual question.
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `You are a helpful game assistant for a card game called LastCard (similar to Uno). 
-                
-                Game rules:
-                - Each player starts with 7 cards
-                - Match the top card by suit or value to play
-                - Jacks are wild — play on anything
-                - Playing a 2 forces the opponent to draw 2 cards
-                - First player to empty their hand wins
-                - You must say "Last Card!" when you have one card left
-                
-                Current game info:
-                - Players: ${Object.values(nicknames).join(' vs ')}
-                - Cards in your hand: ${gameState?.hands[socket.id]?.length ?? 'unknown'}
-                
-                Answer this question briefly and helpfully: ${userMessage}`
-              }]
-            }],
-            generationConfig: {
-              maxOutputTokens: 200,
-              temperature: 0.7,
-            }
-          })
-        }
-      )
+      // ← calls YOUR server, not Gemini directly
+      const response = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: userMessage,
+          playerNames: Object.values(nicknames).join(' vs '),
+          handSize: gameState?.hands[socket.id]?.length ?? 7,
+        })
+      })
+  
+      if (response.status === 429) {
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          text: "I'm being rate limited — please wait 30 seconds and try again ⏳"
+        }])
+        return
+      }
+  
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
   
       const data = await response.json()
-      // Dig into the response to get the text out
-      const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text 
-        ?? "Sorry, I couldn't get a response. Try again!"
+      const aiText = data.text ?? "Sorry, I couldn't get a response."
   
-      // Add AI response to chat
       setChatMessages(prev => [...prev, { role: 'assistant', text: aiText }])
-
-      // Scroll to bottom again after AI responds
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   
     } catch (err) {
-      console.error('Gemini error:', err)
-      setChatMessages(prev => [...prev, { 
-        role: 'assistant', 
-        text: "Something went wrong. Check your connection and try again." 
+      console.error('AI error:', err)
+      setChatMessages(prev => [...prev, {
+        role: 'assistant',
+        text: "Something went wrong. Please try again."
       }])
-    } finally { // always runs
-      // Always turn off loading, whether it succeeded or failed
+    } finally {
       setChatLoading(false)
     }
   }
