@@ -117,7 +117,7 @@ export function registerLastCardHandlers(io, socket, roomstates) { //(the whole 
         }
 
         //Call our logic
-        const { newState, error } = drawCard(state, selectedGame, socket.id, cardID);
+        const { newState, error } = drawCard(state, socket.id, selectedGame);
 
         if (error) {
             socket.emit('game-error', error);

@@ -48,7 +48,7 @@ function CallScreen({ socket, room, onLeave }) {
   const [playerHand] = useState(randomCards)
   useEffect(() => {
     socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+      setSyncStatus(`Opponent played card ${data.cardID}!`);
     });
     return () => socket.off('receive-move');
   }, [socket]);
@@ -115,9 +115,9 @@ const toggleCamera = () => {
   setIsCameraOff(prev => !prev);
 };
 
-  const handleCardClick = (i) => {
-    setSyncStatus(`You played card ${i + 1}`);
-    socket.emit('send-move', { room, cardIndex: i + 1 });
+  const handleCardClick = (card) => {
+    setSyncStatus('Playing ' + card.value + card.suit + '...');
+    socket.emit('play-card', { room, cardID: card.id });
   }
 
   return (
@@ -195,7 +195,7 @@ const toggleCamera = () => {
           
           <div className="player-hand">
             {playerHand.map((card, i) => (
-              <Card key={card.id} card={card} onClick={() => handleCardClick(i)} disabled={false} />
+              <Card key={card.id} card={card} onClick={() => handleCardClick(card)} disabled={false} />
             ))}
 
           </div>
