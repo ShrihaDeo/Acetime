@@ -5,6 +5,9 @@ import express from 'express';
 import { createServer } from 'http';
 // socket.io is the library that makes real-time communication easy
 import { Server } from 'socket.io';
+//Methods from lastCard.js
+import { registerLastCardHandlers } from './lastCard.js';
+import { startLastCard } from './lastCard.js';
 
 // Create an Express app and an HTTP server
 const app = express();
@@ -34,34 +37,41 @@ io.on('connection', (socket) => {
     socket.join(cleanRoom);
     
     // Send existing state to the person who just joined
-    if (roomStates[cleanRoom] !== undefined) {
-      socket.emit('receive-move', { count: roomStates[cleanRoom] });
-    } else {
-      roomStates[cleanRoom] = 0; 
-    }
+    //if (roomStates[cleanRoom] !== undefined) {
+    //  socket.emit('receive-move', { count: roomStates[cleanRoom] });
+    //} else {
+    //  roomStates[cleanRoom] = 0; 
+    //}
+
+    // Tell the room someone joined — client can trigger 'start-game' when count hits 2
+    const clients = io.sockets.adapter.rooms.get(cleanRoom);
+    io.to(cleanRoom).emit('player-joined', { count: clients.size });
+
     console.log(`User ${socket.id} joined room: ${cleanRoom}`);
   });
 
+  // Register all LastCard game events
+  registerLastCardHandlers(io, socket, roomStates);
 
-  // 2. Video Signaling (Room Isolated)
-  socket.on("peer-id", (data) => {
-    // data = { room, peerId }
-    socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
-  });
+  //// 2. Video Signaling (Room Isolated)
+  //socket.on("peer-id", (data) => {
+  //  // data = { room, peerId }
+  //  socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
+  //});
   
 
 
-  // 3. Game Move Sync (Room Isolated)
-  socket.on('send-move', (data) => {
-    // data = { room, cardIndex }
-    const cleanRoom = data.room.trim().toLowerCase();
-    roomStates[cleanRoom] = data.cardIndex;
-    socket.to(cleanRoom).emit('receive-move', data);
-  });
+  //// 3. Game Move Sync (Room Isolated)
+  //socket.on('send-move', (data) => {
+  //  // data = { room, cardIndex }
+  //  const cleanRoom = data.room.trim().toLowerCase();
+  //  roomStates[cleanRoom] = data.cardIndex;
+  //  socket.to(cleanRoom).emit('receive-move', data);
+  //});
 
   // Handle disconnection
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    console.log('User disconnected', socket.id);
   });
 });
 
@@ -71,4 +81,11 @@ io.on('connection', (socket) => {
 const PORT = 3000;
 httpServer.listen(PORT, () => {
   console.log(`Sync Server running on http://localhost:${PORT}`);
+});
+
+//generic game start for future card game implementation
+socket.on('start-game', ({ room, selectedGame }) => {
+  const cleanRoom = room.trim().toLowerCase();
+  if (selectedGame === 'LastCard') startLastCard(io, room, roomStates);
+  // if (selectedGame === 'futuregame') startFutureGame(...)
 });
