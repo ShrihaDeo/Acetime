@@ -250,7 +250,7 @@ export function checkWinner(state, playerID, selectedGame) {
   if (selectedGame == "LastCard") {
     //If current player hand is empty. If empty, win
     if (state.hands[playerID].length === 0) {
-      console.log(playerID + " wins!");
+      //console.log(playerID + " wins!");
       return playerID;
     }
   }
