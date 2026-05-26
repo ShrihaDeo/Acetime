@@ -24,6 +24,8 @@ function CallScreen({ socket, room, onLeave }) {
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
   const myStreamRef = useRef(null);
+  const [topCard, setTopCard] = useState(null);
+  const [currentPlayer, setCurrentPlayer] = useState(null);
 
   const randomCards = () => {
     const suits = ['♠', '♥', '♦', '♣']
@@ -35,7 +37,7 @@ function CallScreen({ socket, room, onLeave }) {
     })
   }
 
-  const [playerHand] = useState(randomCards)
+  const [playerHand, setPlayerHand] = useState([])
 
 useEffect(() => {
   socket.on('receive-move', (data) => {
@@ -47,10 +49,19 @@ useEffect(() => {
   socket.on('game-selected', (data) => {
     setGameSelected(true);
   });
-  return () => {
+
+  socket.on('deal-hand', (data) => {
+  console.log('deal-hand received:', data.hand?.lenght, 'cards');
+  setPlayerHand(data.hand);
+  setTopCard(data.topCard);
+  setCurrentPlayer(data.currentPlayer);
+  setGameSelected(true);
+  });
+    return () => {
     socket.off('receive-move');
     socket.off('is-host');
     socket.off('game-selected')
+    socket.off('deal-hand');
   };
   }, [socket]);
 
@@ -89,6 +100,10 @@ useEffect(() => {
       if (myStreamRef.current) myStreamRef.current.getTracks().forEach(t => t.stop());
     };
   }, [socket, room]);
+
+  useEffect(() => {
+  console.log('Socket ID:', socket.id);
+ }, [socket]);
 
   const cycleBackground = () => setBgIndex((prev) => (prev + 1) % backgrounds.length);
 
@@ -134,6 +149,7 @@ useEffect(() => {
         }}>
           {!gameSelected && isHost && (
             <GameSelectOverlay onSelect={(game) => {
+              console.log('Game selected:', game, 'Room:', room);
               setGameSelected(true);
               socket.emit('game-selected', { room, game });
             }} />
@@ -169,7 +185,13 @@ useEffect(() => {
           </div>
           <div className="player-hand">
             {playerHand.map((card, i) => (
-              <Card key={card.id} card={card} onClick={() => handleCardClick(i)} disabled={false} />
+              <Card 
+              key={card.id} 
+              card={card} 
+              onClick={() => handleCardClick(i)} 
+              disabled={false}
+              style={{animationDelay: `${i * 0.15}s`}}
+              />
             ))}
           </div>
         </div>

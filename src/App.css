@@ -357,3 +357,19 @@
   align-items: center;
   gap: 20px;
 }
+
+.card-deal {
+  animation: dealCard 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes dealCard {
+  from {
+    transform: translateY(-50px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}

@@ -5,6 +5,8 @@ import express from 'express';
 import { createServer } from 'http';
 // socket.io is the library that makes real-time communication easy
 import { Server } from 'socket.io';
+// game logic for card games
+import { createGame, playTurn } from './game.js';
 
 // Create an Express app and an HTTP server
 const app = express();
@@ -21,7 +23,7 @@ const io = new Server(httpServer, {
 });
 
 const roomStates = {}; // This will hold the game state for each room 
-
+const gameStates = {};
 // 2. Handle Connections
 // Whenever a player opens the website, the function triggers
 // Each player get a unique socket.id
@@ -69,9 +71,25 @@ io.on('connection', (socket) => {
 
   //4. Game Selection Sync (Room Isolated)
   socket.on('game-selected', (data) => {
+    console.log('game-selected received:', data);
     const cleanRoom = data.room.trim().toLowerCase();
-    roomStates[cleanRoom] = data.cardIndex;
-    socket.to(cleanRoom).emit('game-selected', data);
+    const clients = io.sockets.adapter.rooms.get(cleanRoom);
+    const playerIDs = clients ? [...clients] : [];
+    console.log('playerIDs:', playerIDs);
+
+    const gameState = createGame(playerIDs, data.game);
+    console.log('gameState created:', gameState ? 'yes' : 'no');
+    gameStates[cleanRoom] = gameState;
+
+      // Send each player their own hand
+    for (const playerID of playerIDs) {
+      console.log('Sending deal-hand to:', playerID);
+      io.to(playerID).emit('deal-hand', {
+        hand: gameState.hands[playerID],
+        topCard: gameState.discard[0],
+        currentPlayer: gameState.players[gameState.currIndex]
+    });
+  }
   });
 
   // Handle disconnection
