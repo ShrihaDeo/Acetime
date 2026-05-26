@@ -4,6 +4,7 @@ import EndCall from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
 import Mute from '../assets/mute.svg'
 import Card from '../components/Card'
+import GameSelectOverlay from '../components/GameSelectOverlay'
 
 const backgrounds = [
   { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', suits: ['♠', '♣'], accentColor: '#2ecc71' },
@@ -17,7 +18,8 @@ function CallScreen({ socket, room, onLeave }) {
   const [isOpponentJoined, setIsOpponentJoined] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
-
+  const [gameSelected, setGameSelected] = useState(false);
+  const [isHost, setIsHost] = useState(false);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
@@ -35,11 +37,21 @@ function CallScreen({ socket, room, onLeave }) {
 
   const [playerHand] = useState(randomCards)
 
-  useEffect(() => {
-    socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
-    });
-    return () => socket.off('receive-move');
+useEffect(() => {
+  socket.on('receive-move', (data) => {
+    setSyncStatus(`Opponent played card ${data.cardIndex}!`);
+  });
+  socket.on('is-host', (value) => {
+    setIsHost(value);
+  });
+  socket.on('game-selected', (data) => {
+    setGameSelected(true);
+  });
+  return () => {
+    socket.off('receive-move');
+    socket.off('is-host');
+    socket.off('game-selected')
+  };
   }, [socket]);
 
   useEffect(() => {
@@ -116,10 +128,23 @@ function CallScreen({ socket, room, onLeave }) {
         </div>
       </div>
 
-      <div className="right-panel" style={{ 
-          backgroundImage: `radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0), ${backgrounds[bgIndex].bg}`,
-          backgroundSize: '30px 30px, 100% 100%'
-      }}>
+        <div className="right-panel" style={{ 
+            backgroundImage: `radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0), ${backgrounds[bgIndex].bg}`,
+            backgroundSize: '30px 30px, 100% 100%'
+        }}>
+          {!gameSelected && isHost && (
+            <GameSelectOverlay onSelect={(game) => {
+              setGameSelected(true);
+              socket.emit('game-selected', { room, game });
+            }} />
+          )}
+          {!gameSelected && !isHost && (
+            <div className="overlay">
+              <div className="overlay-box">
+                <p style={{color: 'white'}}>Waiting for host to select a game...</p>
+              </div>
+            </div>
+          )}
         <div className="table-suits">
           <span className="table-suit" style={{ color: backgrounds[bgIndex].accentColor }}>{backgrounds[bgIndex].suits[0]}</span>
           <span className="table-suit" style={{ color: backgrounds[bgIndex].accentColor }}>{backgrounds[bgIndex].suits[1]}</span>

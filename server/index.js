@@ -32,7 +32,15 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomID) => {
     const cleanRoom = roomID.trim().toLowerCase();
     socket.join(cleanRoom);
-    
+
+    //check if this is the first player to join the room and set them as host
+    const clients = io.sockets.adapter.rooms.get(cleanRoom);
+    if (clients.size === 1) {
+      socket.emit('is-host', true);
+    } else {
+      socket.emit('is-host', false);
+    }
+
     // Send existing state to the person who just joined
     if (roomStates[cleanRoom] !== undefined) {
       socket.emit('receive-move', { count: roomStates[cleanRoom] });
@@ -57,6 +65,13 @@ io.on('connection', (socket) => {
     const cleanRoom = data.room.trim().toLowerCase();
     roomStates[cleanRoom] = data.cardIndex;
     socket.to(cleanRoom).emit('receive-move', data);
+  });
+
+  //4. Game Selection Sync (Room Isolated)
+  socket.on('game-selected', (data) => {
+    const cleanRoom = data.room.trim().toLowerCase();
+    roomStates[cleanRoom] = data.cardIndex;
+    socket.to(cleanRoom).emit('game-selected', data);
   });
 
   // Handle disconnection
