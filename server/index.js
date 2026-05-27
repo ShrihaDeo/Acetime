@@ -20,31 +20,43 @@ const io = new Server(httpServer, {
   }
 });
 
+const roomStates = {}; // This will hold the game state for each room 
+
 // 2. Handle Connections
 // Whenever a player opens the website, the function triggers
 // Each player get a unique socket.id
 io.on('connection', (socket) => {
-  console.log('User connected to Sync Server:', socket.id);
+  console.log('User connected:', socket.id);
 
-  // Join a specific room for a game session
+  // 1. Join Room & State Rehydration
   socket.on('join-room', (roomID) => {
-    const cleanRoomID = roomID.trim().toLowerCase(); // Clean the room ID
-    socket.join(roomID);
-    console.log(`User ${socket.id} joined room ${roomID}`);
+    const cleanRoom = roomID.trim().toLowerCase();
+    socket.join(cleanRoom);
+    
+    // Send existing state to the person who just joined
+    if (roomStates[cleanRoom] !== undefined) {
+      socket.emit('receive-move', { count: roomStates[cleanRoom] });
+    } else {
+      roomStates[cleanRoom] = 0; 
+    }
+    console.log(`User ${socket.id} joined room: ${cleanRoom}`);
   });
 
-  socket.on("peer-id", (id) => {
-    socket.broadcast.emit("peer-id", id); // like step 5 pattern
-});
+
+  // 2. Video Signaling (Room Isolated)
+  socket.on("peer-id", (data) => {
+    // data = { room, peerId }
+    socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
+  });
+  
 
 
-  // 3. LISTEN for a move from a player
-  // Send move only to other in the same room
+  // 3. Game Move Sync (Room Isolated)
   socket.on('send-move', (data) => {
-    console.log(`Move in room ${data.room}:`, data);
-    // This is where you would add any game logic to validate the move, update the game state on the server, etc.
-    // This tells everyone else to move the card on their screen
-    socket.to(data.room).emit('receive-move', data);
+    // data = { room, cardIndex }
+    const cleanRoom = data.room.trim().toLowerCase();
+    roomStates[cleanRoom] = data.cardIndex;
+    socket.to(cleanRoom).emit('receive-move', data);
   });
 
   // Handle disconnection
@@ -52,8 +64,6 @@ io.on('connection', (socket) => {
     console.log('User disconnected');
   });
 });
-
-
 
 
 // 5. Start the Server
