@@ -171,7 +171,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     call.on('stream', (s) => {
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
       setIsOpponentJoined(true)
-      etSyncStatus('Connected! ✨')
+      setSyncStatus('Connected! ✨')
     })
   }
 
@@ -383,7 +383,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                 borderRadius: '10px',
                 border: '1px solid rgba(180,77,255,0.2)',
               }}>
-                Powered by Gemini
+                Powered by Groq
               </span>
             </div>
 

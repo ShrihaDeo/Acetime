@@ -2,11 +2,77 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { createGame } from './game.js';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, { cors: { origin: "*" } });
+
+// Allow Express to read JSON request bodies
+app.use(express.json())
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100, 
+  message: { error: 'Too many requests - please wait a minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// Gemini proxy route
+  app.post('/api/ask', async (req, res) => {
+  const { question, playerNames, handSize } = req.body
+
+  if (!question || question.trim() === '') {
+    return res.status(400).json({ error: 'Question is required' })
+  }
+
+  try {
+    const response = await fetch(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a helpful game assistant for LastCard (like Uno).
+              Rules: match suit or value, Jacks are wild, 2s force draw 2, empty hand wins.
+              Players: ${playerNames}. Cards in hand: ${handSize}.
+              Answer briefly in 2-3 sentences.`
+            },
+            {
+              role: 'user',
+              content: question
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.7,
+        })
+      }
+    )
+  
+    if (!response.ok) {
+      const err = await response.json()
+      console.error('Groq error:', err)
+      return res.status(response.status).json({ error: err.error?.message ?? 'Groq request failed' })
+    }
+
+    const data = await response.json()
+    const text = data.choices?.[0]?.message?.content ?? "Sorry, couldn't get a response."
+    res.json({ text })
+
+  } catch (err) {
+    console.error('Server error calling Groq:', err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 
 // A simple object to store the 'Source of Truth' for each room
@@ -133,68 +199,7 @@ io.on('connection', (socket) => {
 
 });
 
-// Allow Express to read JSON request bodies
-app.use(express.json())
 
-// Gemini proxy route — key never touches the browser
-app.post('/api/ask', async (req, res) => {
-  const { question, playerNames, handSize } = req.body
-
-  if (!question || question.trim() === '') {
-    return res.status(400).json({ error: 'Question is required' })
-  }
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are a helpful game assistant for a card game called LastCard (similar to Uno).
-              
-              Game rules:
-              - Each player starts with 7 cards
-              - Match the top card by suit or value to play
-              - Jacks are wild — play on anything
-              - Playing a 2 forces the opponent to draw 2 cards
-              - First player to empty their hand wins
-              - Say "Last Card!" when you have one card left
-              
-              Current game info:
-              - Players: ${playerNames ?? 'Unknown'}
-              - Cards in hand: ${handSize ?? 'Unknown'}
-              
-              Answer briefly in 2-3 sentences: ${question}`
-            }]
-          }],
-          generationConfig: {
-            maxOutputTokens: 150,
-            temperature: 0.7,
-          }
-        })
-      }
-    )
-
-    if (!response.ok) {
-      const err = await response.json()
-      console.error('Gemini error:', err)
-      return res.status(response.status).json({ error: err.error?.message ?? 'Gemini request failed' })
-    }
-
-    const data = await response.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      ?? "Sorry, I couldn't generate a response."
-
-    res.json({ text })
-
-  } catch (err) {
-    console.error('Server error calling Gemini:', err)
-    res.status(500).json({ error: 'Internal server error' })
-  }
-})
 
 // 3. START THE SERVER (ONLY ONCE!)
 const PORT = process.env.PORT || 3000;
