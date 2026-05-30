@@ -94,6 +94,8 @@ io.on('connection', (socket) => {
     }
     
     socket.join(cleanRoom);
+    const isHost = currentSize === 0;
+    socket.emit('player-joined', { isHost })
 
     // Store nickname
     if (!roomNicknames[cleanRoom]) roomNicknames[cleanRoom] = {};
@@ -196,6 +198,12 @@ io.on('connection', (socket) => {
   socket.on('camera-status', (data) => {
     socket.to(data.room.trim().toLowerCase()).emit('camera-status', data);
   });
+
+  // Handl game selection
+  socket.on('game-selected', (data) => {
+    const cleanRoom = data.room.trim().toLowerCase();
+    io.to(cleanRoom).emit('game-selected', { game: data.game })
+  })
 
 });
 
