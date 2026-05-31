@@ -1,74 +1,142 @@
-// server/index.js
-// express is the framework that turn Node.js into a web server
 import express from 'express';
-// handles the raw connection between computers
 import { createServer } from 'http';
-// socket.io is the library that makes real-time communication easy
 import { Server } from 'socket.io';
+import { createGame } from './game.js';
 
-// Create an Express app and an HTTP server
 const app = express();
 const httpServer = createServer(app);
 
-// 1. Initialise Socket.io with CORS, CORS stands for Cross-Origin Resource Sharing
-// It’s a security feature in web browsers that restricts web pages from making requests to a different domain than the one that served the web page.
-// This allows your React app (on port 5173) to talk to this server (on port 3000)
-const io = new Server(httpServer, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"]
-  }
-});
+const io = new Server(httpServer, { cors: { origin: "*" } });
 
-const roomStates = {}; // This will hold the game state for each room 
 
-// 2. Handle Connections
-// Whenever a player opens the website, the function triggers
-// Each player get a unique socket.id
+// A simple object to store the 'Source of Truth' for each room
+const roomStates = {}; 
+const roomNicknames = {}; // Store nicknames for each player in each room
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // 1. Join Room & State Rehydration
-  socket.on('join-room', (roomID) => {
-    const cleanRoom = roomID.trim().toLowerCase();
-    socket.join(cleanRoom);
-    
-    // Send existing state to the person who just joined
-    if (roomStates[cleanRoom] !== undefined) {
-      socket.emit('receive-move', { count: roomStates[cleanRoom] });
-    } else {
-      roomStates[cleanRoom] = 0; 
+  socket.on('join-room', ({ room, nickname }) => {
+    const cleanRoom = room.trim().toLowerCase();
+    // Check capacity BEFORE joining
+    const existingClients = io.sockets.adapter.rooms.get(cleanRoom);
+    const currentSize = existingClients ? existingClients.size : 0;
+
+    if (currentSize >= 2) {
+      socket.emit('room-full');
+      return; // Don't let them join
     }
-    console.log(`User ${socket.id} joined room: ${cleanRoom}`);
+    
+    socket.join(cleanRoom);
+
+    // Store nickname
+    if (!roomNicknames[cleanRoom]) roomNicknames[cleanRoom] = {};
+    roomNicknames[cleanRoom][socket.id] = nickname || 'Player';
+
+    // Broadcast updated nicknames to everyone in the room
+    io.to(cleanRoom).emit('nicknames-update', roomNicknames[cleanRoom]);
+
+    const clients = io.sockets.adapter.rooms.get(cleanRoom);
+    const numClients = clients ? clients.size : 0;
+
+    if (numClients === 2) {
+      const playerIds = Array.from(clients);
+
+      if (!roomStates[cleanRoom]) {
+        // Fresh game — both players are new
+        roomStates[cleanRoom] = createGame(playerIds, "LastCard");
+      } else {
+        // Room already has a game — someone rejoined with a new socket ID
+        // Find which old player ID is no longer connected and remap it
+        const existingState = roomStates[cleanRoom];
+        const oldPlayerIds = existingState.players;
+
+        // Figure out which old ID is the "ghost" (not in current clients)
+        const ghostId = oldPlayerIds.find(id => !playerIds.includes(id));
+        const newId = playerIds.find(id => !oldPlayerIds.includes(id));
+
+        if (ghostId && newId) {
+          console.log(`Remapping player ${ghostId} → ${newId}`);
+
+          // Remap the hand
+          const newHands = { ...existingState.hands };
+          newHands[newId] = newHands[ghostId];
+          delete newHands[ghostId];
+
+          // Remap the players array
+          const newPlayers = oldPlayerIds.map(id => id === ghostId ? newId : id);
+
+          roomStates[cleanRoom] = {
+            ...existingState,
+            players: newPlayers,
+            hands: newHands,
+          };
+          // Remap nickname too
+          if (roomNicknames[cleanRoom][ghostId]) {
+            roomNicknames[cleanRoom][newId] = roomNicknames[cleanRoom][ghostId];
+            delete roomNicknames[cleanRoom][ghostId];
+          }
+        }
+      }
+
+      io.to(cleanRoom).emit('game-init', roomStates[cleanRoom]);
+      io.to(cleanRoom).emit('request-peer-id');
+
+    } else if (roomStates[cleanRoom]) {
+      socket.emit('game-init', roomStates[cleanRoom]);
+    }
+
+    console.log(`${nickname} (${socket.id}) joined room: ${cleanRoom}`);
   });
 
-
-  // 2. Video Signaling (Room Isolated)
   socket.on("peer-id", (data) => {
-    // data = { room, peerId }
-    socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
+    if (data.room) {
+      socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
+    }
   });
-  
 
-
-  // 3. Game Move Sync (Room Isolated)
   socket.on('send-move', (data) => {
-    // data = { room, cardIndex }
     const cleanRoom = data.room.trim().toLowerCase();
-    roomStates[cleanRoom] = data.cardIndex;
+    if (roomStates[cleanRoom]) {
+      roomStates[cleanRoom].log = `${socket.id} played a card`;
+    }
     socket.to(cleanRoom).emit('receive-move', data);
   });
 
-  // Handle disconnection
+  // Clean up room data after both players leave
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    console.log('User disconnected:', socket.id);
+    for (const [roomID, state] of Object.entries(roomStates)) {
+      if (state.players.includes(socket.id)) {
+        socket.to(roomID).emit('opponent-disconnected');
+  
+        // Check if room is now empty before deleting
+        const clients = io.sockets.adapter.rooms.get(roomID);
+        const remaining = clients ? clients.size : 0;
+  
+        if (remaining === 0) {
+          // Both players gone — clean up completely
+          delete roomStates[roomID];
+          delete roomNicknames[roomID];
+          console.log(`Room ${roomID} cleaned up`);
+        }
+        break;
+      }
+    }
   });
+  
+
+  // Handle camera status updates
+  socket.on('camera-status', (data) => {
+    socket.to(data.room.trim().toLowerCase()).emit('camera-status', data);
+  });
+
 });
 
-
-// 5. Start the Server
-// Tells the server to start listening for traffic on port 3000
-const PORT = 3000;
-httpServer.listen(PORT, () => {
-  console.log(`Sync Server running on http://localhost:${PORT}`);
+// 3. START THE SERVER (ONLY ONCE!)
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`---------------------------------------`);
+  console.log(`Server running on port ${PORT}`);
+  console.log(`---------------------------------------`);
 });

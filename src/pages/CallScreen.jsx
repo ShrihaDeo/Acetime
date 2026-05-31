@@ -1,191 +1,371 @@
 import { useEffect, useState, useRef } from 'react'
 import Peer from "peerjs"
-import EndCall from '../assets/end_call.svg'
+import EndCall  from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
-import Mute from '../assets/mute.svg'
+import Mute     from '../assets/mute.svg'
+import Card     from '../components/Card'
 
 const backgrounds = [
-  { 
-    bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', 
-    suits: ['♠', '♣'], 
-    accentColor: '#2ecc71' 
+  {
+    bg: 'radial-gradient(circle at 30% 40%, #0d3d20 0%, #050f08 100%)',
+    suits: ['♠', '♣'], accent: '#00ffb3',
   },
-  { 
-    bg: 'radial-gradient(circle, #5c1a1a 0%, #1a0707 100%)', 
-    suits: ['♥', '♦'], 
-    accentColor: '#c0392b' 
+  {
+    bg: 'radial-gradient(circle at 70% 30%, #3d0d2a 0%, #0f0508 100%)',
+    suits: ['♥', '♦'], accent: '#ff3dac',
   },
-  { 
-    bg: 'radial-gradient(circle, #0a0a3d 0%, #020210 100%)', 
-    suits: ['♣', '♦'], 
-    accentColor: '#3498db' 
+  {
+    bg: 'radial-gradient(circle at 40% 60%, #0d1a40 0%, #05080f 100%)',
+    suits: ['♣', '♠'], accent: '#00d4ff',
+  },
+  {
+    bg: 'radial-gradient(circle at 60% 40%, #2a0d3d 0%, #08050f 100%)',
+    suits: ['♦', '♥'], accent: '#b44dff',
+  },
+  {
+    bg: 'radial-gradient(circle at 50% 50%, #3d2a00 0%, #0f0a00 100%)',
+    suits: ['♠', '♦'], accent: '#ffd700',
   },
 ]
 
-function CallScreen({ socket, room, onLeave }) {
-  const [syncStatus, setSyncStatus] = useState("System Ready");
-  const [bgIndex, setBgIndex] = useState(0);
-  const [isOpponentJoined, setIsOpponentJoined] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const peerRef = useRef(null);
-  const myStreamRef = useRef(null);
+function Avatar({ name, size = 72 }) {
+  const initial = name ? name.charAt(0).toUpperCase() : '?'
+  const palettes = [
+    ['#b44dff', '#7c00ff'],
+    ['#ff3dac', '#c0006e'],
+    ['#00d4ff', '#0088cc'],
+    ['#00ffb3', '#00aa77'],
+    ['#ffd700', '#cc9900'],
+    ['#ff6b35', '#cc3300'],
+  ]
+  const [a, b] = palettes[name ? name.charCodeAt(0) % palettes.length : 0]
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      background: `linear-gradient(135deg, ${a}, ${b})`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.38, fontWeight: '800', color: 'white',
+      userSelect: 'none', flexShrink: 0,
+      fontFamily: "'Syne', sans-serif",
+      boxShadow: `0 0 24px ${a}55, 0 0 60px ${a}22`,
+    }}>
+      {initial}
+    </div>
+  )
+}
 
+function CallScreen({ socket, room, nickname, onLeave }) {
+  const [syncStatus, setSyncStatus]             = useState('Waiting for opponent...')
+  const [bgIndex, setBgIndex]                   = useState(0)
+  const [isOpponentJoined, setIsOpponentJoined] = useState(false)
+  const [isMuted, setIsMuted]                   = useState(false)
+  const [isCameraOff, setIsCameraOff]           = useState(false)
+  const [isOpponentCameraOff, setIsOpponentCameraOff] = useState(false)
+  const [gameState, setGameState]               = useState(null)
+  const [nicknames, setNicknames]               = useState({})
+  const [copied, setCopied]                     = useState(false)
+  const [localStream, setLocalStream]           = useState(null)
+
+  const myStreamRef      = useRef(null)
+  const localVideoRef    = useRef(null)
+  const remoteVideoRef   = useRef(null)
+  const pendingPeerIdRef = useRef(null)
+
+  const myNickname       = nicknames[socket.id] || nickname || 'You'
+  const opponentNickname = Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] || 'Opponent'
+  const { accent }       = backgrounds[bgIndex]
+
+  // Sync local stream to the video element whenever the stream or camera toggle changes.
+  // This runs after every render, ensuring srcObject is always set even after React
+  // reconciles the video element (e.g. when opponent joins and causes a re-render).
   useEffect(() => {
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream
+    }
+  }, [localStream, isCameraOff])
+
+  // ── Socket listeners ────────────────────────────────────────
+  useEffect(() => {
+    socket.on('game-init', (state) => {
+      setGameState(state)
+      setIsOpponentJoined(true)
+      setSyncStatus('Game on! 🎮')
+    })
     socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
-    });
-    return () => socket.off('receive-move');
-  }, [socket]);
-
-  useEffect(() => {
-    const peer = new Peer();
-    peerRef.current = peer;
-
-    peer.on("open", (id) => {
-      socket.emit("peer-id", { room, peerId: id });
-    });
-
-    
-
-      peer.on("call", (call) => {
-        call.answer(myStreamRef.current);
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          setIsOpponentJoined(true);
-        });
-      });
-
-      socket.on("peer-id", (otherPeerId) => {
-        const call = peer.call(otherPeerId, myStreamRef.current);
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          setIsOpponentJoined(true);
-        });
-      });
-
-      navigator.mediaDevices.getUserMedia({ video: {
-        width: { ideal: 1920 },//for best quality
-        height: { ideal: 1080 },
-        frameRate:{ideal: 60}, 
-        },
-        audio: {
-        echoCancellation: true, 
-        noiseSuppression: true,      
-      }
-      }).then((stream) => {
-      myStreamRef.current = stream;
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
-    });
+      setSyncStatus(`${opponentNickname} played ${data.cardValue}${data.cardSuit}`)
+    })
+    socket.on('nicknames-update', setNicknames)
+    socket.on('opponent-disconnected', () => {
+      setIsOpponentJoined(false)
+      setSyncStatus('Opponent disconnected...')
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
+    })
+    socket.on('camera-status', ({ isCameraOff: off }) => setIsOpponentCameraOff(off))
 
     return () => {
-      socket.off("peer-id");
-      if (peerRef.current) peerRef.current.destroy();
-      if (myStreamRef.current) {
-        myStreamRef.current.getTracks().forEach(t => t.stop());
-      }
-    };
-  }, [socket, room]);
+      socket.off('game-init'); socket.off('receive-move')
+      socket.off('nicknames-update'); socket.off('opponent-disconnected')
+      socket.off('camera-status')
+    }
+  }, [socket, opponentNickname])
 
-  // ✅ ADDED: The missing function to change backgrounds
-  const cycleBackground = () => {
-    setBgIndex((prev) => (prev + 1) % backgrounds.length);
-  };
+  // ── WebRTC ──────────────────────────────────────────────────
+  useEffect(() => {
+    const peer = new Peer(undefined, {
+      config: {
+        iceServers: [
+          {
+            urls: "stun:stun.relay.metered.ca:80",
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:80",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:443",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+      ]
+    }
+  })
+      
+    
+  
 
+    const callPeer = (otherId) => {
+      if (!myStreamRef.current) { pendingPeerIdRef.current = otherId; return }
+      console.log("Calling peer:", otherId)
+      const call = peer.call(otherId, myStreamRef.current)
+      call.on('stream', (s) => {
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
+        setIsOpponentJoined(true)
+        setSyncStatus('Connected! ✨')
+      })
+    }
+
+    peer.on('open', id => socket.emit('peer-id', { room, peerId: id }))
+    socket.on('request-peer-id', () => { if (peer.id) socket.emit('peer-id', { room, peerId: peer.id }) })
+    socket.on('peer-id', callPeer)
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        myStreamRef.current = stream
+        setLocalStream(stream)  // triggers the sync useEffect above → camera shows immediately
+        if (pendingPeerIdRef.current) { callPeer(pendingPeerIdRef.current); pendingPeerIdRef.current = null }
+
+        peer.on('call', call => {
+          call.answer(stream)
+          call.on('stream', s => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
+            setIsOpponentJoined(true)
+          })
+        })
+      })
+      .catch(err => console.error('Camera error:', err))
+
+    return () => {
+      socket.off('peer-id'); socket.off('request-peer-id')
+      if (myStreamRef.current) myStreamRef.current.getTracks().forEach(t => t.stop())
+      peer.destroy()
+    }
+  }, [socket, room])
+
+  // ── Helpers ─────────────────────────────────────────────────
   const toggleMute = () => {
-  myStreamRef.current.getAudioTracks().forEach(track => {
-    track.enabled = !track.enabled;
-  });
-  setIsMuted(prev => !prev);
-  };
+    if (!myStreamRef.current) return
+    myStreamRef.current.getAudioTracks().forEach(t => t.enabled = !t.enabled)
+    setIsMuted(p => !p)
+  }
 
   const toggleCamera = () => {
-  myStreamRef.current.getVideoTracks().forEach(track => {
-    track.enabled = !track.enabled;
-  });
-  setIsCameraOff(prev => !prev);
-  };
+    if (!myStreamRef.current) return
+    const next = !isCameraOff
+    myStreamRef.current.getVideoTracks().forEach(t => t.enabled = !next)
+    setIsCameraOff(next)
+    socket.emit('camera-status', { room, isCameraOff: next })
+  }
 
-  const handleCardClick = (i) => {
-    setSyncStatus(`You played card ${i + 1}`);
-    socket.emit('send-move', { room, cardIndex: i + 1 });
+  const handleCardClick = card => {
+    setSyncStatus(`You played ${card.value}${card.suit}`)
+    socket.emit('send-move', { room, cardValue: card.value, cardSuit: card.suit })
+  }
+
+  const copyRoom = () => {
+    const link = `${window.location.origin}?room=${room}`
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {
+      const el = document.createElement('textarea')
+      el.value = link
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
   }
 
   return (
     <div className="call-screen">
+      {/* ── LEFT: Video panel ── */}
       <div className="left-panel">
+        <div className="room-strip">
+          <span className="room-strip-label">Room</span>
+          <span className="room-strip-id">{room}</span>
+          <button
+            className={`room-strip-copy ${copied ? 'copied' : ''}`}
+            onClick={copyRoom}
+          >
+            {copied ? '✓ Copied!' : 'Copy ID'}
+          </button>
+        </div>
+
         <div className="video-container">
           <div className="main-video">
-            {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
-            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
+            {!isOpponentJoined && (
+              <div className="video-placeholder">
+                <div className="waiting-pulse" />
+                Waiting for opponent...
+              </div>
+            )}
+            {isOpponentJoined && isOpponentCameraOff && (
+              <div className="video-placeholder">
+                <Avatar name={opponentNickname} size={72} />
+                <span style={{ fontSize: '12px', marginTop: '10px' }}>Camera off</span>
+              </div>
+            )}
+            <video
+              ref={remoteVideoRef} autoPlay playsInline
+              style={{ width:'100%', height:'100%', objectFit:'cover',
+                display: (isOpponentJoined && !isOpponentCameraOff) ? 'block' : 'none' }}
+            />
+            {isOpponentJoined && !isOpponentCameraOff && (
+              <div className="name-tag">{opponentNickname}</div>
+            )}
           </div>
+
           <div className="self-view">
-            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
+            {isCameraOff ? (
+              <div style={{ width:'100%', height:'100%', display:'flex',
+                flexDirection:'column', alignItems:'center', justifyContent:'center',
+                gap:'6px', background:'#05050a' }}>
+                <Avatar name={myNickname} size={38} />
+                <span style={{ color:'rgba(255,255,255,0.5)', fontSize:'10px' }}>Camera off</span>
+              </div>
+            ) : (
+              <video ref={localVideoRef} autoPlay muted playsInline
+                style={{ width:'100%', height:'100%', objectFit:'cover', transform:'scaleX(-1)' }}
+              />
+            )}
+            <div className="name-tag" style={{ fontSize:'10px', padding:'2px 10px' }}>
+              {myNickname} (you)
+            </div>
           </div>
         </div>
+
         <div className="controls-bar">
-          <button onClick={toggleMute} className="control-btn" style={{backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c'}}><img src={Mute} /></button>
-          <button onClick={toggleCamera} className="control-btn" style={{backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c'}}><img src={VideoOff} /></button>
-          <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
+          <div className="controls-left">
+            <button
+              className={`control-btn ${isMuted ? 'active' : ''}`}
+              onClick={toggleMute} title={isMuted ? 'Unmute' : 'Mute'}
+              style={{ backgroundColor: isMuted ? '#ff3b30' : '#3a3a3c' }}
+            >
+              <img src={Mute} alt="Mute" />
+            </button>
+            <button
+              className={`control-btn ${isCameraOff ? 'active' : ''}`}
+              onClick={toggleCamera} title="Toggle camera"
+              style={{ backgroundColor: isCameraOff ? '#ff3b30' : '#3a3a3c' }}
+            >
+              <img src={VideoOff} alt="Camera" />
+            </button>
+          </div>
+          <div className="controls-right">
+            <button className="control-btn end-call" onClick={onLeave} title="Leave">
+              <img src={EndCall} alt="End call" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="right-panel" style={{ 
+      {/* ── RIGHT: Game panel ── */}
+      <div
+        className="right-panel"
+        style={{
           background: backgrounds[bgIndex].bg,
-          // ✅ ADDED: This creates the "Cool" Casino felt pattern dots
-          backgroundImage: `radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0), ${backgrounds[bgIndex].bg}`,
-          backgroundSize: '30px 30px, 100% 100%'
-      }}>
-        
-        {/* Giant suits in the background */}
+          backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px), ${backgrounds[bgIndex].bg}`,
+          backgroundSize: '28px 28px, 100% 100%',
+        }}
+      >
         <div className="table-suits">
-          <span className="table-suit" style={{ color: backgrounds[bgIndex].accentColor }}>
-            {backgrounds[bgIndex].suits[0]}
-          </span>
-          <span className="table-suit" style={{ color: backgrounds[bgIndex].accentColor }}>
-            {backgrounds[bgIndex].suits[1]}
-          </span>
+          <span className="table-suit" style={{ color: accent }}>{backgrounds[bgIndex].suits[0]}</span>
+          <span className="table-suit" style={{ color: accent }}>{backgrounds[bgIndex].suits[1]}</span>
         </div>
 
-        {/* Decorative Corners */}
-        <div className="table-corners" style={{ color: backgrounds[bgIndex].accentColor }}>
-          <span className="corner tl"></span>
-          <span className="corner tr"></span>
-          <span className="corner bl"></span>
-          <span className="corner br"></span>
-        </div>
+        <span className="corner tl" style={{ color: accent }} />
+        <span className="corner tr" style={{ color: accent }} />
+        <span className="corner bl" style={{ color: accent }} />
+        <span className="corner br" style={{ color: accent }} />
 
         <div className="game-area">
-          <div className="game-header-info">
-             <h3 style={{color: 'white', position: 'absolute', top: '20px', left: '30px', margin: '0'}}>
-               Room: {room}
-             </h3>
-             <p className="status-text" style={{ color: backgrounds[bgIndex].accentColor, position: 'absolute', top: '45px', left: '30px', margin: '0', fontSize: '12px', fontWeight: 'bold' }}>
-                {syncStatus}
-             </p>
+          <div className="game-header">
+            <div className="status-pill" style={{ color: accent }}>
+              <span className="status-dot" style={{ backgroundColor: accent }} />
+              {syncStatus}
+            </div>
+            <button
+              className="bg-cycle-btn"
+              onClick={() => setBgIndex(p => (p + 1) % backgrounds.length)}
+            >
+              🎨 Theme
+            </button>
           </div>
 
-          <button onClick={cycleBackground} className="bg-cycle-btn">Change Table Theme</button>
-          
-          <div className="opponent-hand">
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
+          <div>
+            <p className="hand-label">{opponentNickname}'s hand</p>
+            <div className="opponent-hand">
+              {gameState
+                ? Object.keys(gameState.hands)
+                    .filter(id => id !== socket.id)
+                    .map(oppId =>
+                      gameState.hands[oppId].map((_, i) =>
+                        <div key={i} className="card card-back" />
+                      )
+                    )
+                : null}
+            </div>
           </div>
-          
+
           <div className="game-table">
-            <div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div>
+            <p className="discard-label">Discard pile</p>
+            {gameState
+              ? <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} />
+              : <div className="card-placeholder">Waiting…</div>}
           </div>
-          
-          <div className="player-hand">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
-                Card {i+1}
-              </div>
-            ))}
+
+          <div>
+            <p className="hand-label">Your hand</p>
+            <div className="player-hand">
+              {gameState && gameState.hands[socket.id]
+                ? gameState.hands[socket.id].map(card =>
+                    <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
+                  )
+                : <p style={{ color:'rgba(255,255,255,0.25)', fontSize:'13px' }}>Waiting for players...</p>}
+            </div>
           </div>
         </div>
       </div>
@@ -193,4 +373,4 @@ function CallScreen({ socket, room, onLeave }) {
   )
 }
 
-export default CallScreen;
+export default CallScreen
