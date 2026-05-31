@@ -67,7 +67,7 @@ export function createGame(playerIDS, selectedGame) {
 //NOTE: Deleted start game function as the server does not wait, it reacts to events will implement with socket.io
 
 //Logic for each player's turn in card game| Used AI to debug 15/5/26
-export function playTurn(state, selectedGame, playerID, cardPlayed) {
+export function playTurn(state, selectedGame, playerID, cardPlayed, chosenSuit) {
   switch (selectedGame) {
     case "LastCard": {
       //Sets the hand to whatever cards the player has (per player)
@@ -87,15 +87,15 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
 
       //if the card is not in the hand then draw a card and then it is the next players turn
       if (cardIndex === -1) {
-        drawCard(state, playerID, selectedGame);
-        return { newState: state, error: "Card not in hand!" };
+        const { newState } = drawCard(state, playerID, selectedGame);                                 
+        return { newState: newState ?? state, error: "Card not in hand!" };
       }
 
       //Top card of the discard pile
       const topCard = state.discard[state.discard.length - 1];
 
       //Checks if the card that the player wants to play is a legal move
-      if (!isLegalPlay(topCard, card, selectedGame)) {
+      if (!isLegalPlay(topCard, card, selectedGame, state.currSuit)) {
         return { newState: state, error: "Is not legal play!" };
       }
 
@@ -119,7 +119,7 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
         ...state, //'...' just means to 'copy' of in this case state, and here we are changing hands discard pile and the current suit
         hands: { ...state.hands, [playerID]: newHand },
         discard: discardPile,
-        currSuit: card.suit,
+        currSuit: card.value === "J" ? (chosenSuit ?? card.suit) : card.suit, //if the card played is a J, then the player can choose the suit, otherwise it is just the suit of the card played
         log: playerID + " played " + card.value + card.suit,
       };
 
@@ -134,7 +134,7 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
       }
 
       //only advance for the normal cards
-      if (card.value !== "8" && card.value !== "2") {
+      if (card.value !== "8") {
         newState = nextPlayer(newState);
       }
 
@@ -144,10 +144,10 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
 }
 
 //Checks if the card played is a legal move based on the top card of the discard pile and the rules of the game
-export function isLegalPlay(topCard, cardPlayed, selectedGame) {
+export function isLegalPlay(topCard, cardPlayed, selectedGame, currSuit) {
   if (selectedGame === "LastCard") {
     if (cardPlayed.value === 'J') return true;  // Jack is always legal
-    if (cardPlayed.suit === topCard.suit || cardPlayed.value === topCard.value) {
+    if (cardPlayed.suit === currSuit || cardPlayed.value === topCard.value) {
       return true;
     }
     return false;

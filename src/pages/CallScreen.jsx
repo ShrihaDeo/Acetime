@@ -108,6 +108,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [cameraError, setCameraError] = useState(null) 
 
   const [syncStatus, setSyncStatus] = useState('Waiting for opponent...')
+  const [pendingJack, setPendingJack] = useState(null) // card waiting for suit selection
   const [bgIndex, setBgIndex] = useState(0)
   const [isOpponentJoined, setIsOpponentJoined] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
@@ -283,7 +284,17 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       setSyncStatus("It's not your turn!")
       return
     }
+    if (card.value === 'J') {
+      setPendingJack(card)
+      return
+    }
     socket.emit('send-move', { room, cardId: card.id, action: 'play' })
+  }
+
+  const handleSuitChosen = suit => {
+    if (!pendingJack) return
+    socket.emit('send-move', { room, cardId: pendingJack.id, action: 'play', chosenSuit: suit })
+    setPendingJack(null)
   }
 
   // For games that allow drawing a card instead of playing
@@ -803,6 +814,60 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               <img src={EndCall} alt="End" />
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── SUIT PICKER (shown after playing a Jack) ── */}
+      {pendingJack && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 200,
+          background: 'rgba(5,5,10,0.85)', backdropFilter: 'blur(8px)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: '24px',
+        }}>
+          <p style={{
+            fontFamily: "'Syne', sans-serif", fontSize: '20px',
+            fontWeight: '700', color: 'white',
+          }}>
+            Choose a suit for your Jack
+          </p>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            {[
+              { suit: '♠', label: 'Spades',   color: '#ffffff' },
+              { suit: '♥', label: 'Hearts',   color: '#ff4d4d' },
+              { suit: '♦', label: 'Diamonds', color: '#ff4d4d' },
+              { suit: '♣', label: 'Clubs',    color: '#ffffff' },
+            ].map(({ suit, label, color }) => (
+              <button
+                key={suit}
+                onClick={() => handleSuitChosen(suit)}
+                style={{
+                  width: '80px', height: '100px',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  cursor: 'pointer', transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+              >
+                <span style={{ fontSize: '36px', color }}>{suit}</span>
+                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>{label}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setPendingJack(null)}
+            style={{
+              background: 'none', border: 'none',
+              color: 'rgba(255,255,255,0.3)', fontSize: '13px',
+              cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </button>
         </div>
       )}
 

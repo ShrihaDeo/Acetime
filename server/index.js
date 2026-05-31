@@ -270,7 +270,7 @@ io.on('connection', (socket) => {
     }
   
     // Player wants to play a card
-    const { newState, error } = playTurn(state, 'LastCard', socket.id, data.cardId)
+    const { newState, error } = playTurn(state, 'LastCard', socket.id, data.cardId, data.chosenSuit)
     if (error) {
       socket.emit('game-error', error)
       return
@@ -315,8 +315,17 @@ io.on('connection', (socket) => {
   // Handl game selection
   socket.on('game-selected', (data) => {
     const cleanRoom = data.room.trim().toLowerCase();
-    io.to(cleanRoom).emit('game-selected', { game: data.game })
-  })
+    io.to(cleanRoom).emit('game-selected', { game: data.game });
+
+    // Resend game state so clients can actually play
+    const state = roomStates[cleanRoom];
+    if (state) {
+      const clients = io.sockets.adapter.rooms.get(cleanRoom);
+      for (const clientID of clients) {
+        io.to(clientID).emit('game-init', sanitizeState(state, clientID));
+      }
+    }
+  });
 
 });
 
