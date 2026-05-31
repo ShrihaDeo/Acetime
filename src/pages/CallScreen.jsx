@@ -5,7 +5,6 @@ import VideoOff from '../assets/video_off.svg'
 import Mute     from '../assets/mute.svg'
 import Card     from '../components/Card'
 
-
 const backgrounds = [
   {
     bg: 'radial-gradient(circle at 30% 40%, #0d3d20 0%, #050f08 100%)',
@@ -106,6 +105,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   // ref attached to an invisible div at the bottom of the chat
   // used to auto scroll down when new messages arrive
   const chatEndRef = useRef(null)
+  const [cameraError, setCameraError] = useState(null) 
 
   const [syncStatus, setSyncStatus] = useState('Waiting for opponent...')
   const [bgIndex, setBgIndex] = useState(0)
@@ -214,6 +214,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     if (!myStreamRef.current) { pendingPeerIdRef.current = otherId; return }
     console.log("Calling peer:", otherId)
     const call = peer.call(otherId, myStreamRef.current)
+    if (!call) return
     call.on('stream', (s) => {
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
       setIsOpponentJoined(true)
@@ -238,13 +239,26 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           })
         })
       })
-      .catch(err => console.error('Camera error:', err))
+      .catch(err => {
+        console.error('Camera error:', err)
+        // Show user-friendly message based on error type
+        if (err.name === 'NotAllowedError') {
+          setCameraError('Camera access was denied. Please allow camera access in your browser settings and refresh.')
+        } else if (err.name === 'NotFoundError') {
+          setCameraError('No camera found. Please connect a camera and refresh.')
+        } else {
+          setCameraError('Could not access camera. Please check your device and try again.')
+        }
+      })
 
-    return () => {
-      socket.off('peer-id'); socket.off('request-peer-id')
-      if (myStreamRef.current) myStreamRef.current.getTracks().forEach(t => t.stop())
-      peer.destroy()
-    }
+      return () => {
+        socket.off('peer-id')
+        socket.off('request-peer-id')
+        if (myStreamRef.current) {
+          myStreamRef.current.getTracks().forEach(t => t.stop())
+        }
+        peer.destroy()
+      }
   }, [socket, room])
 
   // ── Helpers ──
@@ -265,19 +279,18 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   // When a card is clicked in the game UI, emit the move to the server if it's the player's turn.
   const handleCardClick = card => {
     if (!gameState) return
-    if (gameState.players.indexOf(socket.id) !== gameState.currentIndex) {
+    if (!gameState.isYourTurn) {
       setSyncStatus("It's not your turn!")
       return
     }
-    setSyncStatus(`You played ${card.value}${card.suit}`)
-    socket.emit('send-move', { room, cardValue: card.value, cardSuit: card.suit })
+    socket.emit('send-move', { room, cardId: card.id, action: 'play' })
   }
 
   // For games that allow drawing a card instead of playing
   // this function emits a draw action to the server.
   const handleDraw = () => {
     if (!gameState) return
-    if (gameState.players.indexOf(socket.id) !== gameState.currIndex) {
+    if (!gameState.isYourTurn) {
       setSyncStatus("It's not your turn!")
       return
     }
@@ -343,104 +356,6 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     }
   }
 
-   // ── Shared camera strip (bottom of screen during game) ──────
-   const CameraStrip = () => (
-    <div style={{
-      position: 'absolute',
-      bottom: '20px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      display: 'flex',
-      gap: '12px',
-      zIndex: 50,
-    }}>
-      {/* Friend's cam */}
-      <div style={{
-        width: '140px', height: '100px',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        border: '2px solid rgba(255,255,255,0.15)',
-        background: '#05050a',
-        position: 'relative',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-      }}>
-        {isOpponentCameraOff ? (
-          <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#0d0b10' }}>
-            <Avatar name={opponentNickname} size={36} />
-          </div>
-        ) : (
-          <video ref={remoteVideoRef} autoPlay playsInline
-            style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-        )}
-        <div style={{
-          position: 'absolute', bottom: '4px', left: '6px',
-          fontSize: '10px', color: 'white',
-          background: 'rgba(0,0,0,0.6)', padding: '2px 6px',
-          borderRadius: '6px', backdropFilter: 'blur(4px)',
-        }}>
-          {opponentNickname}
-        </div>
-      </div>
-
-      {/* My cam */}
-      <div style={{
-        width: '140px', height: '100px',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        border: `2px solid ${accent}44`,
-        background: '#05050a',
-        position: 'relative',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-      }}>
-        {isCameraOff ? (
-          <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#0d0b10' }}>
-            <Avatar name={myNickname} size={36} />
-          </div>
-        ) : (
-          <video ref={localVideoRef} autoPlay muted playsInline
-            style={{ width:'100%', height:'100%', objectFit:'cover', transform:'scaleX(-1)' }} />
-        )}
-        <div style={{
-          position: 'absolute', bottom: '4px', left: '6px',
-          fontSize: '10px', color: 'white',
-          background: 'rgba(0,0,0,0.6)', padding: '2px 6px',
-          borderRadius: '6px', backdropFilter: 'blur(4px)',
-        }}>
-          {myNickname} (you)
-        </div>
-      </div>
-    </div>
-  )
-
-  // ── Controls bar (always visible) ───────────────────────────
-  const ControlsBar = () => (
-    <div style={{
-      position: 'absolute',
-      bottom: '130px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      display: 'flex',
-      gap: '10px',
-      zIndex: 50,
-    }}>
-      <button className={`control-btn ${isMuted ? 'active' : ''}`} onClick={toggleMute}>
-        <img src={Mute} alt="Mute" />
-      </button>
-      <button className={`control-btn ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera}>
-        <img src={VideoOff} alt="Camera" />
-      </button>
-      <button
-        className={`control-btn ${chatOpen ? 'active' : ''}`}
-        onClick={() => setChatOpen(p => !p)}
-        style={{ fontSize: '18px', backgroundColor: chatOpen ? 'rgba(180,77,255,0.3)' : '' }}
-      >
-        🤖
-      </button>
-      <button className="control-btn end-call" onClick={onLeave}>
-        <img src={EndCall} alt="End" />
-      </button>
-    </div>
-  )
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', background: '#05050a', overflow: 'hidden' }}>
@@ -500,7 +415,20 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             zIndex: 10,
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}>
-            {isCameraOff ? (
+            {cameraError ? (
+              <div style={{
+                width: '100%', height: '100%',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                background: '#0d0b10', padding: '8px',
+                textAlign: 'center', gap: '6px',
+              }}>
+                <span style={{ fontSize: '20px' }}>🚫</span>
+                <span style={{ fontSize: '9px', color: '#ff6b6b', lineHeight: '1.3' }}>
+                  {cameraError}
+                </span>
+              </div>
+            ) : isCameraOff ? (
               <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'6px', background:'#0d0b10' }}>
                 <Avatar name={myNickname} size={40} />
                 <span style={{ color:'rgba(255,255,255,0.4)', fontSize:'10px' }}>Camera off</span>
@@ -720,7 +648,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               <div className="status-pill" style={{ color: accent }}>
                 <span className="status-dot" style={{ backgroundColor: accent }} />
                 {gameState
-                  ? gameState.players.indexOf(socket.id) === gameState.currIndex
+                  ? gameState.isYourTurn
                     ? '🟢 Your turn'
                     : `⏳ ${opponentNickname}'s turn`
                   : syncStatus}
@@ -751,11 +679,16 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               <div className="opponent-hand">
                 {gameState
                   ? Object.keys(gameState.hands)
-                      .filter(id => id !== socket.id)
-                      .map(oppId => gameState.hands[oppId].map((_, i) =>
-                        <div key={i} className="card card-back" />
-                      ))
-                  : null}
+                  .filter(id => id !== socket.id)
+                  .map(oppId => {
+                    const cardCount = typeof gameState.hands[oppId] === 'number'
+                      ? gameState.hands[oppId]
+                      : gameState.hands[oppId].length
+                    return Array.from({ length: cardCount }).map((_, i) =>
+                      <div key={i} className="card card-back" />
+                    )
+                  })
+              : null}
               </div>
             </div>
 
@@ -766,7 +699,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                 ? <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} />
                 : <div className="card-placeholder">Waiting…</div>}
 
-              {gameState && gameState.players.indexOf(socket.id) === gameState.currIndex && (
+              {gameState && gameState.isYourTurn && (
                 <button onClick={handleDraw} style={{
                   marginTop: '10px', padding: '8px 22px',
                   background: 'rgba(255,255,255,0.08)',

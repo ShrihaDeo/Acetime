@@ -1,13 +1,78 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { createGame } from './game.js';
+import { createGame, playTurn, drawCard } from './game.js';
 import rateLimit from 'express-rate-limit';
 
 const app = express();
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, { cors: { origin: "*" } });
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST']
+  }
+})
+
+// Validate required environment variables on startup
+const REQUIRED_ENV = ['GROQ_API_KEY']
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`Missing required environment variable: ${key}`)
+    process.exit(1)
+  }
+}
+console.log('Environment variables validated')
+
+const roomTimers = {} // tracks cleanup timers per room
+
+function scheduleRoomCleanup(roomID) {
+  // Cancel any existing timer for this room
+  if (roomTimers[roomID]) {
+    clearTimeout(roomTimers[roomID])
+  }
+
+  // Set a 10 minute timer — if nobody rejoins, clean up
+  roomTimers[roomID] = setTimeout(() => {
+    if (roomStates[roomID]) {
+      delete roomStates[roomID]
+      delete roomNicknames[roomID]
+      delete roomTimers[roomID]
+      console.log(`Room ${roomID} cleaned up after timeout`)
+    }
+  }, 10 * 60 * 1000) // 10 minutes
+}
+
+function cancelRoomCleanup(roomID) {
+  if (roomTimers[roomID]) {
+    clearTimeout(roomTimers[roomID])
+    delete roomTimers[roomID]
+  }
+}
+
+//builds a copy of the game state to send to the specified player. Also stops players from opening dev tools and reading the opponent's hand from network
+function sanitizeState(state, playerID) {
+  const safeHands = {};
+
+  //Loop through all players and decide what hand info to include
+  for (const id of state.players) {
+    if (id === playerID) {
+      safeHands[id] = state.hands[id]; //current player: send their full hand
+    } else {
+      safeHands[id] = state.hands[id].length; //other player: send just the number of cards
+    }
+  }
+
+  // '...state' copies everything from the original state object.
+  // Then we override just the 'hands' field with our sanitized version,
+  // and add two extra helper fields the frontend will find useful.
+  return {
+    ...state,
+    hands: safeHands,
+    yourID: playerID, //So the client knows which player they are
+    isYourTurn: state.players[state.currIndex] === playerID, //Convenient true/false for the UI
+  }
+}
 
 // Allow Express to read JSON request bodies
 app.use(express.json())
@@ -20,8 +85,8 @@ const aiLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-// Gemini proxy route
-  app.post('/api/ask', async (req, res) => {
+// Groq proxy route
+  app.post('/api/ask', aiLimiter, async (req, res) => {
   const { question, playerNames, handSize } = req.body
 
   if (!question || question.trim() === '') {
@@ -84,7 +149,10 @@ io.on('connection', (socket) => {
 
   socket.on('join-room', ({ room, nickname }) => {
     const cleanRoom = room.trim().toLowerCase();
-    // Check capacity BEFORE joining
+
+    // Cancel cleanup timer if someone is rejoining
+    cancelRoomCleanup(cleanRoom)
+    // Check capacity before joining
     const existingClients = io.sockets.adapter.rooms.get(cleanRoom);
     const currentSize = existingClients ? existingClients.size : 0;
 
@@ -147,7 +215,11 @@ io.on('connection', (socket) => {
         }
       }
 
-      io.to(cleanRoom).emit('game-init', roomStates[cleanRoom]);
+      // sends sanitized state to each player individually
+      const clientsForInit = io.sockets.adapter.rooms.get(cleanRoom)
+      for (const clientID of clientsForInit) {
+        io.to(clientID).emit('game-init', sanitizeState(roomStates[cleanRoom], clientID))
+      }
       io.to(cleanRoom).emit('request-peer-id');
 
     } else if (roomStates[cleanRoom]) {
@@ -163,13 +235,55 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Validates move server-side using the game.js functions
   socket.on('send-move', (data) => {
-    const cleanRoom = data.room.trim().toLowerCase();
-    if (roomStates[cleanRoom]) {
-      roomStates[cleanRoom].log = `${socket.id} played a card`;
+    const cleanRoom = data.room.trim().toLowerCase()
+    const state = roomStates[cleanRoom]
+  
+    if (!state) {
+      socket.emit('game-error', 'No game found in this room')
+      return
     }
-    socket.to(cleanRoom).emit('receive-move', data);
-  });
+  
+    // Enforce turn order — only the current player can move
+    const currentPlayerId = state.players[state.currIndex]
+    if (socket.id !== currentPlayerId) {
+      socket.emit('game-error', "It's not your turn!")
+      return
+    }
+  
+    // Player wants to draw
+    if (data.action === 'draw') {
+      const { newState, error } = drawCard(state, socket.id, 'LastCard')
+      if (error) {
+        socket.emit('game-error', error)
+        return
+      }
+      roomStates[cleanRoom] = newState
+
+      // Send sanitized state to each player individually
+      const clients = io.sockets.adapter.rooms.get(cleanRoom)
+      for (const clientID of clients) {
+        io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+      }
+      return
+    }
+  
+    // Player wants to play a card
+    const { newState, error } = playTurn(state, 'LastCard', socket.id, data.cardId)
+    if (error) {
+      socket.emit('game-error', error)
+      return
+    }
+  
+    roomStates[cleanRoom] = newState
+    // Send sanitized state to each player individually
+    const clients = io.sockets.adapter.rooms.get(cleanRoom)
+    for (const clientID of clients) {
+      io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+    }
+  })
+  
 
   // Clean up room data after both players leave
   socket.on('disconnect', () => {
@@ -178,15 +292,14 @@ io.on('connection', (socket) => {
       if (state.players.includes(socket.id)) {
         socket.to(roomID).emit('opponent-disconnected');
   
-        // Check if room is now empty before deleting
         const clients = io.sockets.adapter.rooms.get(roomID);
         const remaining = clients ? clients.size : 0;
   
         if (remaining === 0) {
-          // Both players gone — clean up completely
-          delete roomStates[roomID];
-          delete roomNicknames[roomID];
-          console.log(`Room ${roomID} cleaned up`);
+          // Room empty — schedule cleanup after 10 minutes
+          // (gives players a chance to rejoin)
+          scheduleRoomCleanup(roomID)
+          console.log(`Room ${roomID} scheduled for cleanup`)
         }
         break;
       }
@@ -207,6 +320,19 @@ io.on('connection', (socket) => {
 
 });
 
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received — shutting down gracefully')
+  io.emit('server-restart', {
+    message: 'Server is restarting. Please refresh in a moment.'
+  })
+  setTimeout(() => {
+    io.close()
+    httpServer.close(() => {
+      console.log('Server closed cleanly')
+      process.exit(0)
+    })
+  }, 3000)
+})
 
 
 // 3. START THE SERVER (ONLY ONCE!)
