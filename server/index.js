@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { createGame, playTurn, drawCard } from './game.js';
+import { createGame, playTurn, drawCard, forceDraw } from './game.js';
 import rateLimit from 'express-rate-limit';
 
 const app = express();
@@ -50,28 +50,23 @@ function cancelRoomCleanup(roomID) {
   }
 }
 
-//builds a copy of the game state to send to the specified player. Also stops players from opening dev tools and reading the opponent's hand from network
+// build a per-player view of the game state. we hide:
+//  - the opponent's hand (only send a count)
+//  - the actual deck array (only send a count)
+// otherwise anyone could open devtools and read what cards are coming up
 function sanitizeState(state, playerID) {
   const safeHands = {};
-
-  //Loop through all players and decide what hand info to include
   for (const id of state.players) {
-    if (id === playerID) {
-      safeHands[id] = state.hands[id]; //current player: send their full hand
-    } else {
-      safeHands[id] = state.hands[id].length; //other player: send just the number of cards
-    }
+    safeHands[id] = id === playerID ? state.hands[id] : state.hands[id].length;
   }
-
-  // '...state' copies everything from the original state object.
-  // Then we override just the 'hands' field with our sanitized version,
-  // and add two extra helper fields the frontend will find useful.
+  const { deck, ...rest } = state;
   return {
-    ...state,
+    ...rest,
     hands: safeHands,
-    yourID: playerID, //So the client knows which player they are
-    isYourTurn: state.players[state.currIndex] === playerID, //Convenient true/false for the UI
-  }
+    deckCount: deck.length,
+    yourID: playerID,
+    isYourTurn: state.players[state.currIndex] === playerID,
+  };
 }
 
 // Allow Express to read JSON request bodies
@@ -141,8 +136,10 @@ const aiLimiter = rateLimit({
 
 
 // A simple object to store the 'Source of Truth' for each room
-const roomStates = {}; 
-const roomNicknames = {}; // Store nicknames for each player in each room
+const roomStates = {};
+const roomNicknames = {};
+const roomLastCard = {};   // who has called "Last Card!" this turn
+const roomCallable = {};   // who currently can be called out (forgot to say it)
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -223,7 +220,7 @@ io.on('connection', (socket) => {
       io.to(cleanRoom).emit('request-peer-id');
 
     } else if (roomStates[cleanRoom]) {
-      socket.emit('game-init', roomStates[cleanRoom]);
+      socket.emit('game-init', sanitizeState(roomStates[cleanRoom], socket.id));
     }
 
     console.log(`${nickname} (${socket.id}) joined room: ${cleanRoom}`);
@@ -239,13 +236,18 @@ io.on('connection', (socket) => {
   socket.on('send-move', (data) => {
     const cleanRoom = data.room.trim().toLowerCase()
     const state = roomStates[cleanRoom]
-  
+
     if (!state) {
       socket.emit('game-error', 'No game found in this room')
       return
     }
-  
-    // Enforce turn order — only the current player can move
+
+    // Once the opponent acts, the call-out window closes
+    if (roomCallable[cleanRoom] && roomCallable[cleanRoom] !== socket.id) {
+      delete roomCallable[cleanRoom]
+      io.to(cleanRoom).emit('callable-cleared')
+    }
+
     const currentPlayerId = state.players[state.currIndex]
     if (socket.id !== currentPlayerId) {
       socket.emit('game-error', "It's not your turn!")
@@ -259,28 +261,70 @@ io.on('connection', (socket) => {
         socket.emit('game-error', error)
         return
       }
+      // Drawing resets the player's Last Card call
+      if (roomLastCard[cleanRoom]) roomLastCard[cleanRoom].delete(socket.id)
       roomStates[cleanRoom] = newState
-
-      // Send sanitized state to each player individually
       const clients = io.sockets.adapter.rooms.get(cleanRoom)
       for (const clientID of clients) {
         io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
       }
       return
     }
-  
+
     // Player wants to play a card
     const { newState, error } = playTurn(state, 'LastCard', socket.id, data.cardId, data.chosenSuit)
     if (error) {
       socket.emit('game-error', error)
       return
     }
-  
+
+    // If they're down to 1 card and never called Last Card, they're now callable.
+    // The opponent gets a window (until they act) to catch it.
+    if (!newState.winner && newState.hands[socket.id]?.length === 1) {
+      const calledLastCard = roomLastCard[cleanRoom]?.has(socket.id)
+      if (!calledLastCard) {
+        roomCallable[cleanRoom] = socket.id
+        io.to(cleanRoom).emit('last-card-missed', { playerID: socket.id })
+      }
+      roomLastCard[cleanRoom]?.delete(socket.id)
+    }
+
     roomStates[cleanRoom] = newState
-    // Send sanitized state to each player individually
     const clients = io.sockets.adapter.rooms.get(cleanRoom)
     for (const clientID of clients) {
       io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+    }
+  })
+
+  // Player declares "Last Card!" — only valid when holding exactly 2
+  socket.on('call-last-card', ({ room }) => {
+    const cleanRoom = room.trim().toLowerCase()
+    const state = roomStates[cleanRoom]
+    if (!state || !state.hands[socket.id]) return
+    if (state.hands[socket.id].length === 2) {
+      if (!roomLastCard[cleanRoom]) roomLastCard[cleanRoom] = new Set()
+      roomLastCard[cleanRoom].add(socket.id)
+      io.to(cleanRoom).emit('last-card-called', { playerID: socket.id })
+    }
+  })
+
+  // someone tapped "Catch! they forgot Last Card" - opponent draws 2
+  socket.on('call-out-opponent', ({ room }) => {
+    const cleanRoom = room.trim().toLowerCase()
+    const victim = roomCallable[cleanRoom]
+    if (!victim || victim === socket.id) return
+
+    const state = roomStates[cleanRoom]
+    if (!state) return
+
+    const penalised = forceDraw(state, victim, 2)
+    roomStates[cleanRoom] = { ...penalised, log: 'Caught forgetting Last Card! +2 cards' }
+    delete roomCallable[cleanRoom]
+
+    io.to(cleanRoom).emit('called-out', { caller: socket.id, victim })
+    const clients = io.sockets.adapter.rooms.get(cleanRoom)
+    for (const clientID of clients) {
+      io.to(clientID).emit('game-state-update', sanitizeState(roomStates[cleanRoom], clientID))
     }
   })
   
@@ -312,12 +356,20 @@ io.on('connection', (socket) => {
     socket.to(data.room.trim().toLowerCase()).emit('camera-status', data);
   });
 
-  // Handl game selection
+  // someone picked a game from the menu. if the previous game already ended we
+  // build a fresh game so "Play again" actually deals new hands
   socket.on('game-selected', (data) => {
     const cleanRoom = data.room.trim().toLowerCase();
     io.to(cleanRoom).emit('game-selected', { game: data.game });
 
-    // Resend game state so clients can actually play
+    const existing = roomStates[cleanRoom];
+    if (existing?.winner) {
+      const playerIds = Array.from(io.sockets.adapter.rooms.get(cleanRoom) || []);
+      roomStates[cleanRoom] = createGame(playerIds, 'LastCard');
+      delete roomLastCard[cleanRoom];
+      delete roomCallable[cleanRoom];
+    }
+
     const state = roomStates[cleanRoom];
     if (state) {
       const clients = io.sockets.adapter.rooms.get(cleanRoom);

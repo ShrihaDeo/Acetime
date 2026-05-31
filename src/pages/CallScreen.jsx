@@ -28,7 +28,7 @@ const backgrounds = [
   },
 ]
 
-// Game cards for the menu
+// games for the menu screen
 const GAMES = [
   {
     id: 'lastcard',
@@ -40,21 +40,12 @@ const GAMES = [
     available: true,
   },
   {
-    id: 'highcard',
-    name: 'High Card',
-    description: 'Draw a card — highest wins the round.',
-    emoji: '🎴',
-    color: 'rgba(0,212,255,0.2)',
-    border: 'rgba(0,212,255,0.4)',
-    available: false,
-  },
-  {
-    id: 'snap',
-    name: 'Snap',
-    description: 'Be first to call snap when cards match.',
-    emoji: '👋',
-    color: 'rgba(255,61,172,0.2)',
-    border: 'rgba(255,61,172,0.3)',
+    id: 'comingsoon',
+    name: 'Coming Soon',
+    description: 'More games are on the way.',
+    emoji: '✨',
+    color: 'rgba(255,255,255,0.04)',
+    border: 'rgba(255,255,255,0.08)',
     available: false,
   },
 ]
@@ -108,7 +99,11 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [cameraError, setCameraError] = useState(null) 
 
   const [syncStatus, setSyncStatus] = useState('Waiting for opponent...')
-  const [pendingJack, setPendingJack] = useState(null) // card waiting for suit selection
+  const [pendingWild, setPendingWild] = useState(null)
+  const [lastCardCalled, setLastCardCalled] = useState(false)
+  const [callableOpponent, setCallableOpponent] = useState(null) // opponent socket id you can catch
+  const [showRules, setShowRules] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [bgIndex, setBgIndex] = useState(0)
   const [isOpponentJoined, setIsOpponentJoined] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
@@ -123,6 +118,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
 
 
   const myStreamRef = useRef(null)
+  const remoteStreamRef = useRef(null)
   const localVideoRef = useRef(null)
   const remoteVideoRef = useRef(null)
   const pendingPeerIdRef = useRef(null)
@@ -131,14 +127,20 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const opponentNickname = Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] || 'Opponent'
   const { accent } = backgrounds[bgIndex]
 
-  // Sync local stream to the video element whenever the stream or camera toggle changes.
-  // This runs after every render, ensuring srcObject is always set even after React
-  // reconciles the video element (e.g. when opponent joins and causes a re-render).
+  // keep the local <video> attached to the stream. gameMode is in here because
+  // when we switch screens react remounts the video tag and srcObject is gone
   useEffect(() => {
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = localStream
     }
-  }, [localStream, isCameraOff])
+  }, [localStream, isCameraOff, gameMode])
+
+  // same idea for the opponent's stream
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStreamRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current
+    }
+  }, [gameMode])
 
   // ── Socket listeners ──
   useEffect(() => {
@@ -151,6 +153,8 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       setGameState(state)
       setSyncStatus(state.log)
       if (state.winner) setSyncStatus(`${nicknames[state.winner] || 'Someone'} wins! `)
+      // reset Last Card call if hand grew back above 1 (e.g. drew cards)
+      if (state.hands[socket.id]?.length > 1) setLastCardCalled(false)
     })
     socket.on('receive-move', (data) => {
       setSyncStatus(`${opponentNickname} played ${data.cardValue}${data.cardSuit}`)
@@ -166,13 +170,37 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     socket.on('game-selected', ({ game }) => {
       setGameMode(game)
       setGameState(null)
-    }) 
+    })
+    socket.on('last-card-called', ({ playerID }) => {
+      if (playerID === socket.id) setLastCardCalled(true)
+      const name = playerID === socket.id ? 'You' : (nicknames[playerID] || 'Opponent')
+      setSyncStatus(`${name} called Last Card!`)
+    })
+    socket.on('last-card-missed', ({ playerID }) => {
+      if (playerID !== socket.id) setCallableOpponent(playerID)
+    })
+    socket.on('callable-cleared', () => setCallableOpponent(null))
+    socket.on('called-out', ({ caller, victim }) => {
+      setCallableOpponent(null)
+      if (victim === socket.id) {
+        setSyncStatus('Caught! You forgot Last Card — drew 2.')
+        setLastCardCalled(false)
+      } else if (caller === socket.id) {
+        setSyncStatus('Nice catch! Opponent draws 2.')
+      }
+    })
+    socket.on('game-error', (msg) => {
+      setSyncStatus(typeof msg === 'string' ? msg : 'Move rejected')
+    })
 
     return () => {
       socket.off('game-init'); socket.off('game-state-update')
-      socket.off('receive-move'); socket.off('nicknames-update') 
+      socket.off('receive-move'); socket.off('nicknames-update')
       socket.off('opponent-disconnected'); socket.off('camera-status')
       socket.off('player-joined'); socket.off('game-selected')
+      socket.off('last-card-called')
+      socket.off('last-card-missed'); socket.off('callable-cleared'); socket.off('called-out')
+      socket.off('game-error')
     }
   }, [socket, opponentNickname, nicknames])
 
@@ -217,6 +245,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     const call = peer.call(otherId, myStreamRef.current)
     if (!call) return
     call.on('stream', (s) => {
+      remoteStreamRef.current = s
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
       setIsOpponentJoined(true)
       setSyncStatus('Connected!')
@@ -235,6 +264,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
         peer.on('call', call => {
           call.answer(stream)
           call.on('stream', s => {
+            remoteStreamRef.current = s
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
             setIsOpponentJoined(true)
           })
@@ -284,17 +314,17 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       setSyncStatus("It's not your turn!")
       return
     }
-    if (card.value === 'J') {
-      setPendingJack(card)
+    if (card.value === 'A') {
+      setPendingWild(card)
       return
     }
     socket.emit('send-move', { room, cardId: card.id, action: 'play' })
   }
 
   const handleSuitChosen = suit => {
-    if (!pendingJack) return
-    socket.emit('send-move', { room, cardId: pendingJack.id, action: 'play', chosenSuit: suit })
-    setPendingJack(null)
+    if (!pendingWild) return
+    socket.emit('send-move', { room, cardId: pendingWild.id, action: 'play', chosenSuit: suit })
+    setPendingWild(null)
   }
 
   // For games that allow drawing a card instead of playing
@@ -306,6 +336,26 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       return
     }
     socket.emit('send-move', { room, action: 'draw' })
+  }
+
+  // styles reused inside the settings dropdown / rules modal
+  const settingsItemStyle = {
+    display: 'flex', alignItems: 'center', gap: '10px',
+    padding: '8px 12px',
+    background: 'transparent', border: 'none',
+    color: 'rgba(255,255,255,0.85)', fontSize: '13px',
+    cursor: 'pointer', borderRadius: '8px',
+    textAlign: 'left', fontFamily: "'Inter', sans-serif",
+  }
+
+  const rulesSectionStyle = {
+    fontFamily: "'Syne', sans-serif", fontSize: '13px',
+    color: 'var(--neon-purple)', textTransform: 'uppercase',
+    letterSpacing: '1px', marginTop: '18px', marginBottom: '8px',
+  }
+  const rulesListStyle = {
+    color: 'rgba(255,255,255,0.7)', fontSize: '13px',
+    lineHeight: '1.7', paddingLeft: '18px', margin: 0,
   }
 
   const copyRoom = () => {
@@ -553,13 +603,13 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             </p>
           </div>
 
-          {/* Game cards grid */}
+          {/* game cards grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '20px',
             width: '100%',
-            maxWidth: '720px',
+            maxWidth: '560px',
           }}>
             {GAMES.map(game => (
               <div
@@ -664,23 +714,67 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     : `⏳ ${opponentNickname}'s turn`
                   : syncStatus}
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
                 <button
-                  onClick={() => setGameMode('menu')}
+                  onClick={() => setShowRules(true)}
+                  title="How to play"
                   style={{
-                    padding: '6px 14px', background: 'rgba(0,0,0,0.35)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'rgba(255,255,255,0.5)', borderRadius: '20px',
-                    fontSize: '11px', cursor: 'pointer',
-                    fontFamily: "'Inter', sans-serif", marginTop: 0,
+                    width: '32px', height: '32px', padding: 0,
+                    background: 'rgba(0,0,0,0.35)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: 'rgba(255,255,255,0.8)', borderRadius: '50%',
+                    fontSize: '14px', fontWeight: '700', cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif",
                   }}
                 >
-                  🎮 Games
+                  ?
                 </button>
-                <button className="bg-cycle-btn"
-                  onClick={() => setBgIndex(p => (p + 1) % backgrounds.length)}>
-                  🎨 Theme
+                <button
+                  onClick={() => setShowSettings(s => !s)}
+                  title="Settings"
+                  style={{
+                    width: '32px', height: '32px', padding: 0,
+                    background: showSettings ? 'rgba(180,77,255,0.25)' : 'rgba(0,0,0,0.35)',
+                    border: `1px solid ${showSettings ? 'rgba(180,77,255,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                    color: 'rgba(255,255,255,0.8)', borderRadius: '50%',
+                    fontSize: '14px', cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  ⚙
                 </button>
+
+                {showSettings && (
+                  <div style={{
+                    position: 'absolute', top: '40px', right: 0, zIndex: 60,
+                    minWidth: '180px',
+                    background: 'rgba(15,15,26,0.97)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    padding: '6px',
+                    boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
+                    display: 'flex', flexDirection: 'column', gap: '2px',
+                  }}>
+                    <button
+                      onClick={() => { setBgIndex(p => (p + 1) % backgrounds.length) }}
+                      style={settingsItemStyle}
+                    >
+                      🎨 <span>Cycle theme</span>
+                    </button>
+                    <button
+                      onClick={() => { setShowSettings(false); setGameMode('menu') }}
+                      style={settingsItemStyle}
+                    >
+                      🎮 <span>Change game</span>
+                    </button>
+                    <button
+                      onClick={() => { setShowSettings(false); setGameMode('call') }}
+                      style={settingsItemStyle}
+                    >
+                      📞 <span>Back to call</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -703,16 +797,137 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               </div>
             </div>
 
-            {/* Discard pile */}
-            <div className="game-table">
-              <p className="discard-label">Discard pile</p>
+            {/* 3 columns so the discard pile stays in the centre of the screen.
+                draw pile lives in the left col, right col is just a spacer */}
+            <div className="game-table" style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              gap: '24px',
+              alignItems: 'flex-start',
+              width: '100%',
+            }}>
+              {/* left column: draw pile (pushed to the right side of its col) */}
+              {gameState ? (
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <p className="discard-label" style={{ margin: 0 }}>Draw pile</p>
+                    <div
+                      onClick={() => gameState.isYourTurn && handleDraw()}
+                      style={{
+                        position: 'relative', width: '72px', height: '100px',
+                        cursor: gameState.isYourTurn ? 'pointer' : 'default',
+                      }}
+                    >
+                      {/* stack up to 3 card-backs to make the pile look like a stack */}
+                      {gameState.deckCount > 0 && [0, 1, 2].slice(0, Math.min(3, Math.ceil(gameState.deckCount / 8))).map(i => (
+                        <div key={i} className="card card-back" style={{
+                          position: 'absolute',
+                          top: -i * 2, left: i * 2,
+                          width: '100%', height: '100%',
+                        }} />
+                      ))}
+                      {gameState.deckCount === 0 && (
+                        <div style={{
+                          width: '100%', height: '100%',
+                          border: '1px dashed rgba(255,255,255,0.15)',
+                          borderRadius: '8px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'rgba(255,255,255,0.25)', fontSize: '10px',
+                        }}>
+                          empty
+                        </div>
+                      )}
+                    </div>
+                    <span style={{
+                      fontSize: '11px', color: 'rgba(255,255,255,0.5)',
+                      background: 'rgba(0,0,0,0.45)',
+                      padding: '2px 10px', borderRadius: '10px',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}>
+                      {gameState.deckCount} left
+                    </span>
+                  </div>
+                </div>
+              ) : <div />}
+
+              {/* middle column — discard pile + suit indicator + the play/draw buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+              <p className="discard-label" style={{ margin: 0 }}>Discard pile</p>
               {gameState
                 ? <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} />
                 : <div className="card-placeholder">Waiting…</div>}
+              {gameState && (
+                <span style={{
+                  fontSize: '11px', color: 'rgba(255,255,255,0.5)',
+                  background: 'rgba(0,0,0,0.45)',
+                  padding: '2px 10px', borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}>
+                  {gameState.discard.length} played
+                </span>
+              )}
 
+              {/* shows the "active" suit. highlights yellow when an Ace was used
+                  to declare a different suit than the top card you can see */}
+              {gameState && (() => {
+                const top = gameState.discard[gameState.discard.length - 1]
+                const declared = gameState.currSuit
+                const differs = top && top.suit !== declared
+                const isRed = declared === '♥' || declared === '♦'
+                return (
+                  <div style={{
+                    marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px',
+                    padding: '4px 12px',
+                    background: differs ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${differs ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: '12px',
+                  }}>
+                    <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>
+                      {differs ? 'Declared suit:' : 'Current suit:'}
+                    </span>
+                    <span style={{ fontSize: '18px', color: isRed ? '#ff4d4d' : '#ffffff' }}>
+                      {declared}
+                    </span>
+                  </div>
+                )
+              })()}
+
+              {/* you have to say Last Card before playing your 2nd-to-last card */}
+              {gameState && gameState.hands[socket.id]?.length === 2 && !lastCardCalled && (
+                <button
+                  onClick={() => { socket.emit('call-last-card', { room }); setLastCardCalled(true) }}
+                  style={{
+                    marginTop: '10px', padding: '8px 22px',
+                    background: 'linear-gradient(135deg, #ff3dac, #b44dff)',
+                    border: 'none', borderRadius: '20px', fontSize: '12px',
+                    fontWeight: '700', color: 'white', cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif",
+                    boxShadow: '0 0 16px rgba(255,61,172,0.5)',
+                  }}
+                >
+                  🃏 Last Card!
+                </button>
+              )}
+
+              {/* catch the opponent if they forgot. button disappears once you make your move */}
+              {callableOpponent && callableOpponent !== socket.id && (
+                <button
+                  onClick={() => socket.emit('call-out-opponent', { room })}
+                  style={{
+                    marginTop: '10px', padding: '8px 22px',
+                    background: 'linear-gradient(135deg, #ffd700, #ff6b35)',
+                    border: 'none', borderRadius: '20px', fontSize: '12px',
+                    fontWeight: '700', color: '#1a1000', cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif",
+                    boxShadow: '0 0 18px rgba(255,215,0,0.55)',
+                  }}
+                >
+                  ⚠️ Catch! They forgot Last Card
+                </button>
+              )}
               {gameState && gameState.isYourTurn && (
                 <button onClick={handleDraw} style={{
-                  marginTop: '10px', padding: '8px 22px',
+                  marginTop: '8px', padding: '8px 22px',
                   background: 'rgba(255,255,255,0.08)',
                   border: '1px solid rgba(255,255,255,0.15)',
                   color: 'white', borderRadius: '20px', fontSize: '12px',
@@ -721,6 +936,10 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                   Draw card
                 </button>
               )}
+              </div>
+
+              {/* right col is empty on purpose - it balances the grid */}
+              <div />
             </div>
 
             {/* Your hand */}
@@ -810,6 +1029,14 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             <button className={`control-btn ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera}>
               <img src={VideoOff} alt="Camera" />
             </button>
+            <button
+              className={`control-btn ${chatOpen ? 'active' : ''}`}
+              onClick={() => setChatOpen(p => !p)}
+              style={{ fontSize: '18px', backgroundColor: chatOpen ? 'rgba(180,77,255,0.3)' : '' }}
+              title="Game assistant"
+            >
+              🤖
+            </button>
             <button className="control-btn end-call" onClick={onLeave}>
               <img src={EndCall} alt="End" />
             </button>
@@ -818,7 +1045,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       )}
 
       {/* ── SUIT PICKER (shown after playing a Jack) ── */}
-      {pendingJack && (
+      {pendingWild && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 200,
           background: 'rgba(5,5,10,0.85)', backdropFilter: 'blur(8px)',
@@ -829,7 +1056,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             fontFamily: "'Syne', sans-serif", fontSize: '20px',
             fontWeight: '700', color: 'white',
           }}>
-            Choose a suit for your Jack
+            Choose a suit for your Ace
           </p>
           <div style={{ display: 'flex', gap: '16px' }}>
             {[
@@ -859,7 +1086,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             ))}
           </div>
           <button
-            onClick={() => setPendingJack(null)}
+            onClick={() => setPendingWild(null)}
             style={{
               background: 'none', border: 'none',
               color: 'rgba(255,255,255,0.3)', fontSize: '13px',
@@ -868,6 +1095,144 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           >
             Cancel
           </button>
+        </div>
+      )}
+
+      {/* "?" rules modal */}
+      {showRules && (
+        <div
+          onClick={() => setShowRules(false)}
+          style={{
+            position: 'absolute', inset: 0, zIndex: 220,
+            background: 'rgba(5,5,10,0.85)', backdropFilter: 'blur(10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '40px',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: '480px', width: '100%',
+              background: 'rgba(15,15,26,0.98)',
+              border: '1px solid rgba(180,77,255,0.25)',
+              borderRadius: '18px', padding: '28px 32px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+              maxHeight: '80vh', overflowY: 'auto',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <h2 style={{
+                fontFamily: "'Syne', sans-serif", fontSize: '22px',
+                fontWeight: '800', color: 'white', margin: 0,
+              }}>
+                Last Card — how to play
+              </h2>
+              <button
+                onClick={() => setShowRules(false)}
+                style={{
+                  background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)',
+                  fontSize: '22px', cursor: 'pointer', padding: 0, lineHeight: 1,
+                }}
+              >×</button>
+            </div>
+
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.6', marginTop: 0 }}>
+              Match the top card by suit or rank. First to empty their hand wins. If you can't play, draw one card and your turn ends.
+            </p>
+
+            <h3 style={rulesSectionStyle}>Special cards</h3>
+            <ul style={rulesListStyle}>
+              <li><b>2</b> — next player draws 2 (stackable with other 2s/3s)</li>
+              <li><b>3</b> — next player draws 3 (stackable)</li>
+              <li><b>8</b> — reverses direction</li>
+              <li><b>J</b> — skips the next player</li>
+              <li><b>A</b> — wild; pick the suit when you play it</li>
+            </ul>
+
+            <h3 style={rulesSectionStyle}>Last Card rule</h3>
+            <ul style={rulesListStyle}>
+              <li>Call <b>"Last Card!"</b> when you're about to play down to one card.</li>
+              <li>Forget? Your opponent can catch you before they take their own turn — you draw 2.</li>
+              <li>You can't win with an Ace as your final card.</li>
+            </ul>
+
+            <h3 style={rulesSectionStyle}>Penalties</h3>
+            <ul style={rulesListStyle}>
+              <li>Playing out of turn or an illegal card — your card is rejected.</li>
+              <li>If the draw pile runs out, the discard pile (minus the top card) is shuffled back in.</li>
+            </ul>
+
+            <button
+              onClick={() => setShowRules(false)}
+              style={{
+                marginTop: '18px', width: '100%',
+                padding: '10px', borderRadius: '12px',
+                background: 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
+                border: 'none', color: 'white', fontSize: '13px', fontWeight: '600',
+                cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* winning / losing screen. only shows while you're in the game so the
+          Play again / Back to call buttons actually navigate away */}
+      {gameMode === 'lastcard' && gameState?.winner && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 250,
+          background: 'rgba(5,5,12,0.94)', backdropFilter: 'blur(14px)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: '20px',
+          textAlign: 'center', padding: '40px',
+        }}>
+          <div style={{ fontSize: '88px' }}>
+            {gameState.winner === socket.id ? '🏆' : '😭'}
+          </div>
+          <h2 style={{
+            fontFamily: "'Syne', sans-serif", fontSize: '40px',
+            fontWeight: '800', color: 'white', margin: 0,
+            background: gameState.winner === socket.id
+              ? 'linear-gradient(135deg, #ffd700, #ff6b35)'
+              : 'linear-gradient(135deg, #b44dff, #00d4ff)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            {gameState.winner === socket.id
+              ? 'You won!'
+              : `${nicknames[gameState.winner] || 'Opponent'} won`}
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
+            {gameState.winner === socket.id
+              ? 'Last card played. GG.'
+              : 'Better luck next round.'}
+          </p>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+            <button
+              onClick={() => setGameMode('menu')}
+              style={{
+                padding: '10px 24px', borderRadius: '24px',
+                background: 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
+                border: 'none', color: 'white', fontWeight: '600', fontSize: '13px',
+                cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Play again
+            </button>
+            <button
+              onClick={() => setGameMode('call')}
+              style={{
+                padding: '10px 24px', borderRadius: '24px',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: 'rgba(255,255,255,0.7)', fontSize: '13px',
+                cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Back to call
+            </button>
+          </div>
         </div>
       )}
 
