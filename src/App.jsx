@@ -1,21 +1,41 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import CallScreen from './pages/CallScreen'
 import RoomPage from './pages/RoomPage'
 import './App.css'
 import { io } from 'socket.io-client'
 
-// Establish the single socket connection for the entire app
-const socket = io('http://localhost:3000');
+const socket = io(window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : 'https://acetime-backend.onrender.com' 
+);
 
 function App() {
   const [page, setPage] = useState('landing')
   const [roomID, setRoomID] = useState("")
+  const [nickname, setNickname] = useState("") 
+  const [roomError, setRoomError] = useState("")
 
-  const handleStartCall = (room) => {
+  // Listen for 'room-full' event from the server to handle cases where a user tries to join a full room.
+  useEffect(() => {
+    socket.on('room-full', () => {
+      setPage('room');
+      setRoomError('That room is full. Try a different room ID.');
+    });
+
+    return () => socket.off('room-full');
+  }, []);
+
+
+  // This function is called when the user successfully joins a room. 
+  // It sets the necessary state and notifies the server.
+  const handleStartCall = (room, nickname) => {
     setRoomID(room);
+    setNickname(nickname);
     setPage('call');
-    socket.emit('join-room', room);
+    // Clean the URL to avoid confusion when sharing room codes
+    window.history.replaceState({}, '', '/');
+    socket.emit('join-room', { room, nickname });
   }
 
   return (
@@ -35,6 +55,7 @@ function App() {
         <CallScreen 
           socket={socket} 
           room={roomID} 
+          nickname={nickname}
           onLeave={() => setPage('landing')} 
         />
       )}

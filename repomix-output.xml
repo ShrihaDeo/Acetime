@@ -44,6 +44,9 @@ public/
   favicon.svg
   icons.svg
 server/
+  test/
+    test.js
+  game.js
   index.js
 src/
   assets/
@@ -55,6 +58,9 @@ src/
     spade.svg
     video_off.svg
     vite.svg
+  components/
+    Card.jsx
+    Cards.jsx
   pages/
     CallScreen.jsx
     LandingPage.jsx
@@ -211,55 +217,29 @@ This section contains the contents of the repository's files.
 <svg xmlns="http://www.w3.org/2000/svg" width="77" height="47" fill="none" aria-labelledby="vite-logo-title" viewBox="0 0 77 47"><title id="vite-logo-title">Vite</title><style>.parenthesis{fill:#000}@media (prefers-color-scheme:dark){.parenthesis{fill:#fff}}</style><path fill="#9135ff" d="M40.151 45.71c-.663.844-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.493c-.92 0-1.457-1.04-.92-1.788l7.479-10.471c1.07-1.498 0-3.578-1.842-3.578H15.443c-.92 0-1.456-1.04-.92-1.788l9.696-13.576c.213-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.472c-1.07 1.497 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.087.89 1.83L40.153 45.712z"/><mask id="a" width="48" height="47" x="14" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M40.047 45.71c-.663.843-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.389c-.92 0-1.457-1.04-.92-1.788l7.479-10.472c1.07-1.497 0-3.578-1.842-3.578H15.34c-.92 0-1.456-1.04-.92-1.788l9.696-13.575c.213-.297.556-.474.92-.474H53.93c.92 0 1.456 1.04.92 1.788L47.37 13.03c-1.07 1.498 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.088.89 1.831L40.049 45.712z"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#eee6ff" rx="5.508" ry="14.704" transform="rotate(269.814 20.96 11.29)scale(-1 1)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#eee6ff" rx="10.399" ry="29.851" transform="rotate(89.814 -16.902 -8.275)scale(1 -1)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#8900ff" rx="5.508" ry="30.487" transform="rotate(89.814 -19.197 -7.127)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.928 4.177)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.738 5.52)scale(1 -1)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#eee6ff" rx="14.072" ry="22.078" transform="rotate(93.35 31.245 55.578)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx="14.592" cy="9.743" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(39.51 14.592 9.743)"/></g><g filter="url(#k)"><ellipse cx="61.728" cy="-5.321" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 61.728 -5.32)"/></g><g filter="url(#l)"><ellipse cx="55.618" cy="7.104" fill="#00c2ff" rx="5.971" ry="9.665" transform="rotate(37.892 55.618 7.104)"/></g><g filter="url(#m)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#n)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#o)"><ellipse cx="49.857" cy="30.678" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 49.857 30.678)"/></g><g filter="url(#p)"><ellipse cx="52.623" cy="33.171" fill="#00c2ff" rx="5.971" ry="15.297" transform="rotate(37.892 52.623 33.17)"/></g></g><path d="M6.919 0c-9.198 13.166-9.252 33.575 0 46.789h6.215c-9.25-13.214-9.196-33.623 0-46.789zm62.424 0h-6.215c9.198 13.166 9.252 33.575 0 46.789h6.215c9.25-13.214 9.196-33.623 0-46.789" class="parenthesis"/><defs><filter id="b" width="60.045" height="41.654" x="-5.564" y="16.92" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-40.407" y="-6.762" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-35.435" y="2.801" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-30.84" y="20.8" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-29.307" y="21.949" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="29.961" y="-17.13" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-13.43" y="-22.082" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="34.321" y="-37.644" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="38.847" y="-10.552" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="22.45" y="-1.645" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="32.919" y="11.36" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter></defs></svg>
 </file>
 
-<file path="src/pages/RoomPage.jsx">
-import { useState } from 'react';
-
-// This is the room page component that shows the room ID and a button to join the call.
-
-function RoomPage({ onJoin }) {
-
-    const [room, setRoom] = useState('');
-    const [error, setError] = useState('');
-
-    const handleJoin = () => {
-        if (room.trim() === '') {
-            setError('Please enter a valid room name.');
-            return;
-        }
-        if(!/^\d+$/.test(room)) {
-            setError('Room name must be a number.');
-            return;
-        }
-        setError('');
-        onJoin(room);
-    }
+<file path="src/components/Cards.jsx">
+function Card({ card, onClick, disabled }) {
+  const isRed = card.suit === '♥' || card.suit === '♦'
+  
   return (
-
-    <div>
-    <div className="suits-bg">
-  <span className="suit red">♥</span>
-  <span className="suit">♠</span>
-  <span className="suit red">♦</span>
-  <span className="suit">♣</span>
-    </div>
-    <div className="room-page">
-      <h1>Join or Create a Room</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-        <input
-
-            type="text"
-            placeholder="Enter Room ID..."
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            style={{ padding: '12px', borderRadius: '20px', border: '1px solid #ccc', marginRight: '10px' }}
-        />
-        <button onClick={handleJoin}>Join / Create</button>
-    </div>
+    <div 
+      className={`card ${isRed ? 'card-red' : 'card-black'} ${disabled ? 'card-disabled' : ''}`}
+      onClick={!disabled ? onClick : null}
+    >
+      <span className="card-corner top-left">
+        <span className="card-value">{card.value}</span>
+        <span className="card-suit">{card.suit}</span>
+      </span>
+      <span className="card-center">{card.suit}</span>
+      <span className="card-corner bottom-right">
+        <span className="card-value">{card.value}</span>
+        <span className="card-suit">{card.suit}</span>
+      </span>
     </div>
   )
 }
 
-export default RoomPage
+export default Card
 </file>
 
 <file path="eslint.config.js">
@@ -286,14 +266,251 @@ export default defineConfig([
 ])
 </file>
 
-<file path="vite.config.js">
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+<file path="server/test/test.js">
+import { createGame, buildDeck, checkWinner, playTurn, isLegalPlay, drawCard} from "../game.js";
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-})
+const deck = buildDeck();
+console.assert(deck.length === 52, 'expected 52, got ' + deck.length)
+console.log("deck has 52 cards") 
+
+const game = createGame(['x', 'y'], 'LastCard');
+console.assert(game.hands['x'].length === 7, "Expected x has 7, got " + game.hands['x'].length)
+console.log("x has 7")
+console.assert(game.hands['y'].length === 7, "Expected y has 7, got " + + game.hands['y'].length)
+console.log("y has 7")
+console.assert(game.deck.length === 37, "Expected deck has 37 cards, got" + game.deck.length)
+console.log("deck has 37")
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// get the top card of the discard pile to find a legal card for x
+const topCard = game.discard[game.discard.length - 1];
+let cardToPlay = null;
+
+// loop through x's hand and find a card that matches suit or value
+for (const c of game.hands['x']) {
+  if (c.suit === topCard.suit || c.value === topCard.value) {
+    cardToPlay = c.id;  // found a legal card
+    break;              // stop looking
+  }
+}
+
+console.log('top of discard:', game.discard[game.discard.length - 1]);  // see what needs to be matched
+
+// declared outside so y's turn can also access it
+let newState = null;
+
+if (!cardToPlay) {
+  console.log('x has no legal card to play — must draw');
+  const { newState: drawnState } = drawCard(game, 'x', "LastCard");
+  console.log('x hand size:', drawnState.hands['x'].length);
+} else {
+  // renamed to xState so it doesnt shadow the outer newState
+  const { newState: xState, error } = playTurn(game, 'LastCard', 'x', cardToPlay);
+
+  if (error) {
+    console.log('error:', error);  // illegal play — expected if card doesnt match
+  } else {
+    newState = xState;  // assign to outer variable so y's turn can use it
+    console.log('card played ' + cardToPlay);
+    console.log('discard length:', newState.discard.length);  // should be 2
+    console.log('x hand size:', newState.hands['x'].length);  // should be 6
+  }
+}
+
+console.log('top of discard:', game.discard[game.discard.length - 1]);
+
+// only run y's turn if x successfully played
+if (newState) {
+  // now find a legal card for y using the NEW state
+  const newTopCard = newState.discard[newState.discard.length - 1];
+  let cardToPlay2 = null;
+
+  // loop through y's hand and find a card that matches the new top card
+  for (const c of newState.hands['y']) {
+    if (c.suit === newTopCard.suit || c.value === newTopCard.value) {
+      cardToPlay2 = c.id;
+      break;
+    }
+  }
+
+  if (!cardToPlay2) {
+    console.log('y has no legal card to play — must draw');
+    const { newState: drawnState2 } = drawCard(newState, 'y', "LastCard");
+    console.log('y hand size:', drawnState2.hands['y'].length);
+  } else {
+    const { newState: newState2, error: error2 } = playTurn(newState, 'LastCard', 'y', cardToPlay2);
+    if (error2) {
+      console.log('error:', error2);
+    } else {
+      console.log('y played a card ' + cardToPlay2);
+      console.log('discard length:', newState2.discard.length);  // should be 3
+      console.log('y hand size:', newState2.hands['y'].length);  // should be 6
+    }
+  }
+}
+
+// ── Test draw 2 ────────────────────────────────────────────────────────────────
+// force a 2 into x's hand that matches the top card's suit
+const topCard2 = game.discard[game.discard.length - 1];
+game.hands['x'][0] = { id: topCard2.suit + '2', suit: topCard2.suit, value: '2' };
+
+console.log('--------------------------------------------------------------------------------------------------------------------------');
+console.log("Testing Drawing 2");
+console.log('top of discard:', topCard2);
+
+// x plays the 2
+const { newState: drawState, error: drawError } = playTurn(game, 'LastCard', 'x', topCard2.suit + '2');
+
+if (drawError) {
+  console.log('error:', drawError);
+} else {
+  console.log('x played a 2');
+  console.assert(drawState.drawStack === 2, 'Expected drawStack 2, got ' + drawState.drawStack);
+  console.log('draw stack is', drawState.drawStack);  // should be 2
+
+  // y must draw — they have no 2 to stack
+  const { newState: afterDraw, error: drawErr } = drawCard(drawState, 'y', 'LastCard');
+
+  if (drawErr) {
+    console.log('error:', drawErr);
+  } else {
+    console.log('y drew cards');
+    // y started with 7 cards and drew 2 so should have 9
+    console.assert(afterDraw.hands['y'].length === 9, 'Expected y to have 9 cards, got ' + afterDraw.hands['y'].length);
+    console.log('y hand size:', afterDraw.hands['y'].length);  // should be 9
+    // draw stack should be reset to 0 after drawing
+    console.assert(afterDraw.drawStack === 0, 'Expected drawStack 0, got ' + afterDraw.drawStack);
+    console.log('draw stack reset to', afterDraw.drawStack);  // should be 0
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*game.hands['x'] = [];
+game.hands['y'] = [{ id: '♠A', suit: '♠', value: 'A' }];
+const winner1 = checkWinner(game, 'y', 'LastCard');
+console.log('Y should not be winner ', winner1);
+const winner2 = checkWinner(game, 'x', 'LastCard');
+console.log('winner should be x got ', winner2);*/
+</file>
+
+<file path="src/components/Card.jsx">
+function Card({ card, onClick, disabled }) {
+  return (
+    <div className={`card ${(card.suit === '♥' || card.suit === '♦') ? 'card-red' : 'card-black'} ...`}>
+        <span className ="card-corner top-left">
+            <span className="card-value">{card.value}</span>
+            <span className="card-suit">{card.suit}</span>
+        </span>
+        <span className="card-center">{card.suit}</span>
+        <span className="card-corner bottom-right">
+            <span className="card-value">{card.value}</span>
+            <span className="card-suit">{card.suit}</span>
+        </span>
+
+
+
+    </div>
+  );
+}
+
+export default Card;
+</file>
+
+<file path="src/pages/RoomPage.jsx">
+import { useState } from 'react'
+
+// This component renders the room entry page where users can input their nickname and a room ID to join or create a game room. 
+// It also handles basic validation and displays error messages.
+function RoomPage({ onJoin, defaultRoom = '', serverError = '', onClearError}) {
+  const [room, setRoom]         = useState(defaultRoom)
+  const [nickname, setNickname] = useState('')
+  const [error, setError]       = useState('')
+
+  const handleJoin = () => {
+    if (!nickname.trim())      { setError('Please enter a nickname.'); return }
+    if (!room.trim())          { setError('Please enter a room ID.');  return }
+    if (!/^\d+$/.test(room))   { setError('Room ID must be numbers only.'); return }
+    setError('')
+    onJoin(room, nickname.trim())
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <div className="mesh-bg" />
+      <div className="grid-overlay" />
+      <div className="noise" />
+
+      <div className="suits-bg">
+        <span className="suit">♥</span>
+        <span className="suit">♠</span>
+        <span className="suit">♦</span>
+        <span className="suit">♣</span>
+      </div>
+
+      <div className="room-page">
+        <div className="glass-card room-card">
+
+          {/* Header */}
+          <div className="room-card-header">
+            <span className="room-card-icon">🃏</span>
+            <h2 className="room-card-title">Join a Room</h2>
+            <p className="room-card-sub">Enter your name and a room code to start playing</p>
+          </div>
+
+          <hr className="neon-divider" />
+
+          {/* local error or server error */}
+          {(error || serverError) && (
+            <p className="error-msg">⚠ {error || serverError}</p>
+          )}
+
+          {/* Nickname input */}
+          <div className="input-group">
+            <label className="input-label">Your Nickname</label>
+            <input
+              className="fancy-input"
+              type="text"
+              placeholder="e.g. CardShark99"
+              value={nickname}
+              onChange={e => setNickname(e.target.value)}
+              maxLength={16}
+              autoFocus
+            />
+          </div>
+
+          {/* Room ID input */}
+          <div className="input-group">
+            <label className="input-label">Room ID</label>
+            <input
+              className="fancy-input"
+              type="text"
+              placeholder="e.g. 1234"
+              value={room}
+              onChange={e => {
+                setRoom(e.target.value)
+                if (onClearError) onClearError() // clears server error when they retype
+              }}
+              onKeyDown={e => e.key === 'Enter' && handleJoin()}
+            />
+          </div>
+
+          {/* Join button */}
+          <button className="room-join-btn" onClick={handleJoin}>
+            Join / Create Room →
+          </button>
+
+          <p className="room-footer-hint">
+            Share the room ID with a friend — they type the same number and you're in
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default RoomPage
 </file>
 
 <file path="index.html">
@@ -315,35 +532,1363 @@ export default defineConfig({
 </html>
 </file>
 
+<file path="vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000'  // ← forwards /api calls to your Express server
+    }
+  }
+})
+</file>
+
 <file path="src/pages/LandingPage.jsx">
+import { useEffect, useRef } from 'react'
 import CardLogo from '../assets/ace_logo.svg'
-import Spade from '../assets/spade.svg'
+
+// Generates floating particles on a canvas for the background
+function ParticleCanvas() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+
+    const resize = () => {
+      canvas.width  = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    const COLORS = ['#b44dff', '#00d4ff', '#ff3dac', '#00ffb3', '#ffd700']
+    const SUITS  = ['♠', '♥', '♦', '♣']
+
+    const particles = Array.from({ length: 38 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight + window.innerHeight,
+      size: Math.random() * 14 + 6,
+      speed: Math.random() * 0.5 + 0.15,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      suit: Math.random() > 0.5 ? SUITS[Math.floor(Math.random() * SUITS.length)] : null,
+      opacity: Math.random() * 0.4 + 0.1,
+      drift: (Math.random() - 0.5) * 0.3,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: Math.random() * 0.02 + 0.005,
+    }))
+
+    let animId
+    const tick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      for (const p of particles) {
+        p.y -= p.speed
+        p.wobble += p.wobbleSpeed
+        p.x += Math.sin(p.wobble) * p.drift
+
+        if (p.y < -40) {
+          p.y = canvas.height + 40
+          p.x = Math.random() * canvas.width
+        }
+
+        ctx.save()
+        ctx.globalAlpha = p.opacity
+        ctx.fillStyle = p.color
+        ctx.shadowBlur = 12
+        ctx.shadowColor = p.color
+        ctx.font = `${p.size}px sans-serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(p.suit ?? '·', p.x, p.y)
+        ctx.restore()
+      }
+
+      animId = requestAnimationFrame(tick)
+    }
+    tick()
+
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+    />
+  )
+}
 
 function LandingPage({ onStart }) {
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* Animated background layers */}
+      <div className="mesh-bg" />
+      <div className="grid-overlay" />
+      <div className="noise" />
+      <ParticleCanvas />
+
+      {/* Suit watermarks */}
       <div className="suits-bg">
-        <span className="suit red">♥</span>
+        <span className="suit">♥</span>
         <span className="suit">♠</span>
-        <span className="suit red">♦</span>
+        <span className="suit">♦</span>
         <span className="suit">♣</span>
       </div>
+
       <div className="landing-page">
-        <img src={CardLogo} alt="AceTime Logo" style={{width: '150px', marginBottom: '20px'}} />
-        <h1>
-          <span style={{fontWeight: '400', fontSize: '50px'}}>Welcome to </span>
-          <img src={Spade} alt="A" style={{width: '90px', verticalAlign: 'middle', marginRight: '-15px', filter: 'invert(1)', marginBottom: '10px'}} />
-          <span style={{fontWeight: '700', fontSize: '64px'}}>ceTime</span>
+        {/* Logo */}
+        <img src={CardLogo} alt="AceTime" className="landing-logo" />
+
+        {/* Eyebrow */}
+        <p className="landing-eyebrow">Video · Cards · Friends</p>
+
+        {/* Title */}
+        <h1 className="landing-title">
+          <span className="line1">Play Together</span>
+          <span className="line2">Stay Connected</span>
         </h1>
-        <button onClick={onStart}>Create or Join a Room</button>
-        <h2>Start a call to connect & play with friends!</h2>
+
+        {/* Subtitle */}
+        <p className="landing-sub">
+          Video call your friends and play card games <strong>live</strong>.<br />
+          No account. No download. Just a <strong>room code</strong>.
+        </p>
+
+        {/* CTA */}
+        <div className="landing-cta-row">
+          <button className="btn-neon" onClick={onStart}>
+            Create or Join a Room →
+          </button>
+          <span className="landing-hint">Share a 4-digit code and you're in</span>
+        </div>
+
+        {/* Stats strip */}
+        <div className="landing-stats">
+          <div className="stat-item">
+            <span className="stat-num blue">P2P</span>
+            <span className="stat-label">Video call</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-num purple">Live</span>
+            <span className="stat-label">Card games</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-num pink">Zero</span>
+            <span className="stat-label">Account needed</span>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-
 export default LandingPage
+</file>
+
+<file path="src/index.css">
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
+
+/* ─── Variables ──────────────────────────────────────────────── */
+:root {
+  --neon-blue:    #00d4ff;
+  --neon-purple:  #b44dff;
+  --neon-pink:    #ff3dac;
+  --neon-green:   #00ffb3;
+  --neon-gold:    #ffd700;
+  --bg-void:      #050508;
+  --bg-deep:      #08080f;
+  --bg-surface:   #0f0f1a;
+  --bg-raised:    #161625;
+  --bg-glass:     rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-border-bright: rgba(255,255,255,0.18);
+  --text-primary: #f0eeff;
+  --text-muted:   #6b6880;
+  --radius-sm:    12px;
+  --radius-md:    18px;
+  --radius-lg:    26px;
+  --radius-xl:    36px;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root { height: 100vh; width: 100%; }
+
+/* ─── Animated mesh background ───────────────────────────────── */
+.mesh-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* big slow-moving orbs */
+/* Multiple radial gradients layered and animated with @keyframes to create a living, breathing colour field behind the UI. */
+.mesh-bg::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 20%, rgba(180,77,255,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(0,212,255,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 50%, rgba(255,61,172,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(0,255,179,0.08) 0%, transparent 60%);
+  animation: mesh-drift 18s ease-in-out infinite alternate;
+}
+
+.mesh-bg::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 45% 40% at 70% 30%, rgba(255,215,0,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 25% 80%, rgba(180,77,255,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 30% at 90% 60%, rgba(0,212,255,0.10) 0%, transparent 50%);
+  animation: mesh-drift 24s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes mesh-drift {
+  0%   { transform: translate(0,0) scale(1); }
+  33%  { transform: translate(3%, 4%) scale(1.04); }
+  66%  { transform: translate(-4%, 2%) scale(0.97); }
+  100% { transform: translate(2%, -3%) scale(1.02); }
+}
+
+/* grid overlay */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* floating particles */
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: particle-float linear infinite;
+  opacity: 0;
+}
+
+@keyframes particle-float {
+  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+}
+
+/* suit watermark bg */
+.suits-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.suit {
+  position: absolute;
+  font-size: 320px;
+  user-select: none;
+  line-height: 1;
+  animation: suit-breathe 8s ease-in-out infinite;
+}
+
+@keyframes suit-breathe {
+  0%, 100% { opacity: var(--base-op, 0.04); transform: var(--base-rot) scale(1); }
+  50%       { opacity: calc(var(--base-op, 0.04) * 1.6); transform: var(--base-rot) scale(1.03); }
+}
+
+.suit:nth-child(1) {
+  top: -80px; left: -80px;
+  --base-rot: rotate(-18deg); --base-op: 0.05;
+  color: var(--neon-purple);
+  filter: drop-shadow(0 0 40px rgba(180,77,255,0.3));
+  animation-delay: 0s;
+}
+.suit:nth-child(2) {
+  top: -80px; right: -80px;
+  --base-rot: rotate(18deg); --base-op: 0.04;
+  color: var(--neon-blue);
+  filter: drop-shadow(0 0 40px rgba(0,212,255,0.25));
+  animation-delay: 2s;
+}
+.suit:nth-child(3) {
+  bottom: -80px; left: -80px;
+  --base-rot: rotate(12deg); --base-op: 0.05;
+  color: var(--neon-pink);
+  filter: drop-shadow(0 0 40px rgba(255,61,172,0.25));
+  animation-delay: 4s;
+}
+.suit:nth-child(4) {
+  bottom: -80px; right: -80px;
+  --base-rot: rotate(-12deg); --base-op: 0.04;
+  color: var(--neon-green);
+  filter: drop-shadow(0 0 40px rgba(0,255,179,0.2));
+  animation-delay: 6s;
+}
+
+/* ─── Noise grain overlay ────────────────────────────────────── */
+.noise {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+/* ─── Glass card ─────────────────────────────────────────────── */
+/* Frosted glass UI effect using backdrop blur and semitransparent background */
+.glass-card {
+  background: rgba(15,15,26,0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 32px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+/* ─── Neon button ────────────────────────────────────────────── */
+button {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-neon {
+  position: relative;
+  padding: 16px 48px;
+  border-radius: 980px;
+  background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  border: none;
+  box-shadow:
+    0 0 30px rgba(180,77,255,0.4),
+    0 0 60px rgba(0,212,255,0.15),
+    0 8px 24px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.btn-neon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  border-radius: inherit;
+}
+.btn-neon:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 0 50px rgba(180,77,255,0.55),
+    0 0 100px rgba(0,212,255,0.2),
+    0 16px 40px rgba(0,0,0,0.6);
+}
+.btn-neon:active { transform: translateY(-1px) scale(1); }
+
+/* ─── Inputs ─────────────────────────────────────────────────── */
+.fancy-input {
+  width: 100%;
+  padding: 15px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.fancy-input::placeholder { color: var(--text-muted); }
+.fancy-input:focus {
+  border-color: rgba(180,77,255,0.5);
+  background: rgba(255,255,255,0.07);
+  box-shadow: 0 0 0 3px rgba(180,77,255,0.12), 0 0 20px rgba(180,77,255,0.08);
+}
+
+.input-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 7px;
+  display: block;
+}
+
+/* ─── Landing Page ───────────────────────────────────────────── */
+.landing-page {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 40px;
+  gap: 0;
+}
+
+.landing-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.landing-eyebrow::before,
+.landing-eyebrow::after {
+  content: '';
+  width: 30px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-blue));
+}
+.landing-eyebrow::after {
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+}
+
+.landing-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(56px, 9vw, 100px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -3px;
+  margin-bottom: 24px;
+}
+
+.landing-title .line1 { color: var(--text-primary); display: block; }
+.landing-title .line2 {
+  display: block;
+  background: linear-gradient(90deg, var(--neon-purple) 0%, var(--neon-blue) 40%, var(--neon-pink) 80%, var(--neon-purple) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.landing-sub {
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 440px;
+  margin-bottom: 44px;
+}
+
+.landing-sub strong {
+  color: rgba(240,238,255,0.7);
+  font-weight: 400;
+}
+
+.landing-cta-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 60px;
+}
+
+.landing-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.landing-stats {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+}
+
+.stat-item {
+  padding: 16px 28px;
+  text-align: center;
+  border-right: 1px solid var(--glass-border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  display: block;
+}
+.stat-num.blue   { color: var(--neon-blue); }
+.stat-num.purple { color: var(--neon-purple); }
+.stat-num.pink   { color: var(--neon-pink); }
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  display: block;
+}
+
+/* logo float */
+.landing-logo {
+  width: 80px;
+  margin-bottom: 20px;
+  filter:
+    drop-shadow(0 0 20px rgba(180,77,255,0.6))
+    drop-shadow(0 0 60px rgba(0,212,255,0.3));
+  animation: logo-float 5s ease-in-out infinite;
+}
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%       { transform: translateY(-10px) rotate(2deg); }
+}
+
+/* ─── Room Page ──────────────────────────────────────────────── */
+.room-page {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 24px;
+}
+
+.room-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.room-card-header {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.room-card-icon {
+  font-size: 44px;
+  display: block;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 20px rgba(180,77,255,0.5));
+  animation: logo-float 4s ease-in-out infinite;
+}
+
+.room-card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--text-primary) 40%, rgba(180,77,255,0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.room-card-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* neon divider */
+.neon-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-blue), transparent);
+  border: none;
+  opacity: 0.5;
+  margin: 4px 0;
+}
+
+.input-group { display: flex; flex-direction: column; gap: 7px; }
+
+.room-join-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(180,77,255,0.35), 0 0 48px rgba(0,212,255,0.1);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.room-join-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+}
+.room-join-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(180,77,255,0.5), 0 0 80px rgba(0,212,255,0.15);
+}
+
+.error-msg {
+  font-size: 13px;
+  color: #ff6b8a;
+  background: rgba(255,61,172,0.08);
+  border: 1px solid rgba(255,61,172,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.room-footer-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ─── Call Screen ────────────────────────────────────────────── */
+.call-screen {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* left video panel */
+.left-panel {
+  width: 40%;
+  background: rgba(5,5,8,0.95);
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  gap: 10px;
+  box-sizing: border-box;
+  border-right: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+}
+
+/* room strip */
+.room-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  background: var(--bg-glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.room-strip-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+.room-strip-id {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neon-blue);
+  letter-spacing: 2px;
+  text-shadow: 0 0 12px rgba(0,212,255,0.5);
+}
+.room-strip-copy {
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  margin-top: 0;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.room-strip-copy:hover { color: var(--neon-blue); border-color: rgba(0,212,255,0.3); }
+.room-strip-copy.copied { color: var(--neon-green); border-color: rgba(0,255,179,0.3); }
+
+/* video container */
+.video-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+}
+
+.main-video {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #05050a;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+}
+
+.self-view {
+  position: relative;
+  height: 120px;
+  background: #05050a;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+
+.video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #08080f, #0f0820);
+  color: var(--text-muted);
+  font-size: 13px;
+  z-index: 2;
+}
+
+.waiting-pulse {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--neon-purple);
+  box-shadow: 0 0 12px var(--neon-purple);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.3; transform:scale(0.6); }
+}
+
+/* name tag */
+.name-tag {
+  position: absolute;
+  bottom: 10px; left: 10px;
+  background: rgba(5,5,8,0.8);
+  color: var(--text-primary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* controls bar */
+.controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 2px;
+  flex-shrink: 0;
+}
+.controls-left, .controls-right { display: flex; gap: 8px; }
+
+.control-btn {
+  width: 46px; height: 46px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-top: 0;
+  box-shadow: none;
+}
+.control-btn:hover {
+  background: var(--bg-surface);
+  border-color: var(--glass-border-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.control-btn img {
+  width: 18px; height: 18px;
+  filter: invert(1) opacity(0.65);
+}
+.control-btn.active {
+  background: rgba(255,61,172,0.2);
+  border-color: rgba(255,61,172,0.4);
+  box-shadow: 0 0 16px rgba(255,61,172,0.25);
+}
+.control-btn.active img { filter: invert(1) opacity(0.9); }
+
+.end-call {
+  background: linear-gradient(135deg, #c0392b, #e74c3c) !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 20px rgba(192,57,43,0.4) !important;
+}
+.end-call:hover {
+  box-shadow: 0 0 35px rgba(192,57,43,0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ─── Right game panel ───────────────────────────────────────── */
+.right-panel {
+  width: 60%;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.6s ease;
+}
+
+/* dot grid on game table */
+.right-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.table-suits {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.table-suit {
+  position: absolute;
+  font-size: 400px;
+  opacity: 0.06;
+  user-select: none;
+  line-height: 1;
+  filter: blur(1px);
+}
+.table-suit:nth-child(1) { top: -80px; left: -60px; transform: rotate(-15deg); }
+.table-suit:nth-child(2) { bottom: -80px; right: -60px; transform: rotate(15deg); }
+
+.corner {
+  position: absolute;
+  width: 44px; height: 44px;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 1;
+}
+.corner.tl { top:18px; left:18px; border-top:2px solid; border-left:2px solid; border-radius:8px 0 0 0; }
+.corner.tr { top:18px; right:18px; border-top:2px solid; border-right:2px solid; border-radius:0 8px 0 0; }
+.corner.bl { bottom:18px; left:18px; border-bottom:2px solid; border-left:2px solid; border-radius:0 0 0 8px; }
+.corner.br { bottom:18px; right:18px; border-bottom:2px solid; border-right:2px solid; border-radius:0 0 8px 0; }
+
+.game-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 22px 26px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--glass-border);
+  font-size: 12px;
+  backdrop-filter: blur(8px);
+}
+.status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.bg-cycle-btn {
+  padding: 6px 16px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--glass-border);
+  color: rgba(255,255,255,0.55);
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  margin-top: 0;
+  box-shadow: none;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+.bg-cycle-btn:hover { color: white; border-color: var(--glass-border-bright); }
+
+.hand-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.opponent-hand, .player-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+}
+.opponent-hand { padding-top: 8px; }
+.player-hand   { padding-bottom: 8px; }
+
+.game-table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.discard-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.card-placeholder {
+  width: 76px; height: 114px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  border: 2px dashed rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.15);
+  font-size: 11px;
+}
+
+/* ─── Playing Cards ──────────────────────────────────────────── */
+.card {
+  width: 76px; height: 114px;
+  background: linear-gradient(145deg, #ffffff, #f5f0ff);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.6),
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 0 0 1px rgba(0,0,0,0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+.card:hover:not(.card-disabled) {
+  transform: translateY(-16px) scale(1.05) rotate(-1deg);
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.7),
+    0 0 30px rgba(180,77,255,0.25),
+    0 1px 0 rgba(255,255,255,0.9) inset;
+}
+.card-red   { color: #d63031; }
+.card-black { color: #1a1a2e; }
+.card-disabled { opacity: 0.4; cursor: not-allowed; }
+.card-disabled:hover { transform: none !important; box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.9) inset; }
+
+.card-corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-family: 'Syne', sans-serif;
+}
+.card-corner.top-left    { top:5px; left:7px; }
+.card-corner.bottom-right{ bottom:5px; right:7px; transform:rotate(180deg); }
+.card-center { font-size: 28px; }
+
+.card-back {
+  background: linear-gradient(135deg, #0d0820 0%, #1a0f35 50%, #0d0820 100%);
+  border: 1px solid rgba(180,77,255,0.25);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.6),
+    inset 0 0 30px rgba(180,77,255,0.08),
+    0 0 0 1px rgba(0,0,0,0.3);
+  cursor: default;
+  overflow: hidden;
+  position: relative;
+}
+.card-back::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(180,77,255,0.15);
+  border-radius: 7px;
+}
+.card-back::after {
+  content: '✦';
+  position: absolute;
+  font-size: 28px;
+  color: rgba(180,77,255,0.3);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: 0 0 20px rgba(180,77,255,0.5);
+}
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.env
+</file>
+
+<file path="server/game.js">
+//Game States
+export const SUITS = ["♠", "♥", "♦", "♣"];
+export const VALUES = ["A","2","3","4","5","6","7","8","9","10","J","Q","K",];
+export const cardGames = ["LastCard"];
+
+//Builds the deck
+export function buildDeck() {
+  const deck = [];
+
+  //Should create 52 cards
+  for (const suit of SUITS) {
+    for (const value of VALUES) {
+      deck.push({
+        id: `${suit}${value}`,
+        suit: suit,
+        value: value,
+      });
+    }
+  }
+
+  // Fisher-Yates, picks j from remaining unshuffled range
+  function shuffle() {
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+  }
+
+  return shuffle(); //returns whatever shuffle returns which is the shuffled deck.
+}
+
+//Creates the game state
+export function createGame(playerIDS, selectedGame) {
+  const deck = buildDeck();
+  const hands = {};
+  let startCard = null;
+
+  //Some games may have different starting hands, etc.
+  if (selectedGame == "LastCard") {
+    //For each of the players give 7 cards each (does it by P1-> gives 7 cards, then P2)
+    for (const id of playerIDS) {
+      hands[id] = [];
+      for (let i = 0; i < 7; i++) {
+        hands[id].push(deck.shift()); //there should be 38 cards remaining at this stage
+      }
+    }
+
+    startCard = deck[0];
+    deck.shift(); // now there should be 37 cards remaining
+  }
+
+  return {
+    players: playerIDS,
+    hands,
+    deck, //Just as clarification 'deck' is the pile of cards you draw from
+    discard: [startCard], //And discard or the discardpile is the pile of cards you actually play on e.g 2, you play 2
+    currSuit: startCard.suit,
+    currIndex: 0,
+    direction: 1,
+    drawStack: 0,
+    winner: null,
+    log: "Game Started!",
+  };
+}
+
+//NOTE: Deleted start game function as the server does not wait, it reacts to events will implement with socket.io
+
+//Logic for each player's turn in card game| Used AI to debug 15/5/26
+export function playTurn(state, selectedGame, playerID, cardPlayed) {
+  switch (selectedGame) {
+    case "LastCard": {
+      //Sets the hand to whatever cards the player has (per player)
+      const hand = state.hands[playerID];
+      //Just creates the variables
+      let card = null;
+      let cardIndex = -1;
+
+      //Cycles through the players hand and sees if the hand contains the appropriate card
+      for (let i = 0; i < hand.length; i++) {
+        if (hand[i].id === cardPlayed) {
+          card = hand[i];
+          cardIndex = i;
+          break;
+        }
+      }
+
+      //if the card is not in the hand then draw a card and then it is the next players turn
+      if (cardIndex === -1) {
+        drawCard(state, playerID, selectedGame);
+        return { newState: state, error: "Card not in hand!" };
+      }
+
+      //Top card of the discard pile
+      const topCard = state.discard[state.discard.length - 1];
+
+      //Checks if the card that the player wants to play is a legal move
+      if (!isLegalPlay(topCard, card, selectedGame)) {
+        return { newState: state, error: "Is not legal play!" };
+      }
+
+      //creates the new hand for the player without the played card | we use 'i' here because we need to skip a certain position
+      const newHand = [];
+      for (let i = 0; i < hand.length; i++) {
+        if (i !== cardIndex) {
+          newHand.push(hand[i]);
+        }
+      }
+
+      //builds a new discard pile with the new added card on top
+      const discardPile = [];
+      for (const c of state.discard) {
+        discardPile.push(c); //Push just means that the card is added to the end of the array
+      }
+      discardPile.push(card);
+
+      //the new updated state
+      let newState = {
+        ...state, //'...' just means to 'copy' of in this case state, and here we are changing hands discard pile and the current suit
+        hands: { ...state.hands, [playerID]: newHand },
+        discard: discardPile,
+        currSuit: card.suit,
+        log: playerID + " played " + card.value + card.suit,
+      };
+
+      // apply special effects after building state
+      newState = applyCardEffect(newState, playerID, card, selectedGame);
+
+      //simply checks if the player has finished their hand
+      const winner = checkWinner(newState, playerID, selectedGame);
+      if (winner) {
+        console.log(playerID + " is the winner!");
+        return { newState: { ...newState, winner }, error: null };
+      }
+
+      //only advance for the normal cards
+      if (card.value !== "8" && card.value !== "2") {
+        newState = nextPlayer(newState);
+      }
+
+      return { newState, error: null }; //error: just gives the caller indication if whether or not something went wrong
+    }
+  }
+}
+
+//Checks if the card played is a legal move based on the top card of the discard pile and the rules of the game
+export function isLegalPlay(topCard, cardPlayed, selectedGame) {
+  if (selectedGame === "LastCard") {
+    if (cardPlayed.value === 'J') return true;  // Jack is always legal
+    if (cardPlayed.suit === topCard.suit || cardPlayed.value === topCard.value) {
+      return true;
+    }
+    return false;
+  }
+}
+  
+
+
+//If the played card is a special card such as ...., apply effects
+export function applyCardEffect(state, playerID, card, selectedGame) {
+  switch (selectedGame) {
+    case "LastCard": {
+      if (card.value === "2") {
+        return {
+          ...state,
+          drawStack: state.drawStack + 2,
+          log:
+            playerID + " player 2- draw stack is now" + (state.drawStack + 2),
+        };
+      }
+
+      /* Code lwk doesnt matter at the moment teehee
+    if(card.value === '8'){
+      const skipped = nextPlayer(state,playerID);
+      //Since there are only 2 players at the moment (15/5/26)
+      return{
+        ...skipped,
+        log: playerID + " played 8, his turn is skipped!"
+      }
+    }
+    */
+
+      //NOTE: maybe will later on implement the special effect of 'A' Reversing the play, but atm only have 2 players
+
+      //J is just a wildcard- anything goes, the rest of them are just placeholders so program works smoothely
+      if (card.value === "J" || card.value === "8" || card.value === "A") {
+        return {
+          ...state,
+          log: playerID + " played J — suit changed to " + state.currSuit,
+        };
+      }
+    }
+  }
+
+  // normal card — no effect
+  return state;
+}
+
+//Draws card from pile, adds to player hand, then removes from pile
+export function drawCard(state, playerID, selectedGame) {
+  switch (selectedGame) {
+    case "LastCard": {
+      if (state.deck.length === 0) {
+        return { state, error: "Deck is empty" };
+      }
+
+      //if drawStack active, draw that many — otherwise draw 1 | Generated by AI 15/5/26
+      const count = state.drawStack > 0 ? state.drawStack : 1;
+
+      //creates new deck array
+      const newDeck = [];
+
+      //Copies the deck
+      for (const c of state.deck) {
+        newDeck.push(c);
+      }
+
+      //copies the current players hand
+      const newHand = [];
+      for (const c of state.hands[playerID]) {
+        newHand.push(c);
+      }
+
+      //Determines how many cards to draw
+      for (let i = 0; i < count; i++) {
+        if (newDeck.length === 0) break;
+        newHand.push(newDeck.shift());
+      }
+
+      //NOTE: we want to copy the deck because we want to avoid mutating the original state, this may cause bugs as other parts of the code might hold a reference to the old state
+
+      let newState = {
+        ...state,
+        deck: newDeck,
+        hands: { ...state.hands, [playerID]: newHand },
+        drawStack: 0,
+        log: playerID + " drew a card",
+      };
+
+      return { newState: nextPlayer(newState, playerID), error: null };
+    }
+  }
+}
+
+//Change next player. (able to add reverse card effects and such in future) | Code Generated with AI 15/5/26
+export function nextPlayer(state, playerID) {
+  const total = state.players.length;
+  const next = (state.currIndex + state.direction + total) % total;
+  return { ...state, currIndex: next };
+}
+
+//Check for selected games' win condition
+export function checkWinner(state, playerID, selectedGame) {
+  if (selectedGame == "LastCard") {
+    //If current player hand is empty. If empty, win
+    if (state.hands[playerID].length === 0) {
+      console.log(playerID + " wins!");
+      return playerID;
+    }
+  }
+  return null;
+}
 </file>
 
 <file path="src/App.css">
@@ -369,9 +1914,10 @@ export default LandingPage
   width: 50%;
   position: relative;
   overflow: hidden;
-  /* This creates a subtle casino-style "dotted" felt texture */
-  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 0);
-  background-size: 24px 24px;
+  /* This creates the subtle "felt dots" texture over the color */
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0);
+  background-size: 28px 24px;
+  transition: background 0.5s ease;
 }
 
 .video-container {
@@ -530,40 +2076,43 @@ export default LandingPage
   height: 100%;
   top: 0;
   left: 0;
-  pointer-events: none;
-  overflow: hidden;
+  pointer-events: none; /* So you can still click cards through them */
+  display: flex;
+  justify-content: space-between;
 }
 
 .table-suit {
   position: absolute;
-  font-size: 300px;
-  opacity: 0.06;
+  font-size: 350px; /* Make them huge */
+  opacity: 0.07;    /* Make them very faint/ghostly */
+  user-select: none;
 }
 
 .table-suit:nth-child(1) {
-  top: -60px;
-  left: -40px;
+  top: -80px;
+  left: -60px;
   transform: rotate(-15deg);
 }
 
 .table-suit:nth-child(2) {
-  bottom: -60px;
-  right: -40px;
+  bottom: -80px;
+  right: -60px;
   transform: rotate(15deg);
 }
 
+/* 3. The Table Corners */
 .corner {
   position: absolute;
-  width: 40px;
-  height: 40px;
-  border-color: inherit;
-  opacity: 0.4;
+  width: 50px;
+  height: 50px;
+  opacity: 0.3;
+  pointer-events: none;
 }
 
-.corner.tl { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
-.corner.tr { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
-.corner.bl { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
-.corner.br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
+.corner.tl { top: 20px; left: 20px; border-top: 3px solid; border-left: 3px solid; border-radius: 10px 0 0 0; }
+.corner.tr { top: 20px; right: 20px; border-top: 3px solid; border-right: 3px solid; border-radius: 0 10px 0 0; }
+.corner.bl { bottom: 20px; left: 20px; border-bottom: 3px solid; border-left: 3px solid; border-radius: 0 0 0 10px; }
+.corner.br { bottom: 20px; right: 20px; border-bottom: 3px solid; border-right: 3px solid; border-radius: 0 0 10px 0; }
 
 .game-area h3 {
   position: absolute;
@@ -598,56 +2147,86 @@ export default LandingPage
   text-transform: uppercase;
   border-radius: 12px;
 }
-</file>
 
-<file path="src/index.css">
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #1d1d1f;
-  color: #ffffff;
-  margin: 0;
-  padding: 0;
-  background: radial-gradient(ellipse at center, #1a0f0a 0%, #0d0705 60%, #000000 100%);
-  min-height: 100vh;
+.card {
+  width: 80px;
+  height: 120px;
+  background: white;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease;
+  user-select: none;
 }
 
-.landing-page {
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card-red {
+  color: #e74c3c;
+}
+
+.card-black {
+  color: #1a1a1a;
+}
+
+.card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-corner {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  gap: 20px;
-}
-
-button{
-  background-color:  #0071e3;
-  color: white;
-  border: 1px solid #0071e4;
-  padding: 12px 32px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 980px;
-  box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4);
-
-  margin-top: 50px;
-}
-
-h1{
-  font-size: 64px;
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1;
 }
 
-h2{
-  font-size: 28px;
-  font-weight: 200;
-  margin-top: 100px;
+.card-corner.top-left {
+  top: 6px;
+  left: 8px;
 }
 
-#root {
+.card-corner.bottom-right {
+  bottom: 6px;
+  right: 8px;
+  transform: rotate(180deg);
+}
 
-  height: 100vh;
-  width: 100%;
+.card-center {
+  font-size: 32px;
+}
+
+.card-back {
+  background: linear-gradient(135deg, #1a1a2e 25%, #16213e 50%, #1a1a2e 75%);
+  border: 2px solid #3a3a5c;
+  cursor: default;
+}
+
+.player-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+}
+
+.opponent-hand {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 10px;
 }
 </file>
 
@@ -659,38 +2238,12 @@ import App from './App.jsx'
 
 
 
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
   </StrictMode>,
 )
-</file>
-
-<file path=".gitignore">
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 </file>
 
 <file path="README.md">
@@ -772,6 +2325,75 @@ We have successfully implemented Real-time State Synchronisation
 - **Modern ES Modules**: https://nodejs.org/api/esm.html
 </file>
 
+<file path="src/App.jsx">
+import { useEffect, useState } from 'react'
+import LandingPage from './pages/LandingPage'
+import CallScreen from './pages/CallScreen'
+import RoomPage from './pages/RoomPage'
+import './App.css'
+import { io } from 'socket.io-client'
+
+const socket = io(window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : 'https://acetime-backend.onrender.com' 
+);
+
+function App() {
+  const [page, setPage] = useState('landing')
+  const [roomID, setRoomID] = useState("")
+  const [nickname, setNickname] = useState("") 
+  const [roomError, setRoomError] = useState("")
+
+  // Listen for 'room-full' event from the server to handle cases where a user tries to join a full room.
+  useEffect(() => {
+    socket.on('room-full', () => {
+      setPage('room');
+      setRoomError('That room is full. Try a different room ID.');
+    });
+
+    return () => socket.off('room-full');
+  }, []);
+
+
+  // This function is called when the user successfully joins a room. 
+  // It sets the necessary state and notifies the server.
+  const handleStartCall = (room, nickname) => {
+    setRoomID(room);
+    setNickname(nickname);
+    setPage('call');
+    // Clean the URL to avoid confusion when sharing room codes
+    window.history.replaceState({}, '', '/');
+    socket.emit('join-room', { room, nickname });
+  }
+
+  return (
+    <>
+      {/* Page 1: Landing */}
+      {page === 'landing' && (
+        <LandingPage onStart={() => setPage('room')} />
+      )}
+      
+      {/* Page 2: Room Entry */}
+      {page === 'room' && (
+        <RoomPage onJoin={handleStartCall} />
+      )}
+      
+      {/* Page 3: The actual Game/Video Screen */}
+      {page === 'call' && (
+        <CallScreen 
+          socket={socket} 
+          room={roomID} 
+          nickname={nickname}
+          onLeave={() => setPage('landing')} 
+        />
+      )}
+    </>
+  )
+}
+
+export default App
+</file>
+
 <file path="package.json">
 {
   "name": "acetime",
@@ -782,10 +2404,12 @@ We have successfully implemented Real-time State Synchronisation
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node --env-file=.env server/index.js"
   },
   "dependencies": {
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
     "peerjs": "^1.5.5",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -807,259 +2431,1275 @@ We have successfully implemented Real-time State Synchronisation
 </file>
 
 <file path="server/index.js">
-// server/index.js
-// express is the framework that turn Node.js into a web server
 import express from 'express';
-// handles the raw connection between computers
 import { createServer } from 'http';
-// socket.io is the library that makes real-time communication easy
 import { Server } from 'socket.io';
+import { createGame, playTurn, drawCard } from './game.js';
+import rateLimit from 'express-rate-limit';
 
-// Create an Express app and an HTTP server
 const app = express();
 const httpServer = createServer(app);
 
-// 1. Initialise Socket.io with CORS, CORS stands for Cross-Origin Resource Sharing
-// It’s a security feature in web browsers that restricts web pages from making requests to a different domain than the one that served the web page.
-// This allows your React app (on port 5173) to talk to this server (on port 3000)
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"]
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST']
   }
-});
+})
 
-// 2. Handle Connections
-// Whenever a player opens the website, the function triggers
-// Each player get a unique socket.id
-io.on('connection', (socket) => {
-  console.log('User connected to Sync Server:', socket.id);
+// Validate required environment variables on startup
+const REQUIRED_ENV = ['GROQ_API_KEY']
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`Missing required environment variable: ${key}`)
+    process.exit(1)
+  }
+}
+console.log('Environment variables validated')
 
-  // Join a specific room for a game session
-  socket.on('join-room', (roomID) => {
-    const cleanRoomID = roomID.trim().toLowerCase(); // Clean the room ID
-    socket.join(roomID);
-    console.log(`User ${socket.id} joined room ${roomID}`);
-  });
+const roomTimers = {} // tracks cleanup timers per room
 
-  // Inside io.on('connection', (socket) => { ... })
+function scheduleRoomCleanup(roomID) {
+  // Cancel any existing timer for this room
+  if (roomTimers[roomID]) {
+    clearTimeout(roomTimers[roomID])
+  }
 
-socket.on("peer-id", (data) => {
-  // data should now be an object: { room: "apple", peerId: "xxxx-yyyy" }
-  console.log(`Forwarding PeerID ${data.peerId} to room ${data.room}`);
+  // Set a 10 minute timer — if nobody rejoins, clean up
+  roomTimers[roomID] = setTimeout(() => {
+    if (roomStates[roomID]) {
+      delete roomStates[roomID]
+      delete roomNicknames[roomID]
+      delete roomTimers[roomID]
+      console.log(`Room ${roomID} cleaned up after timeout`)
+    }
+  }, 10 * 60 * 1000) // 10 minutes
+}
+
+function cancelRoomCleanup(roomID) {
+  if (roomTimers[roomID]) {
+    clearTimeout(roomTimers[roomID])
+    delete roomTimers[roomID]
+  }
+}
+
+//builds a copy of the game state to send to the specified player. Also stops players from opening dev tools and reading the opponent's hand from network
+function sanitizeState(state, playerID) {
+  const safeHands = {};
+
+  //Loop through all players and decide what hand info to include
+  for (const id of state.players) {
+    if (id === playerID) {
+      safeHands[id] = state.hands[id]; //current player: send their full hand
+    } else {
+      safeHands[id] = state.hands[id].length; //other player: send just the number of cards
+    }
+  }
+
+  // '...state' copies everything from the original state object.
+  // Then we override just the 'hands' field with our sanitized version,
+  // and add two extra helper fields the frontend will find useful.
+  return {
+    ...state,
+    hands: safeHands,
+    yourID: playerID, //So the client knows which player they are
+    isYourTurn: state.players[state.currIndex] === playerID, //Convenient true/false for the UI
+  }
+}
+
+// Allow Express to read JSON request bodies
+app.use(express.json())
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100, 
+  message: { error: 'Too many requests - please wait a minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// Groq proxy route
+  app.post('/api/ask', aiLimiter, async (req, res) => {
+  const { question, playerNames, handSize } = req.body
+
+  if (!question || question.trim() === '') {
+    return res.status(400).json({ error: 'Question is required' })
+  }
+
+  try {
+    const response = await fetch(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a helpful game assistant for LastCard (like Uno).
+              Rules: match suit or value, Jacks are wild, 2s force draw 2, empty hand wins.
+              Players: ${playerNames}. Cards in hand: ${handSize}.
+              Answer briefly in 2-3 sentences.`
+            },
+            {
+              role: 'user',
+              content: question
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.7,
+        })
+      }
+    )
   
-  // Only tell people in the SAME room to call this ID
-  socket.to(data.room).emit("peer-id", data.peerId);
-});
+    if (!response.ok) {
+      const err = await response.json()
+      console.error('Groq error:', err)
+      return res.status(response.status).json({ error: err.error?.message ?? 'Groq request failed' })
+    }
+
+    const data = await response.json()
+    const text = data.choices?.[0]?.message?.content ?? "Sorry, couldn't get a response."
+    res.json({ text })
+
+  } catch (err) {
+    console.error('Server error calling Groq:', err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 
-  // 3. LISTEN for a move from a player
-  // Send move only to other in the same room
+// A simple object to store the 'Source of Truth' for each room
+const roomStates = {}; 
+const roomNicknames = {}; // Store nicknames for each player in each room
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('join-room', ({ room, nickname }) => {
+    const cleanRoom = room.trim().toLowerCase();
+
+    // Cancel cleanup timer if someone is rejoining
+    cancelRoomCleanup(cleanRoom)
+    // Check capacity before joining
+    const existingClients = io.sockets.adapter.rooms.get(cleanRoom);
+    const currentSize = existingClients ? existingClients.size : 0;
+
+    if (currentSize >= 2) {
+      socket.emit('room-full');
+      return; // Don't let them join
+    }
+    
+    socket.join(cleanRoom);
+    const isHost = currentSize === 0;
+    socket.emit('player-joined', { isHost })
+
+    // Store nickname
+    if (!roomNicknames[cleanRoom]) roomNicknames[cleanRoom] = {};
+    roomNicknames[cleanRoom][socket.id] = nickname || 'Player';
+
+    // Broadcast updated nicknames to everyone in the room
+    io.to(cleanRoom).emit('nicknames-update', roomNicknames[cleanRoom]);
+
+    const clients = io.sockets.adapter.rooms.get(cleanRoom);
+    const numClients = clients ? clients.size : 0;
+
+    if (numClients === 2) {
+      const playerIds = Array.from(clients);
+
+      if (!roomStates[cleanRoom]) {
+        // Fresh game — both players are new
+        roomStates[cleanRoom] = createGame(playerIds, "LastCard");
+      } else {
+        // Room already has a game — someone rejoined with a new socket ID
+        // Find which old player ID is no longer connected and remap it
+        const existingState = roomStates[cleanRoom];
+        const oldPlayerIds = existingState.players;
+
+        // Figure out which old ID is the "ghost" (not in current clients)
+        const ghostId = oldPlayerIds.find(id => !playerIds.includes(id));
+        const newId = playerIds.find(id => !oldPlayerIds.includes(id));
+
+        if (ghostId && newId) {
+          console.log(`Remapping player ${ghostId} → ${newId}`);
+
+          // Remap the hand
+          const newHands = { ...existingState.hands };
+          newHands[newId] = newHands[ghostId];
+          delete newHands[ghostId];
+
+          // Remap the players array
+          const newPlayers = oldPlayerIds.map(id => id === ghostId ? newId : id);
+
+          roomStates[cleanRoom] = {
+            ...existingState,
+            players: newPlayers,
+            hands: newHands,
+          };
+          // Remap nickname too
+          if (roomNicknames[cleanRoom][ghostId]) {
+            roomNicknames[cleanRoom][newId] = roomNicknames[cleanRoom][ghostId];
+            delete roomNicknames[cleanRoom][ghostId];
+          }
+        }
+      }
+
+      // sends sanitized state to each player individually
+      const clientsForInit = io.sockets.adapter.rooms.get(cleanRoom)
+      for (const clientID of clientsForInit) {
+        io.to(clientID).emit('game-init', sanitizeState(roomStates[cleanRoom], clientID))
+      }
+      io.to(cleanRoom).emit('request-peer-id');
+
+    } else if (roomStates[cleanRoom]) {
+      socket.emit('game-init', roomStates[cleanRoom]);
+    }
+
+    console.log(`${nickname} (${socket.id}) joined room: ${cleanRoom}`);
+  });
+
+  socket.on("peer-id", (data) => {
+    if (data.room) {
+      socket.to(data.room.trim().toLowerCase()).emit("peer-id", data.peerId);
+    }
+  });
+
+  // Validates move server-side using the game.js functions
   socket.on('send-move', (data) => {
-    console.log(`Move in room ${data.room}:`, data);
-    // This is where you would add any game logic to validate the move, update the game state on the server, etc.
-    // This tells everyone else to move the card on their screen
-    socket.to(data.room).emit('receive-move', data);
+    const cleanRoom = data.room.trim().toLowerCase()
+    const state = roomStates[cleanRoom]
+  
+    if (!state) {
+      socket.emit('game-error', 'No game found in this room')
+      return
+    }
+  
+    // Enforce turn order — only the current player can move
+    const currentPlayerId = state.players[state.currIndex]
+    if (socket.id !== currentPlayerId) {
+      socket.emit('game-error', "It's not your turn!")
+      return
+    }
+  
+    // Player wants to draw
+    if (data.action === 'draw') {
+      const { newState, error } = drawCard(state, socket.id, 'LastCard')
+      if (error) {
+        socket.emit('game-error', error)
+        return
+      }
+      roomStates[cleanRoom] = newState
+
+      // Send sanitized state to each player individually
+      const clients = io.sockets.adapter.rooms.get(cleanRoom)
+      for (const clientID of clients) {
+        io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+      }
+      return
+    }
+  
+    // Player wants to play a card
+    const { newState, error } = playTurn(state, 'LastCard', socket.id, data.cardId)
+    if (error) {
+      socket.emit('game-error', error)
+      return
+    }
+  
+    roomStates[cleanRoom] = newState
+    // Send sanitized state to each player individually
+    const clients = io.sockets.adapter.rooms.get(cleanRoom)
+    for (const clientID of clients) {
+      io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+    }
+  })
+  
+
+  // Clean up room data after both players leave
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+    for (const [roomID, state] of Object.entries(roomStates)) {
+      if (state.players.includes(socket.id)) {
+        socket.to(roomID).emit('opponent-disconnected');
+  
+        const clients = io.sockets.adapter.rooms.get(roomID);
+        const remaining = clients ? clients.size : 0;
+  
+        if (remaining === 0) {
+          // Room empty — schedule cleanup after 10 minutes
+          // (gives players a chance to rejoin)
+          scheduleRoomCleanup(roomID)
+          console.log(`Room ${roomID} scheduled for cleanup`)
+        }
+        break;
+      }
+    }
+  });
+  
+
+  // Handle camera status updates
+  socket.on('camera-status', (data) => {
+    socket.to(data.room.trim().toLowerCase()).emit('camera-status', data);
   });
 
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
+  // Handl game selection
+  socket.on('game-selected', (data) => {
+    const cleanRoom = data.room.trim().toLowerCase();
+    io.to(cleanRoom).emit('game-selected', { game: data.game })
+  })
+
 });
 
-// A simple object to store the 'truth' for each room
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received — shutting down gracefully')
+  io.emit('server-restart', {
+    message: 'Server is restarting. Please refresh in a moment.'
+  })
+  setTimeout(() => {
+    io.close()
+    httpServer.close(() => {
+      console.log('Server closed cleanly')
+      process.exit(0)
+    })
+  }, 3000)
+})
 
 
-// 5. Start the Server
-// Tells the server to start listening for traffic on port 3000
-const PORT = 3000;
-httpServer.listen(PORT, () => {
-  console.log(`Sync Server running on http://localhost:${PORT}`);
+// 3. START THE SERVER (ONLY ONCE!)
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`---------------------------------------`);
+  console.log(`Server running on port ${PORT}`);
+  console.log(`---------------------------------------`);
 });
 </file>
 
 <file path="src/pages/CallScreen.jsx">
 import { useEffect, useState, useRef } from 'react'
 import Peer from "peerjs"
-import EndCall from '../assets/end_call.svg'
+import EndCall  from '../assets/end_call.svg'
 import VideoOff from '../assets/video_off.svg'
-import Mute from '../assets/mute.svg'
+import Mute     from '../assets/mute.svg'
+import Card     from '../components/Card'
+
+const [cameraError, setCameraError] = useState(null)
 
 const backgrounds = [
-  { bg: 'radial-gradient(circle, #1a5c35 0%, #071a10 100%)', accentColor: '#2ecc71' },
-  { bg: 'radial-gradient(circle, #5c1a1a 0%, #1a0707 100%)', accentColor: '#c0392b' },
-  { bg: 'radial-gradient(circle, #0a0a3d 0%, #020210 100%)', accentColor: '#3498db' },
+  {
+    bg: 'radial-gradient(circle at 30% 40%, #0d3d20 0%, #050f08 100%)',
+    suits: ['♠', '♣'], accent: '#00ffb3',
+  },
+  {
+    bg: 'radial-gradient(circle at 70% 30%, #3d0d2a 0%, #0f0508 100%)',
+    suits: ['♥', '♦'], accent: '#ff3dac',
+  },
+  {
+    bg: 'radial-gradient(circle at 40% 60%, #0d1a40 0%, #05080f 100%)',
+    suits: ['♣', '♠'], accent: '#00d4ff',
+  },
+  {
+    bg: 'radial-gradient(circle at 60% 40%, #2a0d3d 0%, #08050f 100%)',
+    suits: ['♦', '♥'], accent: '#b44dff',
+  },
+  {
+    bg: 'radial-gradient(circle at 50% 50%, #3d2a00 0%, #0f0a00 100%)',
+    suits: ['♠', '♦'], accent: '#ffd700',
+  },
 ]
 
-function CallScreen({ socket, room, onLeave }) {
-  const [syncStatus, setSyncStatus] = useState("System Ready");
-  const [bgIndex, setBgIndex] = useState(0);
-  const [isOpponentJoined, setIsOpponentJoined] = useState(false); // Track the video state
-  
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const peerRef = useRef(null);
-  const myStreamRef = useRef(null);
+// Game cards for the menu
+const GAMES = [
+  {
+    id: 'lastcard',
+    name: 'Last Card',
+    description: 'Match suit or value. First to empty hand wins.',
+    emoji: '🃏',
+    color: 'rgba(180,77,255,0.3)',
+    border: 'rgba(180,77,255,0.5)',
+    available: true,
+  },
+  {
+    id: 'highcard',
+    name: 'High Card',
+    description: 'Draw a card — highest wins the round.',
+    emoji: '🎴',
+    color: 'rgba(0,212,255,0.2)',
+    border: 'rgba(0,212,255,0.4)',
+    available: false,
+  },
+  {
+    id: 'snap',
+    name: 'Snap',
+    description: 'Be first to call snap when cards match.',
+    emoji: '👋',
+    color: 'rgba(255,61,172,0.2)',
+    border: 'rgba(255,61,172,0.3)',
+    available: false,
+  },
+]
 
-  // 1. SYNC: Listen for opponent actions
-  useEffect(() => {
-    socket.on('receive-move', (data) => {
-      setSyncStatus(`Opponent played card ${data.cardIndex}!`);
-    });
-    return () => socket.off('receive-move');
-  }, [socket]);
 
-  // 2. VIDEO: Edward's WebRTC implementation
-  useEffect(() => {
-    const peer = new Peer();
-    peerRef.current = peer;
-
-    peer.on("open", (id) => {
-      socket.emit("peer-id", { room, peerId: id });
-    });
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-      myStreamRef.current = stream;
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
-      peer.on("call", (call) => {
-        call.answer(stream);
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          setIsOpponentJoined(true); // Someone is here!
-        });
-      });
-
-      socket.on("peer-id", (otherPeerId) => {
-        const call = peer.call(otherPeerId, stream);
-        call.on("stream", (remoteStream) => {
-          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
-          setIsOpponentJoined(true); // Someone is here!
-        });
-      });
-    });
-
-    return () => {
-      socket.off("peer-id");
-      if (peerRef.current) peerRef.current.destroy();
-      if (myStreamRef.current) {
-        myStreamRef.current.getTracks().forEach(t => t.stop());
-      }
-    };
-  }, [socket, room]);
-
-  const handleCardClick = (i) => {
-    setSyncStatus(`You played card ${i + 1}`);
-    socket.emit('send-move', { room, cardIndex: i + 1 });
-  }
-
+function Avatar({ name, size = 72 }) {
+  const initial = name ? name.charAt(0).toUpperCase() : '?'
+  const palettes = [
+    ['#b44dff', '#7c00ff'],
+    ['#ff3dac', '#c0006e'],
+    ['#00d4ff', '#0088cc'],
+    ['#00ffb3', '#00aa77'],
+    ['#ffd700', '#cc9900'],
+    ['#ff6b35', '#cc3300'],
+  ]
+  const [a, b] = palettes[name ? name.charCodeAt(0) % palettes.length : 0]
   return (
-    <div className="call-screen">
-      <div className="left-panel">
-        <div className="video-container">
-          <div className="main-video">
-            {/* Show placeholder if box is empty */}
-            {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
-            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
-          </div>
-          <div className="self-view">
-            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
-          </div>
-        </div>
-        <div className="controls-bar">
-          <button className="control-btn"><img src={Mute} /></button>
-          <button className="control-btn"><img src={VideoOff} /></button>
-          <button onClick={onLeave} className="control-btn end-call"><img src={EndCall} /></button>
-        </div>
-      </div>
-
-      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
-        <div className="game-area">
-          <h3>Room: {room}</h3>
-          <p className="sync-status-text" style={{color: backgrounds[bgIndex].accentColor}}>{syncStatus}</p>
-
-          <button onClick={() => setBgIndex((prev) => (prev + 1) % backgrounds.length)} className="bg-cycle-btn">Change Color</button>
-          
-          <div className="opponent-hand">
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
-             <div className="card-placeholder"></div>
-          </div>
-          
-          <div className="game-table">
-            <div className="card-placeholder" style={{border: '2px dashed rgba(255,255,255,0.2)'}}></div>
-          </div>
-          
-          <div className="player-hand">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="card-placeholder" onClick={() => handleCardClick(i)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'}}>
-                Card {i+1}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      background: `linear-gradient(135deg, ${a}, ${b})`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.38, fontWeight: '800', color: 'white',
+      userSelect: 'none', flexShrink: 0,
+      fontFamily: "'Syne', sans-serif",
+      boxShadow: `0 0 24px ${a}55, 0 0 60px ${a}22`,
+    }}>
+      {initial}
     </div>
   )
 }
 
-export default CallScreen;
-</file>
+function CallScreen({ socket, room, nickname, onLeave }) {
+  // Tracks whether the chat panel is visible or hidden. Start as false.
+  const [chatOpen, setChatOpen]     = useState(false)
+  // Tracks what the user is currently typing in the input box
+  const [chatInput, setChatInput]   = useState('')
+  // An array of all messages in the conversation. 
+  // Starts with one one welcome message from the assistant.
+  const [chatMessages, setChatMessages] = useState([
+    {
+      role: 'assistant',
+      text: "Hi! I'm your game assistant. Ask me anything about the rules!"
+    }
+  ])
+  // true while waiting for Gemini to respond
+  // used to show the loading dots and disable the button
+  const [chatLoading, setChatLoading] = useState(false)
+  // ref attached to an invisible div at the bottom of the chat
+  // used to auto scroll down when new messages arrive
+  const chatEndRef = useRef(null)
 
-<file path="src/App.jsx">
-import { useState } from 'react'
-import LandingPage from './pages/LandingPage'
-import CallScreen from './pages/CallScreen'
-import RoomPage from './pages/RoomPage'
-import './App.css'
-import { io } from 'socket.io-client'
+  const [syncStatus, setSyncStatus] = useState('Waiting for opponent...')
+  const [bgIndex, setBgIndex] = useState(0)
+  const [isOpponentJoined, setIsOpponentJoined] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isCameraOff, setIsCameraOff] = useState(false)
+  const [isOpponentCameraOff, setIsOpponentCameraOff] = useState(false)
+  const [gameState, setGameState] = useState(null)
+  const [nicknames, setNicknames] = useState({})
+  const [copied, setCopied] = useState(false)
+  const [localStream, setLocalStream] = useState(null)
+  const [gameMode, setGameMode] = useState('call') // 'call' | 'menu' | 'lastcard'
+  const [isHost, setIsHost] = useState(false)
 
-const socket = io('http://localhost:3000');
 
-function App() {
-  const [page, setPage] = useState('landing')
-  const [roomID, setRoomID] = useState("")
+  const myStreamRef = useRef(null)
+  const localVideoRef = useRef(null)
+  const remoteVideoRef = useRef(null)
+  const pendingPeerIdRef = useRef(null)
 
-  const handleStartCall = (room) => {
-    setRoomID(room);
-    setPage('call');
-    socket.emit('join-room', room);
+  const myNickname = nicknames[socket.id] || nickname || 'You'
+  const opponentNickname = Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] || 'Opponent'
+  const { accent } = backgrounds[bgIndex]
+
+  // Sync local stream to the video element whenever the stream or camera toggle changes.
+  // This runs after every render, ensuring srcObject is always set even after React
+  // reconciles the video element (e.g. when opponent joins and causes a re-render).
+  useEffect(() => {
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream
+    }
+  }, [localStream, isCameraOff])
+
+  // ── Socket listeners ──
+  useEffect(() => {
+    socket.on('game-init', (state) => {
+      setGameState(state)
+      setIsOpponentJoined(true)
+      setSyncStatus('Game on!')
+    })
+    socket.on('game-state-update', (state) => {
+      setGameState(state)
+      setSyncStatus(state.log)
+      if (state.winner) setSyncStatus(`${nicknames[state.winner] || 'Someone'} wins! `)
+    })
+    socket.on('receive-move', (data) => {
+      setSyncStatus(`${opponentNickname} played ${data.cardValue}${data.cardSuit}`)
+    })
+    socket.on('nicknames-update', setNicknames)
+    socket.on('opponent-disconnected', () => {
+      setIsOpponentJoined(false)
+      setSyncStatus('Opponent disconnected...')
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
+    })
+    socket.on('camera-status', ({ isCameraOff: off }) => setIsOpponentCameraOff(off))
+    socket.on('player-joined', ({ isHost: host }) => setIsHost(host))
+    socket.on('game-selected', ({ game }) => {
+      setGameMode(game)
+      setGameState(null)
+    }) 
+
+    return () => {
+      socket.off('game-init'); socket.off('game-state-update')
+      socket.off('receive-move'); socket.off('nicknames-update') 
+      socket.off('opponent-disconnected'); socket.off('camera-status')
+      socket.off('player-joined'); socket.off('game-selected')
+    }
+  }, [socket, opponentNickname, nicknames])
+
+  // -- WebRTC --
+  useEffect(() => {
+    const peer = new Peer(undefined, {
+      config: {
+        iceServers: [
+          {
+            urls: "stun:stun.relay.metered.ca:80",
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:80",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turn:standard.relay.metered.ca:443",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+          {
+            urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+            username: import.meta.env.VITE_TURN_USERNAME,
+            credential: import.meta.env.VITE_TURN_CREDENTIAL,
+          },
+      ]
+    }
+  })
+  
+
+  // Call a peer by their ID, sending them our video stream.
+  // This is triggered when we learn the other peer's ID from the server.
+  const callPeer = (otherId) => {
+    if (!myStreamRef.current) { pendingPeerIdRef.current = otherId; return }
+    console.log("Calling peer:", otherId)
+    const call = peer.call(otherId, myStreamRef.current)
+    if (!call) return
+    call.on('stream', (s) => {
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
+      setIsOpponentJoined(true)
+      setSyncStatus('Connected!')
+    })
   }
 
-  return (
-    <div className="call-screen">
-      {/* LEFT PANEL */}
-      <div className="left-panel">
-        <div className="video-container">
-          <div className="main-video">
-            {!isOpponentJoined && <div className="video-placeholder">Waiting for opponent...</div>}
-            <video ref={remoteVideoRef} autoPlay playsInline style={{width: '100%', height: '100%', objectFit: 'cover', display: isOpponentJoined ? 'block' : 'none'}} />
-          </div>
-          <div className="self-view">
-            <video ref={localVideoRef} autoPlay muted playsInline style={{width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)'}} />
-          </div>
-        </div>
-        {/* ... controls ... */}
-      </div>
+  peer.on('open', id => socket.emit('peer-id', { room, peerId: id }))
+  socket.on('request-peer-id', () => { if (peer.id) socket.emit('peer-id', { room, peerId: peer.id }) })
+  socket.on('peer-id', callPeer)
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        myStreamRef.current = stream
+        setLocalStream(stream)  // triggers the sync useEffect above → camera shows immediately
+        if (pendingPeerIdRef.current) { callPeer(pendingPeerIdRef.current); pendingPeerIdRef.current = null }
+        peer.on('call', call => {
+          call.answer(stream)
+          call.on('stream', s => {
+            if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s
+            setIsOpponentJoined(true)
+          })
+        })
+      })
+      .catch(err => {
+        console.error('Camera error:', err)
+        // Show user-friendly message based on error type
+        if (err.name === 'NotAllowedError') {
+          setCameraError('Camera access was denied. Please allow camera access in your browser settings and refresh.')
+        } else if (err.name === 'NotFoundError') {
+          setCameraError('No camera found. Please connect a camera and refresh.')
+        } else {
+          setCameraError('Could not access camera. Please check your device and try again.')
+        }
+      })
+
+      return () => {
+        socket.off('peer-id')
+        socket.off('request-peer-id')
+        if (myStreamRef.current) {
+          myStreamRef.current.getTracks().forEach(t => t.stop())
+        }
+        peer.destroy()
+      }
+  }, [socket, room])
+
+  // ── Helpers ──
+  const toggleMute = () => {
+    if (!myStreamRef.current) return
+    myStreamRef.current.getAudioTracks().forEach(t => t.enabled = !t.enabled)
+    setIsMuted(p => !p)
+  }
+
+  const toggleCamera = () => {
+    if (!myStreamRef.current) return
+    const next = !isCameraOff
+    myStreamRef.current.getVideoTracks().forEach(t => t.enabled = !next)
+    setIsCameraOff(next)
+    socket.emit('camera-status', { room, isCameraOff: next })
+  }
+
+  // When a card is clicked in the game UI, emit the move to the server if it's the player's turn.
+  const handleCardClick = card => {
+    if (!gameState) return
+    if (!gameState.isYourTurn) {
+      setSyncStatus("It's not your turn!")
+      return
+    }
+    socket.emit('send-move', { room, cardId: card.id, action: 'play' })
+  }
+
+  // For games that allow drawing a card instead of playing
+  // this function emits a draw action to the server.
+  const handleDraw = () => {
+    if (!gameState) return
+    if (!gameState.isYourTurn) {
+      setSyncStatus("It's not your turn!")
+      return
+    }
+    socket.emit('send-move', { room, action: 'draw' })
+  }
+
+  const copyRoom = () => {
+    const link = `${window.location.origin}?room=${room}`
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
   
-      {/* RIGHT PANEL */}
-      <div className="right-panel" style={{background: backgrounds[bgIndex].bg}}>
-        <div className="game-area">
-          <h3>Room: {room}</h3>
-          {/* ✅ FIXED: Use the 'status-text' class instead of inline styles */}
-          <p className="status-text" style={{color: backgrounds[bgIndex].accentColor}}>
-             {syncStatus}
-          </p>
-          
-          {/* ... rest of the table ... */}
+  // ── GROQ AI Assistant ─────────────────────────────────────
+  const askAI = async () => {
+    if (!chatInput.trim() || chatLoading) return
+  
+    const userMessage = chatInput.trim()
+    setChatInput('')
+    setChatLoading(true)
+    setChatMessages(prev => [...prev, { role: 'user', text: userMessage }])
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+  
+    try {
+      // calls our server, not GROQ directly
+      const response = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: userMessage,
+          playerNames: Object.values(nicknames).join(' vs '),
+          handSize: gameState?.hands[socket.id]?.length ?? 7,
+        })
+      })
+  
+      if (response.status === 429) {
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          text: "I'm being rate limited — please wait 30 seconds and try again."
+        }])
+        return
+      }
+  
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
+  
+      const data = await response.json()
+      const aiText = data.text ?? "Sorry, I couldn't get a response."
+  
+      setChatMessages(prev => [...prev, { role: 'assistant', text: aiText }])
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+  
+    } catch (err) {
+      console.error('AI error:', err)
+      setChatMessages(prev => [...prev, {
+        role: 'assistant',
+        text: "Something went wrong. Please try again."
+      }])
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+
+  return (
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', background: '#05050a', overflow: 'hidden' }}>
+
+      {/* ── MODE: VIDEO CALL (no game) ── */}
+      {gameMode === 'call' && (
+        <>
+          {/* Friend's face — full screen */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+            {!isOpponentJoined ? (
+              <div style={{
+                width: '100%', height: '100%',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: '16px', background: '#08080f',
+              }}>
+                <div className="waiting-pulse" />
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+                  Waiting for opponent...
+                </p>
+                <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '12px' }}>
+                  Share room code: <span style={{ color: 'var(--neon-blue)', letterSpacing: '2px' }}>{room}</span>
+                </p>
+              </div>
+            ) : isOpponentCameraOff ? (
+              <div style={{
+                width: '100%', height: '100%',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: '16px', background: '#08080f',
+              }}>
+                <Avatar name={opponentNickname} size={100} />
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
+                  {opponentNickname} turned off camera
+                </p>
+              </div>
+            ) : (
+              <video
+                ref={remoteVideoRef}
+                autoPlay playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
+          </div>
+
+          {/* My cam — bottom right corner */}
+          <div style={{
+            position: 'absolute',
+            bottom: '140px',
+            right: '20px',
+            width: '160px',
+            height: '120px',
+            borderRadius: '14px',
+            overflow: 'hidden',
+            border: `2px solid ${accent}66`,
+            background: '#05050a',
+            zIndex: 10,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
+          }}>
+            {cameraError ? (
+              <div style={{
+                width: '100%', height: '100%',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                background: '#0d0b10', padding: '8px',
+                textAlign: 'center', gap: '6px',
+              }}>
+                <span style={{ fontSize: '20px' }}>🚫</span>
+                <span style={{ fontSize: '9px', color: '#ff6b6b', lineHeight: '1.3' }}>
+                  {cameraError}
+                </span>
+              </div>
+            ) : isCameraOff ? (
+              <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'6px', background:'#0d0b10' }}>
+                <Avatar name={myNickname} size={40} />
+                <span style={{ color:'rgba(255,255,255,0.4)', fontSize:'10px' }}>Camera off</span>
+              </div>
+            ) : (
+              <video ref={localVideoRef} autoPlay muted playsInline
+                style={{ width:'100%', height:'100%', objectFit:'cover', transform:'scaleX(-1)' }} />
+            )}
+            <div className="name-tag" style={{ fontSize: '10px', padding: '2px 8px' }}>
+              {myNickname} (you)
+            </div>
+          </div>
+
+          {/* Room strip — top left */}
+          <div style={{
+            position: 'absolute', top: '16px', left: '16px',
+            zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px',
+          }}>
+            <div className="room-strip">
+              <span className="room-strip-label">Room</span>
+              <span className="room-strip-id">{room}</span>
+              <button className={`room-strip-copy ${copied ? 'copied' : ''}`} onClick={copyRoom}>
+                {copied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+
+          {/* Controls — bottom centre */}
+          <div style={{
+            position: 'absolute', bottom: '24px', left: '50%',
+            transform: 'translateX(-50%)', display: 'flex',
+            gap: '10px', zIndex: 20,
+          }}>
+            <button className={`control-btn ${isMuted ? 'active' : ''}`} onClick={toggleMute}>
+              <img src={Mute} alt="Mute" />
+            </button>
+            <button className={`control-btn ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera}>
+              <img src={VideoOff} alt="Camera" />
+            </button>
+            <button
+              className={`control-btn ${chatOpen ? 'active' : ''}`}
+              onClick={() => setChatOpen(p => !p)}
+              style={{ fontSize: '18px', backgroundColor: chatOpen ? 'rgba(180,77,255,0.3)' : '' }}
+            >
+              🤖
+            </button>
+            <button className="control-btn end-call" onClick={onLeave}>
+              <img src={EndCall} alt="End" />
+            </button>
+          </div>
+
+          {/* Game menu button — top right */}
+          <button
+            onClick={() => setGameMode('menu')}
+            style={{
+              position: 'absolute', top: '16px', right: '16px', zIndex: 20,
+              padding: '10px 20px',
+              background: 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
+              border: 'none', borderRadius: '980px',
+              color: 'white', fontWeight: '600', fontSize: '13px',
+              cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+              boxShadow: '0 0 20px rgba(180,77,255,0.4)',
+              marginTop: 0,
+            }}
+          >
+            🎮 Play Games
+          </button>
+        </>
+      )}
+
+      {/* ── MODE: GAME MENU ── */}
+      {gameMode === 'menu' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 30,
+          background: 'rgba(5,5,8,0.96)',
+          backdropFilter: 'blur(20px)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: '32px', padding: '40px',
+        }}>
+          {/* Back button */}
+          <button
+            onClick={() => setGameMode('call')}
+            style={{
+              position: 'absolute', top: '20px', left: '20px',
+              padding: '8px 16px', background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '20px', color: 'rgba(255,255,255,0.6)',
+              fontSize: '13px', cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", marginTop: 0,
+            }}
+          >
+            ← Back to call
+          </button>
+
+          {/* Header */}
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: '32px', fontWeight: '800',
+              color: 'white', marginBottom: '8px',
+            }}>
+              Choose a Game
+            </h2>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
+              {isHost
+                ? isOpponentJoined
+                  ? 'Pick a game — your opponent will join automatically'
+                  : 'Waiting for opponent before you can start...'
+                : 'Waiting for host to pick a game...'}
+            </p>
+          </div>
+
+          {/* Game cards grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '20px',
+            width: '100%',
+            maxWidth: '720px',
+          }}>
+            {GAMES.map(game => (
+              <div
+                key={game.id}
+                onClick={() => {
+                  if (!game.available || !isHost || !isOpponentJoined) return
+                  console.log('clicking game:', game.id)
+                  socket.emit('game-selected', { room, game: game.id })
+                }}
+                style={{
+                  borderRadius: '16px',
+                  border: `1px solid ${game.available && isHost && isOpponentJoined ? game.border : 'rgba(255,255,255,0.07)'}`,
+                  background: game.available && isHost && isOpponentJoined ? game.color : 'rgba(255,255,255,0.02)',
+                  padding: '28px 20px',
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', gap: '14px',
+                  cursor: game.available && isHost && isOpponentJoined ? 'pointer' : 'not-allowed',
+                  opacity: game.available ? 1 : 0.4,
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Big emoji as the "image" */}
+                <div style={{
+                  width: '80px', height: '80px',
+                  borderRadius: '16px',
+                  background: 'rgba(255,255,255,0.06)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '44px',
+                }}>
+                  {game.emoji}
+                </div>
+
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{
+                    fontFamily: "'Syne', sans-serif",
+                    fontSize: '16px', fontWeight: '700',
+                    color: 'white', marginBottom: '6px',
+                  }}>
+                    {game.name}
+                  </p>
+                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.4' }}>
+                    {game.description}
+                  </p>
+                </div>
+
+                {!game.available && (
+                  <div style={{
+                    position: 'absolute', top: '10px', right: '10px',
+                    fontSize: '10px', color: 'rgba(255,255,255,0.3)',
+                    background: 'rgba(255,255,255,0.06)',
+                    padding: '2px 8px', borderRadius: '10px',
+                  }}>
+                    Soon
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── MODE: LAST CARD GAME ── */}
+      {gameMode === 'lastcard' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          ...backgrounds[bgIndex],
+          background: backgrounds[bgIndex].bg,
+          backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px), ${backgrounds[bgIndex].bg}`,
+          backgroundSize: '28px 28px, 100% 100%',
+        }}>
+          {/* Decorative suits */}
+          <div className="table-suits">
+            <span className="table-suit" style={{ color: accent }}>{backgrounds[bgIndex].suits[0]}</span>
+            <span className="table-suit" style={{ color: accent }}>{backgrounds[bgIndex].suits[1]}</span>
+          </div>
+          <span className="corner tl" style={{ color: accent }} />
+          <span className="corner tr" style={{ color: accent }} />
+          <span className="corner bl" style={{ color: accent }} />
+          <span className="corner br" style={{ color: accent }} />
+
+          {/* Game area — leaves space at bottom for cams */}
+          <div style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0,
+            bottom: '140px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '20px 30px',
+            boxSizing: 'border-box',
+            zIndex: 1,
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="status-pill" style={{ color: accent }}>
+                <span className="status-dot" style={{ backgroundColor: accent }} />
+                {gameState
+                  ? gameState.isYourTurn
+                    ? '🟢 Your turn'
+                    : `⏳ ${opponentNickname}'s turn`
+                  : syncStatus}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setGameMode('menu')}
+                  style={{
+                    padding: '6px 14px', background: 'rgba(0,0,0,0.35)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: 'rgba(255,255,255,0.5)', borderRadius: '20px',
+                    fontSize: '11px', cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif", marginTop: 0,
+                  }}
+                >
+                  🎮 Games
+                </button>
+                <button className="bg-cycle-btn"
+                  onClick={() => setBgIndex(p => (p + 1) % backgrounds.length)}>
+                  🎨 Theme
+                </button>
+              </div>
+            </div>
+
+            {/* Opponent hand */}
+            <div>
+              <p className="hand-label">{opponentNickname}'s hand</p>
+              <div className="opponent-hand">
+                {gameState
+                  ? Object.keys(gameState.hands)
+                  .filter(id => id !== socket.id)
+                  .map(oppId => {
+                    const cardCount = typeof gameState.hands[oppId] === 'number'
+                      ? gameState.hands[oppId]
+                      : gameState.hands[oppId].length
+                    return Array.from({ length: cardCount }).map((_, i) =>
+                      <div key={i} className="card card-back" />
+                    )
+                  })
+              : null}
+              </div>
+            </div>
+
+            {/* Discard pile */}
+            <div className="game-table">
+              <p className="discard-label">Discard pile</p>
+              {gameState
+                ? <Card card={gameState.discard[gameState.discard.length - 1]} disabled={true} />
+                : <div className="card-placeholder">Waiting…</div>}
+
+              {gameState && gameState.isYourTurn && (
+                <button onClick={handleDraw} style={{
+                  marginTop: '10px', padding: '8px 22px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: 'white', borderRadius: '20px', fontSize: '12px',
+                  cursor: 'pointer', fontFamily: "'Inter', sans-serif", marginBottom: 0,
+                }}>
+                  Draw card
+                </button>
+              )}
+            </div>
+
+            {/* Your hand */}
+            <div>
+              <p className="hand-label">Your hand</p>
+              <div className="player-hand">
+                {gameState && gameState.hands[socket.id]
+                  ? gameState.hands[socket.id].map(card =>
+                      <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
+                    )
+                  : <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '13px' }}>
+                      Waiting for players...
+                    </p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Camera strip — bottom centre */}
+          <div style={{
+            position: 'absolute',
+            bottom: '20px', left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex', gap: '12px', zIndex: 50,
+          }}>
+            {/* Friend cam */}
+            <div style={{
+              width: '150px', height: '110px',
+              borderRadius: '12px', overflow: 'hidden',
+              border: '2px solid rgba(255,255,255,0.15)',
+              background: '#05050a', position: 'relative',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            }}>
+              {isOpponentCameraOff ? (
+                <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#0d0b10' }}>
+                  <Avatar name={opponentNickname} size={36} />
+                </div>
+              ) : (
+                <video ref={remoteVideoRef} autoPlay playsInline
+                  style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              )}
+              <div style={{
+                position:'absolute', bottom:'4px', left:'6px',
+                fontSize:'10px', color:'white',
+                background:'rgba(0,0,0,0.6)', padding:'2px 6px',
+                borderRadius:'6px',
+              }}>
+                {opponentNickname}
+              </div>
+            </div>
+
+            {/* My cam */}
+            <div style={{
+              width: '150px', height: '110px',
+              borderRadius: '12px', overflow: 'hidden',
+              border: `2px solid ${accent}55`,
+              background: '#05050a', position: 'relative',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            }}>
+              {isCameraOff ? (
+                <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#0d0b10' }}>
+                  <Avatar name={myNickname} size={36} />
+                </div>
+              ) : (
+                <video ref={localVideoRef} autoPlay muted playsInline
+                  style={{ width:'100%', height:'100%', objectFit:'cover', transform:'scaleX(-1)' }} />
+              )}
+              <div style={{
+                position:'absolute', bottom:'4px', left:'6px',
+                fontSize:'10px', color:'white',
+                background:'rgba(0,0,0,0.6)', padding:'2px 6px',
+                borderRadius:'6px',
+              }}>
+                {myNickname} (you)
+              </div>
+            </div>
+          </div>
+
+          {/* Controls in game */}
+          <div style={{
+            position: 'absolute', bottom: '140px', left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex', gap: '10px', zIndex: 50,
+          }}>
+            <button className={`control-btn ${isMuted ? 'active' : ''}`} onClick={toggleMute}>
+              <img src={Mute} alt="Mute" />
+            </button>
+            <button className={`control-btn ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera}>
+              <img src={VideoOff} alt="Camera" />
+            </button>
+            <button className="control-btn end-call" onClick={onLeave}>
+              <img src={EndCall} alt="End" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── AI CHAT PANEL (always available) ── */}
+      {chatOpen && (
+        <div style={{
+          position: 'absolute', bottom: '90px', left: '20px',
+          width: '320px', zIndex: 100,
+          display: 'flex', flexDirection: 'column',
+          background: 'rgba(15,15,26,0.97)',
+          border: '1px solid rgba(180,77,255,0.25)',
+          borderRadius: '16px', overflow: 'hidden',
+          maxHeight: '400px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+        }}>
+          {/* Chat header */}
+          <div style={{
+            padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+            display: 'flex', alignItems: 'center', gap: '8px',
+          }}>
+            <span>🤖</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--neon-purple)' }}>
+              Game Assistant
+            </span>
+            <span style={{
+              marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)',
+              background: 'rgba(180,77,255,0.1)', padding: '2px 8px',
+              borderRadius: '10px', border: '1px solid rgba(180,77,255,0.2)',
+            }}>
+              Powered by Groq
+            </span>
+            <button
+              onClick={() => setChatOpen(false)}
+              style={{
+                background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+                cursor: 'pointer', fontSize: '16px', padding: '0 4px', marginTop: 0,
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div style={{
+            flex: 1, overflowY: 'auto', padding: '10px 12px',
+            display: 'flex', flexDirection: 'column', gap: '8px',
+            minHeight: '160px', maxHeight: '260px',
+          }}>
+            {chatMessages.map((msg, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                <div style={{
+                  maxWidth: '85%', padding: '7px 11px',
+                  borderRadius: msg.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                  background: msg.role === 'user'
+                    ? 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))'
+                    : 'rgba(255,255,255,0.06)',
+                  border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  fontSize: '12px', lineHeight: '1.4', color: 'var(--text-primary)',
+                }}>
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div style={{ display: 'flex', gap: '4px', padding: '4px 0' }}>
+                {[0,1,2].map(i => (
+                  <div key={i} style={{
+                    width: '6px', height: '6px', borderRadius: '50%',
+                    background: 'var(--neon-purple)',
+                    animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
+                  }} />
+                ))}
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input */}
+          <div style={{
+            padding: '8px 10px', borderTop: '1px solid rgba(255,255,255,0.06)',
+            display: 'flex', gap: '8px',
+          }}>
+            <input
+              style={{
+                flex: 1, background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '8px', padding: '7px 12px',
+                color: 'var(--text-primary)', fontSize: '12px',
+                outline: 'none', fontFamily: "'Inter', sans-serif",
+              }}
+              placeholder="Ask about the rules..."
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && askAI()}
+              disabled={chatLoading}
+            />
+            <button
+              onClick={askAI} disabled={chatLoading}
+              style={{
+                padding: '7px 12px',
+                background: chatLoading ? 'rgba(180,77,255,0.2)' : 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
+                border: 'none', borderRadius: '8px', color: 'white',
+                fontSize: '12px', cursor: chatLoading ? 'not-allowed' : 'pointer',
+                fontFamily: "'Inter', sans-serif", marginTop: 0, flexShrink: 0,
+              }}
+            >
+              {chatLoading ? '...' : 'Ask'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
 
-export default App
+export default CallScreen
 </file>
 
 </files>
