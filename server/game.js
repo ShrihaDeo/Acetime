@@ -67,7 +67,7 @@ export function createGame(playerIDS, selectedGame) {
 //NOTE: Deleted start game function as the server does not wait, it reacts to events will implement with socket.io
 
 //Logic for each player's turn in card game| Used AI to debug 15/5/26
-export function playTurn(state, selectedGame, playerID, cardPlayed) {
+export function playTurn(state, selectedGame, playerID, cardPlayed, chosenSuit) {
   switch (selectedGame) {
     case "LastCard": {
       //Sets the hand to whatever cards the player has (per player)
@@ -87,15 +87,15 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
 
       //if the card is not in the hand then draw a card and then it is the next players turn
       if (cardIndex === -1) {
-        drawCard(state, playerID, selectedGame);
-        return { newState: state, error: "Card not in hand!" };
+        const { newState } = drawCard(state, playerID, selectedGame);                                 
+        return { newState: newState ?? state, error: "Card not in hand!" };
       }
 
       //Top card of the discard pile
       const topCard = state.discard[state.discard.length - 1];
 
       //Checks if the card that the player wants to play is a legal move
-      if (!isLegalPlay(topCard, card, selectedGame)) {
+      if (!isLegalPlay(topCard, card, selectedGame, state.currSuit, state.drawStack)) {
         return { newState: state, error: "Is not legal play!" };
       }
 
@@ -114,12 +114,18 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
       }
       discardPile.push(card);
 
+      // Ace cannot be played as the last card
+      if (newHand.length === 0 && card.value === 'A') {
+        return { newState: state, error: "You cannot win with an Ace!" };
+      }
+
       //the new updated state
       let newState = {
-        ...state, //'...' just means to 'copy' of in this case state, and here we are changing hands discard pile and the current suit
+        ...state,
         hands: { ...state.hands, [playerID]: newHand },
-        discard: discardPile,
-        currSuit: card.suit,
+        discard: [...state.discard, card],
+        // Ace is wild: use the chosen suit; all other cards set currSuit to their own suit
+        currSuit: card.value === 'A' ? (chosenSuit ?? card.suit) : card.suit,
         log: playerID + " played " + card.value + card.suit,
       };
 
@@ -133,108 +139,104 @@ export function playTurn(state, selectedGame, playerID, cardPlayed) {
         return { newState: { ...newState, winner }, error: null };
       }
 
-      //only advance for the normal cards
-      if (card.value !== "8" && card.value !== "2") {
+      // J skips next player (advance twice); all others advance once
+      if (card.value === 'J') {
+        newState = nextPlayer(nextPlayer(newState));
+      } else {
         newState = nextPlayer(newState);
       }
 
-      return { newState, error: null }; //error: just gives the caller indication if whether or not something went wrong
+      return { newState, error: null };
     }
   }
 }
 
-//Checks if the card played is a legal move based on the top card of the discard pile and the rules of the game
-export function isLegalPlay(topCard, cardPlayed, selectedGame) {
+// checks whether playing this card is legal given the current state.
+//   - Ace is wild so it's always legal
+//   - if a drawStack is active (someone played a 2 or 3), you can only counter with 2/3
+//   - otherwise you need to match the current suit OR the value of the top card
+export function isLegalPlay(topCard, cardPlayed, selectedGame, currSuit, drawStack = 0) {
   if (selectedGame === "LastCard") {
-    if (cardPlayed.value === 'J') return true;  // Jack is always legal
-    if (cardPlayed.suit === topCard.suit || cardPlayed.value === topCard.value) {
-      return true;
+    if (cardPlayed.value === 'A') return true;
+    if (drawStack > 0) {
+      return cardPlayed.value === '2' || cardPlayed.value === '3';
     }
-    return false;
+    return cardPlayed.suit === currSuit || cardPlayed.value === topCard.value;
   }
 }
   
 
 
-//If the played card is a special card such as ...., apply effects
+// apply the side effect of a special card (e.g. add to drawStack, flip direction).
+// normal number cards just fall through and return state unchanged
 export function applyCardEffect(state, playerID, card, selectedGame) {
   switch (selectedGame) {
     case "LastCard": {
       if (card.value === "2") {
-        return {
-          ...state,
-          drawStack: state.drawStack + 2,
-          log:
-            playerID + " player 2- draw stack is now" + (state.drawStack + 2),
-        };
+        return { ...state, drawStack: state.drawStack + 2,
+          log: playerID + " played 2 — draw stack: " + (state.drawStack + 2) };
       }
-
-      /* Code lwk doesnt matter at the moment teehee
-    if(card.value === '8'){
-      const skipped = nextPlayer(state,playerID);
-      //Since there are only 2 players at the moment (15/5/26)
-      return{
-        ...skipped,
-        log: playerID + " played 8, his turn is skipped!"
+      if (card.value === "3") {
+        return { ...state, drawStack: state.drawStack + 3,
+          log: playerID + " played 3 — draw stack: " + (state.drawStack + 3) };
       }
-    }
-    */
-
-      //NOTE: maybe will later on implement the special effect of 'A' Reversing the play, but atm only have 2 players
-
-      //J is just a wildcard- anything goes, the rest of them are just placeholders so program works smoothely
-      if (card.value === "J" || card.value === "8" || card.value === "A") {
-        return {
-          ...state,
-          log: playerID + " played J — suit changed to " + state.currSuit,
-        };
+      if (card.value === "8") {
+        return { ...state, direction: state.direction * -1,
+          log: playerID + " played 8 — direction reversed!" };
+      }
+      if (card.value === "J") {
+        return { ...state, log: playerID + " played Jack — next player skipped!" };
+      }
+      if (card.value === "A") {
+        return { ...state, log: playerID + " played Ace — suit changed to " + state.currSuit };
       }
     }
   }
-
-  // normal card — no effect
-  return state;
+  return state; // normal card — no effect
 }
 
-//Draws card from pile, adds to player hand, then removes from pile
+// when the draw pile runs out, take the discard pile (minus the top card),
+// shuffle it, and use that as the new deck. returns {deck, discard}
+function refillIfEmpty(deck, discard) {
+  if (deck.length > 0 || discard.length <= 1) return { deck, discard };
+  const top = discard[discard.length - 1];
+  const pool = discard.slice(0, -1);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return { deck: pool, discard: [top] };
+}
+
+// draw card(s) for a player. handles drawStack (so a "2" forces them to draw 2 etc.)
+// and reshuffles the discard pile back in if we run out of cards mid-draw
 export function drawCard(state, playerID, selectedGame) {
   switch (selectedGame) {
     case "LastCard": {
-      if (state.deck.length === 0) {
-        return { state, error: "Deck is empty" };
+      let deck = [...state.deck];
+      let discard = [...state.discard];
+      ({ deck, discard } = refillIfEmpty(deck, discard));
+
+      if (deck.length === 0) {
+        return { newState: state, error: "No cards left to draw" };
       }
 
-      //if drawStack active, draw that many — otherwise draw 1 | Generated by AI 15/5/26
       const count = state.drawStack > 0 ? state.drawStack : 1;
+      const newHand = [...state.hands[playerID]];
 
-      //creates new deck array
-      const newDeck = [];
-
-      //Copies the deck
-      for (const c of state.deck) {
-        newDeck.push(c);
-      }
-
-      //copies the current players hand
-      const newHand = [];
-      for (const c of state.hands[playerID]) {
-        newHand.push(c);
-      }
-
-      //Determines how many cards to draw
       for (let i = 0; i < count; i++) {
-        if (newDeck.length === 0) break;
-        newHand.push(newDeck.shift());
+        ({ deck, discard } = refillIfEmpty(deck, discard));
+        if (deck.length === 0) break;
+        newHand.push(deck.shift());
       }
 
-      //NOTE: we want to copy the deck because we want to avoid mutating the original state, this may cause bugs as other parts of the code might hold a reference to the old state
-
-      let newState = {
+      const newState = {
         ...state,
-        deck: newDeck,
+        deck,
+        discard,
         hands: { ...state.hands, [playerID]: newHand },
         drawStack: 0,
-        log: playerID + " drew a card",
+        log: playerID + " drew " + count + " card" + (count > 1 ? "s" : ""),
       };
 
       return { newState: nextPlayer(newState, playerID), error: null };
@@ -247,6 +249,20 @@ export function nextPlayer(state, playerID) {
   const total = state.players.length;
   const next = (state.currIndex + state.direction + total) % total;
   return { ...state, currIndex: next };
+}
+
+// penalty version of drawCard. doesn't advance the turn and doesn't touch drawStack.
+// used for "you forgot to say Last Card!" type punishments
+export function forceDraw(state, playerID, count) {
+  let deck = [...state.deck];
+  let discard = [...state.discard];
+  const newHand = [...state.hands[playerID]];
+  for (let i = 0; i < count; i++) {
+    ({ deck, discard } = refillIfEmpty(deck, discard));
+    if (deck.length === 0) break;
+    newHand.push(deck.shift());
+  }
+  return { ...state, deck, discard, hands: { ...state.hands, [playerID]: newHand } };
 }
 
 //Check for selected games' win condition
