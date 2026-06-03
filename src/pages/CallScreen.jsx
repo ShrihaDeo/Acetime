@@ -40,6 +40,15 @@ const GAMES = [
     available: true,
   },
   {
+    id: 'blackjack',
+    name: 'Blackjack',
+    description: "Get closer to 21 than your opponent — but don't go over.",
+    emoji: '♠',
+    color: 'rgba(0,212,255,0.25)',
+    border: 'rgba(0,212,255,0.5)',
+    available: true,
+  },
+  {
     id: 'comingsoon',
     name: 'Coming Soon',
     description: 'More games are on the way.',
@@ -87,7 +96,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [chatMessages, setChatMessages] = useState([
     {
       role: 'assistant',
-      text: "Hi! I'm your game assistant. Ask me anything about the rules!"
+      text: "Hi! I'm your AceTime assistant. Ask me about Last Card, Blackjack, or how to use the app — I'll adapt to whichever game you're in."
     }
   ])
   // true while waiting for Gemini to respond
@@ -152,7 +161,15 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     socket.on('game-state-update', (state) => {
       setGameState(state)
       setSyncStatus(state.log)
-      if (state.winner) setSyncStatus(`${nicknames[state.winner] || 'Someone'} wins! `)
+      if (state.winner) {
+        if (state.winner === 'tie') {
+          setSyncStatus("It's a tie!")
+        } else {
+          setSyncStatus(`${nicknames[state.winner] || 'Someone'} wins!`)
+          if (state.winner === socket.id) playSound(winSound)
+          else playSound(loseSound)
+        }
+      }
       // reset Last Card call if hand grew back above 1 (e.g. drew cards)
       if (state.hands[socket.id]?.length > 1) setLastCardCalled(false)
     })
@@ -338,6 +355,55 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     socket.emit('send-move', { room, action: 'draw' })
   }
 
+  // blackjack — take another card. server enforces that you must be "playing" status
+  const handleHit = () => {
+    if (!gameState) return
+    socket.emit('send-move', { room, action: 'hit' })
+    playSound(cardPlaySound)
+  }
+
+  // blackjack — lock in your score
+  const handleStand = () => {
+    if (!gameState) return
+    socket.emit('send-move', { room, action: 'stand' })
+  }
+
+  // blackjack — double the bet, draw exactly 1 card, auto-stand
+  const handleDouble = () => {
+    if (!gameState) return
+    socket.emit('send-move', { room, action: 'double' })
+    playSound(cardPlaySound)
+  }
+
+  // blackjack — place a bet for this round
+  const handleBet = (amount) => {
+    if (!gameState) return
+    socket.emit('send-move', { room, action: 'bet', amount })
+  }
+
+  // blackjack — start a fresh round after one ended
+  const handleNextRound = () => {
+    if (!gameState) return
+    socket.emit('send-move', { room, action: 'next-round' })
+  }
+
+  // local-only — how much the user is about to bet (slider state)
+  const [betAmount, setBetAmount] = useState(50)
+
+  // briefly flash a "Your turn!" banner each time a fresh Blackjack round starts
+  // (so you notice the deal). both players play in parallel against the dealer
+  const [turnFlash, setTurnFlash] = useState(0)
+  const prevCanActRef = useRef(false)
+  useEffect(() => {
+    const canActNow = gameMode === 'blackjack'
+      && gameState?.phase === 'playing'
+      && gameState?.status?.[socket.id] === 'playing'
+    if (canActNow && !prevCanActRef.current) {
+      setTurnFlash(c => c + 1)
+    }
+    prevCanActRef.current = canActNow
+  }, [gameState, gameMode, socket.id])
+
   // styles reused inside the settings dropdown / rules modal
   const settingsItemStyle = {
     display: 'flex', alignItems: 'center', gap: '10px',
@@ -377,14 +443,35 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   
     try {
-      // calls our server, not GROQ directly
+      // build a per-game context payload so the assistant has the actual numbers in front of it
+      const context = { playerNames: Object.values(nicknames).join(' vs ') }
+
+      if (gameMode === 'lastcard' && gameState) {
+        const top = gameState.discard?.[gameState.discard.length - 1]
+        context.handSize     = gameState.hands?.[socket.id]?.length
+        context.topCard      = top ? `${top.value}${top.suit}` : undefined
+        context.declaredSuit = gameState.currSuit
+        context.drawStack    = gameState.drawStack
+        context.yourTurn     = gameState.isYourTurn
+      } else if (gameMode === 'blackjack' && gameState) {
+        const dealerUp = gameState.dealerHand?.[0]
+        context.phase        = gameState.phase
+        context.yourScore    = gameState.scores?.[socket.id]
+        context.yourCards    = gameState.hands?.[socket.id]?.length
+        context.yourChips    = gameState.chips?.[socket.id]
+        context.yourBet      = gameState.bets?.[socket.id]
+        context.yourStatus   = gameState.status?.[socket.id]
+        context.dealerUpcard = dealerUp ? `${dealerUp.value}${dealerUp.suit}` : undefined
+      }
+
+      // calls our server, not Groq directly
       const response = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: userMessage,
-          playerNames: Object.values(nicknames).join(' vs '),
-          handSize: gameState?.hands[socket.id]?.length ?? 7,
+          game: gameMode,
+          context,
         })
       })
   
@@ -606,10 +693,10 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           {/* game cards grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
+            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '20px',
             width: '100%',
-            maxWidth: '560px',
+            maxWidth: '760px',
           }}>
             {GAMES.map(game => (
               <div
@@ -1044,6 +1131,404 @@ function CallScreen({ socket, room, nickname, onLeave }) {
         </div>
       )}
 
+
+      {/* ── MODE: BLACKJACK ── */}
+      {gameMode === 'blackjack' && (() => {
+        const opponentId = gameState
+          ? Object.keys(gameState.hands || {}).find(id => id !== socket.id)
+          : null
+        const myHand    = gameState?.hands?.[socket.id] || []
+        const myScore   = gameState?.scores?.[socket.id] ?? 0
+        const myStatus  = gameState?.status?.[socket.id] ?? 'waiting'
+        const myBet     = gameState?.bets?.[socket.id] ?? 0
+        const myChips   = gameState?.chips?.[socket.id] ?? 0
+        const oppHandSize = opponentId
+          ? (typeof gameState.hands[opponentId] === 'number'
+              ? gameState.hands[opponentId]
+              : (gameState.hands[opponentId]?.length ?? 0))
+          : 0
+        const oppStatus = opponentId ? gameState?.status?.[opponentId] : null
+        const oppBet    = opponentId ? (gameState?.bets?.[opponentId] ?? 0) : 0
+        const oppChips  = opponentId ? (gameState?.chips?.[opponentId] ?? 0) : 0
+        const phase     = gameState?.phase ?? 'betting'
+        const dealerHand  = gameState?.dealerHand || []
+        const dealerScore = gameState?.dealerScore ?? 0
+        const myResult  = gameState?.results?.[socket.id]
+        const oppResult = opponentId ? gameState?.results?.[opponentId] : null
+
+        const statusChip = (s, result) => {
+          if (result === 'blackjack') return { text: 'Blackjack! +3:2', color: '#ffd700' }
+          if (result === 'win')       return { text: 'Won', color: '#00ffb3' }
+          if (result === 'lose')      return { text: 'Lost', color: '#ff6b6b' }
+          if (result === 'push')      return { text: 'Push', color: 'rgba(255,255,255,0.7)' }
+          if (result === 'bust')      return { text: 'Bust', color: '#ff6b6b' }
+          if (s === 'busted')   return { text: 'Busted', color: '#ff6b6b' }
+          if (s === 'blackjack')return { text: 'Blackjack!', color: '#ffd700' }
+          if (s === 'standing') return { text: 'Standing', color: '#00ffb3' }
+          if (s === 'playing')  return { text: 'Playing…', color: 'rgba(255,255,255,0.7)' }
+          return { text: 'Waiting', color: 'rgba(255,255,255,0.5)' }
+        }
+
+        const canDouble = phase === 'playing'
+          && myStatus === 'playing'
+          && myHand.length === 2
+          && myChips >= myBet
+
+        return (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 10,
+            background: 'radial-gradient(circle at 50% 50%, #0a2a1a 0%, #04100a 100%)',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px), radial-gradient(circle at 50% 50%, #0a2a1a 0%, #04100a 100%)',
+            backgroundSize: '28px 28px, 100% 100%',
+          }}>
+            {/* header */}
+            <div style={{
+              position: 'absolute', top: '20px', left: '30px', right: '30px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 5,
+            }}>
+              <div
+                className={`status-pill ${
+                  phase === 'playing' && myStatus === 'playing' ? 'status-blink' : ''
+                }`}
+                style={{ color: '#00d4ff' }}
+              >
+                <span className="status-dot" style={{ backgroundColor: '#00d4ff' }} />
+                {phase === 'betting'    ? 'Place your bet'
+                 : phase === 'resolved' ? 'Round over'
+                 : myStatus === 'playing' ? '🟢 Your move'
+                 : oppStatus === 'playing' ? `⏳ ${opponentNickname} still playing…`
+                 : 'Dealer playing…'}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
+                <button onClick={() => setShowRules(true)} title="How to play" style={{
+                  width: '32px', height: '32px', padding: 0,
+                  background: 'rgba(0,0,0,0.35)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.8)', borderRadius: '50%',
+                  fontSize: '14px', fontWeight: '700', cursor: 'pointer',
+                }}>?</button>
+                <button onClick={() => setShowSettings(s => !s)} title="Settings" style={{
+                  width: '32px', height: '32px', padding: 0,
+                  background: showSettings ? 'rgba(180,77,255,0.25)' : 'rgba(0,0,0,0.35)',
+                  border: `1px solid ${showSettings ? 'rgba(180,77,255,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                  color: 'rgba(255,255,255,0.8)', borderRadius: '50%',
+                  fontSize: '14px', cursor: 'pointer',
+                }}>⚙</button>
+                {showSettings && (
+                  <div style={{
+                    position: 'absolute', top: '40px', right: 0, zIndex: 60,
+                    minWidth: '180px',
+                    background: 'rgba(15,15,26,0.97)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px', padding: '6px',
+                    boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
+                    display: 'flex', flexDirection: 'column', gap: '2px',
+                  }}>
+                    <button onClick={() => { setShowSettings(false); setGameMode('menu') }} style={settingsItemStyle}>🎮 <span>Change game</span></button>
+                    <button onClick={() => { setShowSettings(false); setGameMode('call') }} style={settingsItemStyle}>📞 <span>Back to call</span></button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* opponent strip — chips/bet/status only. their hand is hidden */}
+            <div style={{
+              position: 'absolute', top: '70px', left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex', alignItems: 'center', gap: '14px',
+              padding: '8px 16px',
+              background: 'rgba(0,0,0,0.4)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '999px',
+              zIndex: 5,
+            }}>
+              <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', fontWeight: '600' }}>
+                {opponentNickname}
+              </span>
+              <span style={{ color: '#ffd700', fontSize: '12px' }}>💰 {oppChips}</span>
+              {oppBet > 0 && <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px' }}>Bet {oppBet}</span>}
+              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px' }}>· {oppHandSize} cards</span>
+              <span style={{
+                fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px',
+                color: statusChip(oppStatus, oppResult).color,
+                padding: '2px 8px', borderRadius: '8px',
+                border: `1px solid ${statusChip(oppStatus, oppResult).color}55`,
+              }}>
+                {statusChip(oppStatus, oppResult).text}
+              </span>
+            </div>
+
+            {/* dealer area */}
+            <div style={{
+              position: 'absolute', top: '130px', left: 0, right: 0,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: '8px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span className="hand-label" style={{ margin: 0 }}>Dealer</span>
+                <span style={{
+                  fontFamily: "'Syne', sans-serif", fontSize: '20px', fontWeight: '800',
+                  color: dealerScore > 21 ? '#ff6b6b' : 'white',
+                }}>
+                  {dealerHand.length > 0 ? dealerScore : '—'}
+                  {gameState?.dealerHoleHidden && dealerHand.length > 0 && (
+                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginLeft: '4px' }}>+ ?</span>
+                  )}
+                </span>
+                {dealerScore > 21 && <span style={{ fontSize: '10px', color: '#ff6b6b', textTransform: 'uppercase' }}>Dealer bust</span>}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {dealerHand.length === 0
+                  ? <div className="card-placeholder" />
+                  : dealerHand.map((card, i) => (
+                      card.hidden
+                        ? <div key={'hole-' + i} className="card card-back card-deal" />
+                        : <div key={card.id || 'd' + i} className="card-deal">
+                            <Card card={card} disabled={true} />
+                          </div>
+                    ))}
+              </div>
+            </div>
+
+            {/* your area */}
+            <div style={{
+              position: 'absolute', bottom: '160px', left: 0, right: 0,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: '10px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <span className="hand-label" style={{ margin: 0 }}>You</span>
+                <span style={{
+                  fontFamily: "'Syne', sans-serif", fontSize: '24px', fontWeight: '800',
+                  color: myScore > 21 ? '#ff6b6b' : 'white',
+                }}>
+                  {myHand.length > 0 ? myScore : '—'}
+                </span>
+                <span style={{
+                  fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px',
+                  color: statusChip(myStatus, myResult).color,
+                  padding: '2px 8px', borderRadius: '8px',
+                  border: `1px solid ${statusChip(myStatus, myResult).color}55`,
+                }}>
+                  {statusChip(myStatus, myResult).text}
+                </span>
+                <span style={{ color: '#ffd700', fontSize: '12px' }}>💰 {myChips}</span>
+                {myBet > 0 && <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px' }}>Bet {myBet}</span>}
+              </div>
+              <div
+                className={
+                  phase === 'playing' && myStatus === 'playing' ? 'turn-active' : ''
+                }
+                style={{ display: 'flex', gap: '8px' }}
+              >
+                {myHand.length === 0
+                  ? <div className="card-placeholder" />
+                  : myHand.map(card => (
+                      <div key={card.id} className="card-deal">
+                        <Card card={card} disabled={true} />
+                      </div>
+                    ))}
+              </div>
+
+              {/* ── betting phase ── */}
+              {phase === 'betting' && !gameState?.bets?.[socket.id] && (
+                <div style={{
+                  marginTop: '12px', display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', gap: '10px',
+                  background: 'rgba(0,0,0,0.45)', padding: '14px 22px',
+                  borderRadius: '14px', border: '1px solid rgba(0,212,255,0.3)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <button
+                      onClick={() => setBetAmount(Math.max(10, betAmount - 10))}
+                      style={{
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        color: 'white', fontSize: '16px', cursor: 'pointer',
+                      }}>−</button>
+                    <span style={{
+                      fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: '800',
+                      color: '#ffd700', minWidth: '70px', textAlign: 'center',
+                    }}>{betAmount}</span>
+                    <button
+                      onClick={() => setBetAmount(Math.min(myChips, betAmount + 10))}
+                      style={{
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        color: 'white', fontSize: '16px', cursor: 'pointer',
+                      }}>+</button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {[10, 25, 50, 100].map(v => (
+                      <button key={v}
+                        onClick={() => setBetAmount(Math.min(myChips, v))}
+                        disabled={v > myChips}
+                        style={{
+                          padding: '4px 10px', fontSize: '11px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: v > myChips ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.7)',
+                          borderRadius: '8px',
+                          cursor: v > myChips ? 'not-allowed' : 'pointer',
+                        }}>{v}</button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleBet(betAmount)}
+                    disabled={betAmount > myChips || betAmount < 10}
+                    style={{
+                      padding: '10px 28px', borderRadius: '22px',
+                      background: 'linear-gradient(135deg, #ffd700, #ff6b35)',
+                      border: 'none', color: '#1a1000',
+                      fontWeight: '700', fontSize: '13px',
+                      cursor: (betAmount > myChips || betAmount < 10) ? 'not-allowed' : 'pointer',
+                      opacity: (betAmount > myChips || betAmount < 10) ? 0.5 : 1,
+                      fontFamily: "'Inter', sans-serif",
+                      boxShadow: '0 0 18px rgba(255,215,0,0.4)',
+                    }}>Place bet · {betAmount}</button>
+                </div>
+              )}
+
+              {phase === 'betting' && gameState?.bets?.[socket.id] && (
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', marginTop: '12px' }}>
+                  Waiting for {opponentNickname} to bet…
+                </p>
+              )}
+
+              {/* ── playing phase — buttons appear for whichever player is still "playing".
+                  both can act in parallel; the dealer plays once both are done ── */}
+              {phase === 'playing' && myStatus === 'playing' && (
+                <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                  <button onClick={handleHit} style={{
+                    padding: '10px 24px', borderRadius: '22px',
+                    background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
+                    border: 'none', color: 'white',
+                    fontWeight: '700', fontSize: '13px', cursor: 'pointer',
+                    fontFamily: "'Inter', sans-serif",
+                    boxShadow: '0 0 16px rgba(0,212,255,0.4)',
+                  }}>Hit</button>
+                  <button onClick={handleStand} style={{
+                    padding: '10px 24px', borderRadius: '22px',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: 'white', fontWeight: '700', fontSize: '13px',
+                    cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+                  }}>Stand</button>
+                  {canDouble && (
+                    <button onClick={handleDouble} style={{
+                      padding: '10px 24px', borderRadius: '22px',
+                      background: 'linear-gradient(135deg, #ffd700, #ff6b35)',
+                      border: 'none', color: '#1a1000',
+                      fontWeight: '700', fontSize: '13px', cursor: 'pointer',
+                      fontFamily: "'Inter', sans-serif",
+                    }}>Double</button>
+                  )}
+                </div>
+              )}
+
+              {/* ── resolved phase ── */}
+              {phase === 'resolved' && (
+                <button onClick={handleNextRound} style={{
+                  marginTop: '12px',
+                  padding: '12px 32px', borderRadius: '22px',
+                  background: 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
+                  border: 'none', color: 'white',
+                  fontWeight: '700', fontSize: '14px', cursor: 'pointer',
+                  fontFamily: "'Inter', sans-serif",
+                  boxShadow: '0 0 18px rgba(180,77,255,0.4)',
+                }}>Next round</button>
+              )}
+            </div>
+
+            {/* camera strip */}
+            <div style={{
+              position: 'absolute', bottom: '20px', left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex', gap: '12px', zIndex: 50,
+            }}>
+              <div style={{
+                width: '150px', height: '110px',
+                borderRadius: '12px', overflow: 'hidden',
+                border: '2px solid rgba(255,255,255,0.15)',
+                background: '#05050a', position: 'relative',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              }}>
+                {isOpponentCameraOff ? (
+                  <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#0d0b10' }}>
+                    <Avatar name={opponentNickname} size={36} />
+                  </div>
+                ) : (
+                  <video ref={remoteVideoRef} autoPlay playsInline
+                    style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                )}
+                <div style={{ position:'absolute', bottom:'4px', left:'6px', fontSize:'10px', color:'white', background:'rgba(0,0,0,0.6)', padding:'2px 6px', borderRadius:'6px' }}>
+                  {opponentNickname}
+                </div>
+              </div>
+              <div style={{
+                width: '150px', height: '110px',
+                borderRadius: '12px', overflow: 'hidden',
+                border: '2px solid rgba(0,212,255,0.4)',
+                background: '#05050a', position: 'relative',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              }}>
+                {isCameraOff ? (
+                  <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#0d0b10' }}>
+                    <Avatar name={myNickname} size={36} />
+                  </div>
+                ) : (
+                  <video ref={localVideoRef} autoPlay muted playsInline
+                    style={{ width:'100%', height:'100%', objectFit:'cover', transform:'scaleX(-1)' }} />
+                )}
+                <div style={{ position:'absolute', bottom:'4px', left:'6px', fontSize:'10px', color:'white', background:'rgba(0,0,0,0.6)', padding:'2px 6px', borderRadius:'6px' }}>
+                  {myNickname} (you)
+                </div>
+              </div>
+            </div>
+
+            {/* call controls — moved to the left edge so they don't sit on top
+                of the game area. compact pill, vertically centred */}
+            <div style={{
+              position: 'absolute', top: '50%', left: '20px',
+              transform: 'translateY(-50%)',
+              display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 50,
+              padding: '8px',
+              background: 'rgba(0,0,0,0.45)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '999px',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <button className={`control-btn compact ${isMuted ? 'active' : ''}`} onClick={toggleMute} title="Mute">
+                <img src={Mute} alt="Mute" />
+              </button>
+              <button className={`control-btn compact ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera} title="Camera">
+                <img src={VideoOff} alt="Camera" />
+              </button>
+              <button
+                className={`control-btn compact ${chatOpen ? 'active' : ''}`}
+                onClick={() => setChatOpen(p => !p)}
+                style={{ fontSize: '16px', backgroundColor: chatOpen ? 'rgba(180,77,255,0.3)' : '' }}
+                title="Game assistant"
+              >
+                🤖
+              </button>
+              <button className="control-btn compact end-call" onClick={onLeave} title="Leave">
+                <img src={EndCall} alt="End" />
+              </button>
+            </div>
+
+            {/* "your turn!" banner — re-fires each new deal so you know you can act */}
+            {turnFlash > 0 && phase === 'playing' && myStatus === 'playing' && (
+              <div key={turnFlash} className="turn-banner">
+                🟢 Your move!
+              </div>
+            )}
+          </div>
+        )
+      })()}
+
       {/* ── SUIT PICKER (shown after playing a Jack) ── */}
       {pendingWild && (
         <div style={{
@@ -1137,6 +1622,11 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             </div>
 
             <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.6', marginTop: 0 }}>
+              Two games are available. <strong>Last Card</strong> is the default; <strong>Blackjack</strong> is the second mode.
+            </p>
+
+            <h3 style={rulesSectionStyle}>Last Card — basics</h3>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.6', marginTop: 0 }}>
               Match the top card by suit or rank. First to empty their hand wins. If you can't play, draw one card and your turn ends.
             </p>
 
@@ -1162,6 +1652,17 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               <li>If the draw pile runs out, the discard pile (minus the top card) is shuffled back in.</li>
             </ul>
 
+            <h3 style={rulesSectionStyle}>Blackjack</h3>
+            <ul style={rulesListStyle}>
+              <li>Each player starts with <b>500 chips</b>. Both players play against the dealer (not each other).</li>
+              <li><b>Bet</b> chips before each round (min 10). Both bets must be in before cards are dealt.</li>
+              <li>Both players get 2 face-up cards. Dealer gets 1 face-up, 1 face-down (hole card).</li>
+              <li>On your turn: <b>Hit</b> (take a card), <b>Stand</b> (keep score), or <b>Double</b> (double bet, take exactly 1 card, then stand).</li>
+              <li>Card values: 2–10 face value · J/Q/K = 10 · Ace = 11 (or 1 if 11 busts).</li>
+              <li>Once both players are done, dealer reveals hole card and must hit until 17+.</li>
+              <li>Payouts: <b>Blackjack</b> (Ace + 10 on first 2 cards) pays 3:2 · <b>Win</b> pays 1:1 · <b>Push</b> returns the bet · <b>Bust or lose</b> loses the bet.</li>
+            </ul>
+
             <button
               onClick={() => setShowRules(false)}
               style={{
@@ -1178,8 +1679,8 @@ function CallScreen({ socket, room, nickname, onLeave }) {
         </div>
       )}
 
-      {/* winning / losing screen. only shows while you're in the game so the
-          Play again / Back to call buttons actually navigate away */}
+      {/* winning / losing screen — only for LastCard (Blackjack has per-round results
+          rendered inline rather than a single game-over screen) */}
       {gameMode === 'lastcard' && gameState?.winner && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 250,
@@ -1189,24 +1690,31 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           textAlign: 'center', padding: '40px',
         }}>
           <div style={{ fontSize: '88px' }}>
-            {gameState.winner === socket.id ? '🏆' : '😭'}
+            {gameState.winner === 'tie' ? '🤝'
+              : gameState.winner === socket.id ? '🏆' : '😭'}
           </div>
           <h2 style={{
             fontFamily: "'Syne', sans-serif", fontSize: '40px',
             fontWeight: '800', color: 'white', margin: 0,
-            background: gameState.winner === socket.id
-              ? 'linear-gradient(135deg, #ffd700, #ff6b35)'
-              : 'linear-gradient(135deg, #b44dff, #00d4ff)',
+            background: gameState.winner === 'tie'
+              ? 'linear-gradient(135deg, #00d4ff, #00ffb3)'
+              : gameState.winner === socket.id
+                ? 'linear-gradient(135deg, #ffd700, #ff6b35)'
+                : 'linear-gradient(135deg, #b44dff, #00d4ff)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>
-            {gameState.winner === socket.id
-              ? 'You won!'
-              : `${nicknames[gameState.winner] || 'Opponent'} won`}
+            {gameState.winner === 'tie'
+              ? "It's a tie!"
+              : gameState.winner === socket.id
+                ? 'You won!'
+                : `${nicknames[gameState.winner] || 'Opponent'} won`}
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
-            {gameState.winner === socket.id
-              ? 'Last card played. GG.'
-              : 'Better luck next round.'}
+            {gameState.winner === 'tie'
+              ? 'Equal score. Another round?'
+              : gameState.winner === socket.id
+                ? 'Nicely played. GG.'
+                : 'Better luck next round.'}
           </p>
           <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
             <button
@@ -1255,7 +1763,9 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           }}>
             <span>🤖</span>
             <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--neon-purple)' }}>
-              Game Assistant
+              {gameMode === 'blackjack' ? 'Blackjack assistant'
+                : gameMode === 'lastcard' ? 'Last Card assistant'
+                : 'AceTime assistant'}
             </span>
             <span style={{
               marginLeft: 'auto', fontSize: '10px', color: 'var(--text-muted)',
