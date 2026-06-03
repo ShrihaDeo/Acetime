@@ -5,6 +5,10 @@ import VideoOff from '../assets/video_off.svg'
 import Mute     from '../assets/mute.svg'
 import Card     from '../components/Card'
 
+import cardPlaySound from '../assets/817551__silverdubloons__pickupcard05.wav'
+import winSound from '../assets/274183__littlerobotsoundfactory__jingle_win_synth_04.wav'
+import loseSound from '../assets/364929__jofae__game-die.mp3'
+
 const backgrounds = [
   {
     bg: 'radial-gradient(circle at 30% 40%, #0d3d20 0%, #050f08 100%)',
@@ -116,6 +120,10 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [gameMode, setGameMode] = useState('call') // 'call' | 'menu' | 'lastcard'
   const [isHost, setIsHost] = useState(false)
 
+  const playSound = (sound) => 
+  {
+  new Audio(sound).play().catch(() => {})
+  }
 
   const myStreamRef = useRef(null)
   const remoteStreamRef = useRef(null)
@@ -152,7 +160,14 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     socket.on('game-state-update', (state) => {
       setGameState(state)
       setSyncStatus(state.log)
-      if (state.winner) setSyncStatus(`${nicknames[state.winner] || 'Someone'} wins! `)
+      if (state.winner) {
+    setSyncStatus(`${nicknames[state.winner] || 'Someone'} wins!`)
+    if (state.winner === socket.id) {
+      playSound(winSound)
+      } else {
+        playSound(loseSound)
+      }
+    }
       // reset Last Card call if hand grew back above 1 (e.g. drew cards)
       if (state.hands[socket.id]?.length > 1) setLastCardCalled(false)
     })
@@ -314,6 +329,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       setSyncStatus("It's not your turn!")
       return
     }
+    playSound(cardPlaySound)
     if (card.value === 'A') {
       setPendingWild(card)
       return
