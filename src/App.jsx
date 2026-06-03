@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import bgMusic from './assets/580045__migfus20__lo-fi-music-guitar-loop-version.mp3'
 import LandingPage from './pages/LandingPage'
 import CallScreen from './pages/CallScreen'
 import RoomPage from './pages/RoomPage'
@@ -15,6 +16,8 @@ function App() {
   const [roomID, setRoomID] = useState("")
   const [nickname, setNickname] = useState("") 
   const [roomError, setRoomError] = useState("")
+  const [isMusicMuted, setIsMusicMuted] = useState(false)
+
 
   // Listen for 'room-full' event from the server to handle cases where a user tries to join a full room.
   useEffect(() => {
@@ -25,6 +28,28 @@ function App() {
 
     return () => socket.off('room-full');
   }, []);
+
+  const bgMusicRef = useRef(null)
+
+  useEffect(() => {
+    const audio = new Audio(bgMusic)
+    audio.loop = true
+    audio.volume = 0.3
+    bgMusicRef.current = audio
+    audio.play().catch(() => {})
+
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }, [])
+
+  const toggleMusic = () => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.muted = !bgMusicRef.current.muted
+      setIsMusicMuted(prev => !prev)
+    }
+  }
 
 
   // This function is called when the user successfully joins a room. 
@@ -59,6 +84,20 @@ function App() {
           onLeave={() => setPage('landing')} 
         />
       )}
+
+      <button 
+        onClick={toggleMusic}
+        style={{
+          position: 'fixed', bottom: '20px', right: '20px',
+          zIndex: 999, width: '40px', height: '40px',
+          borderRadius: '50%', border: 'none',
+          background: 'rgba(255,255,255,0.1)',
+          fontSize: '18px', cursor: 'pointer',
+          backdropFilter: 'blur(10px)',
+        }}
+      >
+        {isMusicMuted ? '🔇' : '🎵'}
+      </button>
     </>
   )
 }
