@@ -51,6 +51,8 @@ Open a second terminal tab and run:
 npm run dev
 ```
 
+
+
 ### Current Progress (Week 6)
 We have successfully implemented Real-time State Synchronisation 
 - **Bi-directional Sync**: User actions in one client are propagated instantly to all other clients.

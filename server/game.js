@@ -44,7 +44,7 @@ export function createGame(playerIDS, selectedGame) {
         hands[id].push(deck.shift());
       }
     }
-
+    
     startCard = deck[0];
     deck.shift();
 

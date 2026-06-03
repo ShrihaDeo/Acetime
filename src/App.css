@@ -334,7 +334,7 @@
   flex-wrap: wrap;
   padding-top: 10px;
 }
-/* ── Blackjack / game animations ─────────────────────────────── */
+/* ── Blackjack / game animations (feature/backend-sync) ─────── */
 
 @keyframes turnPulseGlow {
   0%, 100% {
@@ -412,4 +412,44 @@
 .control-btn.compact img {
   width: 16px;
   height: 16px;
+}
+
+/* ── Card deal / play animations (from main, used by Card.jsx) ── */
+
+@keyframes dealCard {
+  from {
+    transform: translateY(-60px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes playCard {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-80px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.card-draw {
+  animation: dealCard 0.35s ease forwards;
+  opacity: 0;
+}
+
+.card-play {
+  animation: playCard 0.25s ease forwards;
+  pointer-events: none;
+}
+
+/* stop hover fighting the animations */
+.card-draw:hover,
+.card-play:hover {
+  transform: none;
 }
