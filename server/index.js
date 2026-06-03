@@ -15,14 +15,14 @@ const io = new Server(httpServer, {
 })
 
 // Validate required environment variables on startup
-/*const REQUIRED_ENV = ['GROQ_API_KEY']
+const REQUIRED_ENV = ['GROQ_API_KEY']
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) {
     console.error(`Missing required environment variable: ${key}`)
     process.exit(1)
   }
 }
-console.log('Environment variables validated')*/
+console.log('Environment variables validated')
 
 const roomTimers = {} // tracks cleanup timers per room
 
