@@ -389,6 +389,31 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     updateAudioSettings(noiseSuppression, echoCancellation);
   } 
 
+  //apply only fps
+  const applyfps = () => {
+    if (resolution === "1080p") {
+      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+    } else {
+      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+    }
+  };
+//apply on camera settings
+  const applyCameraSettings = () => {
+    if (resolution === "1080p") {
+      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+    } else {
+      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+    }
+  }
+//only noise cancellation
+  const applyNoiseCancellation = () => {
+    updateAudioSettings(noiseSuppression, echoCancellation);
+  };
+//apply on echo
+  const applyEchoCancellation = () => {
+    updateAudioSettings( noiseSuppression, echoCancellation);
+  };
+
 
 
   // When a card is clicked in the game UI, emit the move to the server if it's the player's turn.
@@ -858,38 +883,27 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     >
                       📞 <span>Back to call</span>
                     </button>
+
+
+                    //used some ai to help me learn how to do the ui to add this to the panel
                     <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
                       Camera Settings
                     </h4>
+
                     <label style={{ fontSize: "12px", color: "white" }}>Resolution</label>
                     <select
-                    value={resolution}
-                    onChange={(e) => setResolution(e.target.value)}
-                    style={{ padding: "5px", borderRadius: "5px" }}
+                      value={resolution}
+                      onChange={(e) => setResolution(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
                     >
                       <option value="720p">720p</option>
                       <option value="1080p">1080p</option>
-                      </select>
+                    </select>
 
-                      <label style={{ fontSize: "12px", color: "white" }}>FPS</label>
-                      <select
-                      value={fps}
-                      onChange={(e) => setFps(e.target.value)}
-                      style={{ padding: "5px", borderRadius: "5px" }}
-                      >
-                      <option value="30">30 FPS</option>
-                      <option value="60">60 FPS</option>
-                      </select>
-                      <button
-                      onClick={() => {
-                        if(resolution === "1080p") {
-                          updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
-                        } else{
-                          updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
-                        }
-                      }}
+                    <button
+                      onClick={applyResolution}
                       style={{
-                        padding: "8px",
+                        padding: "6px",
                         borderRadius: "5px",
                         background: "purple",
                         color: "white",
@@ -897,10 +911,35 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                         cursor: "pointer"
                       }}
                     >
-                      Apply Video Settings
+                      Change Resolution
                     </button>
 
-                                          
+                    <label style={{ fontSize: "12px", color: "white" }}>FPS</label>
+                    <select
+                      value={fps}
+                      onChange={(e) => setFps(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="30">30 FPS</option>
+                      <option value="60">60 FPS</option>
+                    </select>
+
+                    <button
+                      onClick={applyFPS}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change FPS
+                    </button>
+
+
+                    {/* AUDIO SETTINGS */}
                     <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
                       Audio Settings
                     </h4>
@@ -914,6 +953,20 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                       Noise Suppression
                     </label>
 
+                    <button
+                      onClick={applyNoiseSuppression}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Noise Suppression
+                    </button>
+
                     <label style={{ fontSize: "12px", color: "white" }}>
                       <input
                         type="checkbox"
@@ -924,9 +977,9 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     </label>
 
                     <button
-                      onClick={() => updateAudioSettings(noiseSuppression, echoCancellation)}
+                      onClick={applyEchoCancellation}
                       style={{
-                        padding: "8px",
+                        padding: "6px",
                         borderRadius: "5px",
                         background: "purple",
                         color: "white",
@@ -934,8 +987,9 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                         cursor: "pointer"
                       }}
                     >
-                      Apply Audio Settings
+                      Change Echo Cancellation
                     </button>
+                   
 
                   </div>
                 )}
