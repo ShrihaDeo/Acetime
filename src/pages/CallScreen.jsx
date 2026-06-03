@@ -721,15 +721,38 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             zIndex: 1,
           }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div className="status-pill" style={{ color: accent }}>
-                <span className="status-dot" style={{ backgroundColor: accent }} />
-                {gameState
-                  ? gameState.isYourTurn
-                    ? '🟢 Your turn'
-                    : `⏳ ${opponentNickname}'s turn`
-                  : syncStatus}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              {/* CHANGED: Turn indicator moved to top-centre as large white text, last action below */}
+              <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', textAlign: 'center', zIndex: 2, pointerEvents: 'none' }}>
+                <p style={{
+                  fontFamily: "'Syne', sans-serif",
+                  fontSize: '22px',
+                  fontWeight: '700',
+                  color: 'white',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {gameState
+                    ? gameState.isYourTurn
+                      ? `Your turn, ${myNickname}`
+                      : `${opponentNickname}'s turn`
+                    : syncStatus}
+                </p>
+                {/* ADDED: Last action log — smaller and muted to distinguish from turn text */}
+                {gameState && syncStatus && (
+                  <p style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '12px',
+                    color: 'rgba(255,255,255,0.45)',
+                    margin: '4px 0 0 0',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {syncStatus}
+                  </p>
+                )}
               </div>
+              {/* spacer so settings buttons stay right-aligned */}
+              <div />
               <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
                 <button
                   onClick={() => setShowRules(true)}
@@ -941,17 +964,33 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                   ⚠️ Catch! They forgot Last Card
                 </button>
               )}
-              {gameState && gameState.isYourTurn && (
-                <button onClick={handleDraw} style={{
-                  marginTop: '8px', padding: '8px 22px',
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: 'white', borderRadius: '20px', fontSize: '12px',
-                  cursor: 'pointer', fontFamily: "'Inter', sans-serif", marginBottom: 0,
-                }}>
-                  Draw card
-                </button>
-              )}
+              {gameState && gameState.isYourTurn && (() => {
+                // ADDED: compute whether any card is playable so we can highlight draw when none are JB
+                const topCard = gameState.discard[gameState.discard.length - 1]
+                const drawStack = gameState.drawStack ?? 0
+                const hasAnyPlayable = gameState.hands[socket.id]?.some(card => {
+                  if (card.value === 'A') return true
+                  if (drawStack > 0) return card.value === '2' || card.value === '3'
+                  return card.suit === gameState.currSuit || card.value === topCard.value
+                })
+                // ADDED: when no card can be played, glow the draw button so the player knows what to do JB
+                const mustDraw = !hasAnyPlayable
+                return (
+                  <button onClick={handleDraw} style={{
+                    marginTop: '8px', padding: '8px 22px',
+                    background: mustDraw ? `${accent}22` : 'rgba(255,255,255,0.08)',
+                    border: mustDraw
+                      ? `1px solid ${accent}`
+                      : '1px solid rgba(255,255,255,0.15)',
+                    color: 'white', borderRadius: '20px', fontSize: '12px',
+                    cursor: 'pointer', fontFamily: "'Inter', sans-serif", marginBottom: 0,
+                    boxShadow: mustDraw ? `0 0 12px ${accent}66` : 'none',
+                    transition: 'all 0.2s ease',
+                  }}>
+                    {mustDraw ? '⬆ Draw card' : 'Draw card'}
+                  </button>
+                )
+              })()}
               </div>
 
               {/* right col is empty on purpose - it balances the grid */}
@@ -963,9 +1002,36 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               <p className="hand-label">Your hand</p>
               <div className="player-hand">
                 {gameState && gameState.hands[socket.id]
-                  ? gameState.hands[socket.id].map(card =>
-                      <Card key={card.id} card={card} onClick={() => handleCardClick(card)} />
-                    )
+                  ? (() => {
+                      const topCard = gameState.discard[gameState.discard.length - 1]
+                      const currSuit = gameState.currSuit
+                      const drawStack = gameState.drawStack ?? 0
+
+                      // ADDED: determine which cards are legally playable this turn
+                      const isPlayable = (card) => {
+                        if (card.value === 'A') return true
+                        if (drawStack > 0) return card.value === '2' || card.value === '3'
+                        return card.suit === currSuit || card.value === topCard.value
+                      }
+
+                      // ADDED: check if ANY card in hand can be played (used to highlight draw button)
+                      const hasAnyPlayable = gameState.hands[socket.id].some(isPlayable)
+
+                      return (
+                        <>
+                          {gameState.hands[socket.id].map(card => (
+                            // ADDED: pass disabled=true for unplayable cards so Card greys them out
+                            <Card
+                              key={card.id}
+                              card={card}
+                              onClick={() => handleCardClick(card)}
+                              disabled={!gameState.isYourTurn || !isPlayable(card)}
+                            />
+                          ))}
+
+                        </>
+                      )
+                    })()
                   : <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '13px' }}>
                       Waiting for players...
                     </p>}
