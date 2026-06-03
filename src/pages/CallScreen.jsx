@@ -563,7 +563,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
         ? '' 
         : 'https://acetime-backend.onrender.com';
 
-      const response = await fetch('/api/ask', {
+      const response = await fetch(`${backendUrl}/api/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

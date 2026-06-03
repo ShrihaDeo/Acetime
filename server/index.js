@@ -3,8 +3,16 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { createGame, playTurn, drawCard, forceDraw, hit, stand, placeBet, double, nextRound, scoreHand } from './game.js';
 import rateLimit from 'express-rate-limit';
+import cors from 'cors';
 
 const app = express();
+// allows AI chat to talk to this server
+app.use(cors({
+  origin: "*", 
+  methods: ["GET", "POST"]
+}));
+app.use(express.json());
+
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
