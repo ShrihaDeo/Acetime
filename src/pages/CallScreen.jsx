@@ -559,6 +559,10 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       }
 
       // calls our server, not Groq directly
+      const backendUrl = window.location.hostname === 'localhost' 
+        ? '' 
+        : 'https://acetime-backend.onrender.com';
+
       const response = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
