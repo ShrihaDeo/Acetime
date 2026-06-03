@@ -119,6 +119,10 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [localStream, setLocalStream] = useState(null)
   const [gameMode, setGameMode] = useState('call') // 'call' | 'menu' | 'lastcard'
   const [isHost, setIsHost] = useState(false)
+  const [resoulution, setResolution] = useState("1080p");
+  const [fps, setFps] = useState("60");
+  const [noiseSuppression, setNoiseSuppression] = useState(true);
+  const [echoCancellation, setEchoCancellation] = useState(true);
 
   const playSound = (sound) => 
   {
@@ -321,6 +325,71 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     setIsCameraOff(next)
     socket.emit('camera-status', { room, isCameraOff: next })
   }
+
+  const updateVideoSettings = async (width, height, fps) => {
+    try{
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video : {
+          width: { ideal: width },
+          height: { ideal: height },
+          frameRate: { ideal: fps }
+        },
+        audio: false
+    });
+    const newTrack = newStream.getVideoTracks()[0];
+    const oldTrack = myStreamRef.current.getVideoTracks()[0];
+
+    //replace track in local stream
+    myStreamRef.current.removeTrack(oldTrack);
+    myStreamRef.current.addTrack(newTrack);
+      
+    //new local preview
+    if(localVideoRef.current) {
+      localVideoRef.current.srcObject = myStreamRef.current;
+    }
+
+    //tell camera has changed
+    socket.emit("camera-setting-has-changed", {room});
+
+      } catch(err){
+        console.error("video settings failed", err);
+    }
+  }
+
+  const updateAudioSettings = async (noiseSuppression, echoCancellation) => {
+    try{
+      const newStream = await navigator.mediaDevices.getUserMedia({
+      video: false,
+      audio: {
+        noiseSuppression,
+        echoCancellation
+      }
+      });
+
+      const newTrack = newStream.getAudioTracks()[0];
+      const oldTrack = myStreamRef.current.getAudioTracks()[0];
+
+      myStreamRef.current.removeTrack(oldTrack);
+      myStreamRef.current.addTrack(newTrack);
+
+      socket.emit("audio-settings-has-changed", {room})
+
+    }catch(err){
+      console.error("audio-settings-change-has-failed", err);
+    }
+  }
+
+
+  const toggleSettings = () => {
+    if(resolution === "1080p"){
+      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+    }else {
+      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+    }
+    updateAudioSettings(noiseSuppression, echoCancellation);
+  } 
+
+
 
   // When a card is clicked in the game UI, emit the move to the server if it's the player's turn.
   const handleCardClick = card => {
@@ -789,6 +858,85 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     >
                       📞 <span>Back to call</span>
                     </button>
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Camera Settings
+                    </h4>
+                    <label style={{ fontSize: "12px", color: "white" }}>Resolution</label>
+                    <select
+                    value={resolution}
+                    onChange={(e) => setResolution(e.target.value)}
+                    style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="720p">720p</option>
+                      <option value="1080p">1080p</option>
+                      </select>
+
+                      <label style={{ fontSize: "12px", color: "white" }}>FPS</label>
+                      <select
+                      value={fps}
+                      onChange={(e) => setFps(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                      >
+                      <option value="30">30 FPS</option>
+                      <option value="60">60 FPS</option>
+                      </select>
+                      <button
+                      onClick={() => {
+                        if(resolution === "1080p") {
+                          updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+                        } else{
+                          updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+                        }
+                      }}
+                      style={{
+                        padding: "8px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Apply Video Settings
+                    </button>
+
+                                          
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Audio Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={noiseSuppression}
+                        onChange={() => setNoiseSuppression(!noiseSuppression)}
+                      />
+                      Noise Suppression
+                    </label>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={echoCancellation}
+                        onChange={() => setEchoCancellation(!echoCancellation)}
+                      />
+                      Echo Cancellation
+                    </label>
+
+                    <button
+                      onClick={() => updateAudioSettings(noiseSuppression, echoCancellation)}
+                      style={{
+                        padding: "8px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Apply Audio Settings
+                    </button>
+
                   </div>
                 )}
               </div>
