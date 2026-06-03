@@ -1,11 +1,10 @@
-function Card({ card, onClick, disabled }) {
+function Card({ card, onClick, disabled, className }) {
   const isRed = card.suit === '♥' || card.suit === '♦'
-
+  
   return (
-    <div
-      className={`card ${isRed ? 'card-red' : 'card-black'} ${disabled ? 'card-disabled' : ''}`}
-      onClick={!disabled ? onClick : undefined}
-      style={{ cursor: disabled ? 'default' : 'pointer' }}
+    <div 
+      className={`card ${isRed ? 'card-red' : 'card-black'} ${disabled ? 'card-disabled' : ''} ${className ?? ''}`}
+      onClick={!disabled ? onClick : null}
     >
       <span className="card-corner top-left">
         <span className="card-value">{card.value}</span>

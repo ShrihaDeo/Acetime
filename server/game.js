@@ -45,7 +45,7 @@ export function createGame(playerIDS, selectedGame) {
         hands[id].push(deck.shift()); //there should be 38 cards remaining at this stage
       }
     }
-
+    
     startCard = deck[0];
     deck.shift(); // now there should be 37 cards remaining
   }

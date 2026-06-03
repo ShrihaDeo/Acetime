@@ -50,11 +50,20 @@ function cancelRoomCleanup(roomID) {
   }
 }
 
+// replaces any socket IDs in the log string with their nicknames
+function formatLog(log, roomID) {
+  if (!log) return log
+  for (const [id, name] of Object.entries(roomNicknames[roomID] || {})) {
+    log = log.replace(id, name)
+  }
+  return log
+}
+
 // build a per-player view of the game state. we hide:
 //  - the opponent's hand (only send a count)
 //  - the actual deck array (only send a count)
 // otherwise anyone could open devtools and read what cards are coming up
-function sanitizeState(state, playerID) {
+function sanitizeState(state, playerID, roomID) {
   const safeHands = {};
   for (const id of state.players) {
     safeHands[id] = id === playerID ? state.hands[id] : state.hands[id].length;
@@ -66,6 +75,7 @@ function sanitizeState(state, playerID) {
     deckCount: deck.length,
     yourID: playerID,
     isYourTurn: state.players[state.currIndex] === playerID,
+    log: formatLog(state.log, roomID),
   };
 }
 
@@ -74,14 +84,14 @@ app.use(express.json())
 
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100, 
+  max: 100,
   message: { error: 'Too many requests - please wait a minute.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
 
 // Groq proxy route
-  app.post('/api/ask', aiLimiter, async (req, res) => {
+app.post('/api/ask', aiLimiter, async (req, res) => {
   const { question, playerNames, handSize } = req.body
 
   if (!question || question.trim() === '') {
@@ -117,7 +127,7 @@ const aiLimiter = rateLimit({
         })
       }
     )
-  
+
     if (!response.ok) {
       const err = await response.json()
       console.error('Groq error:', err)
@@ -157,7 +167,7 @@ io.on('connection', (socket) => {
       socket.emit('room-full');
       return; // Don't let them join
     }
-    
+
     socket.join(cleanRoom);
     const isHost = currentSize === 0;
     socket.emit('player-joined', { isHost })
@@ -215,12 +225,12 @@ io.on('connection', (socket) => {
       // sends sanitized state to each player individually
       const clientsForInit = io.sockets.adapter.rooms.get(cleanRoom)
       for (const clientID of clientsForInit) {
-        io.to(clientID).emit('game-init', sanitizeState(roomStates[cleanRoom], clientID))
+        io.to(clientID).emit('game-init', sanitizeState(roomStates[cleanRoom], clientID, cleanRoom))
       }
       io.to(cleanRoom).emit('request-peer-id');
 
     } else if (roomStates[cleanRoom]) {
-      socket.emit('game-init', sanitizeState(roomStates[cleanRoom], socket.id));
+      socket.emit('game-init', sanitizeState(roomStates[cleanRoom], socket.id, cleanRoom));
     }
 
     console.log(`${nickname} (${socket.id}) joined room: ${cleanRoom}`);
@@ -253,7 +263,7 @@ io.on('connection', (socket) => {
       socket.emit('game-error', "It's not your turn!")
       return
     }
-  
+
     // Player wants to draw
     if (data.action === 'draw') {
       const { newState, error } = drawCard(state, socket.id, 'LastCard')
@@ -266,7 +276,7 @@ io.on('connection', (socket) => {
       roomStates[cleanRoom] = newState
       const clients = io.sockets.adapter.rooms.get(cleanRoom)
       for (const clientID of clients) {
-        io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+        io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID, cleanRoom))
       }
       return
     }
@@ -292,7 +302,7 @@ io.on('connection', (socket) => {
     roomStates[cleanRoom] = newState
     const clients = io.sockets.adapter.rooms.get(cleanRoom)
     for (const clientID of clients) {
-      io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+      io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID, cleanRoom))
     }
   })
 
@@ -324,10 +334,10 @@ io.on('connection', (socket) => {
     io.to(cleanRoom).emit('called-out', { caller: socket.id, victim })
     const clients = io.sockets.adapter.rooms.get(cleanRoom)
     for (const clientID of clients) {
-      io.to(clientID).emit('game-state-update', sanitizeState(roomStates[cleanRoom], clientID))
+      io.to(clientID).emit('game-state-update', sanitizeState(roomStates[cleanRoom], clientID, cleanRoom))
     }
   })
-  
+
 
   // Clean up room data after both players leave
   socket.on('disconnect', () => {
@@ -335,10 +345,10 @@ io.on('connection', (socket) => {
     for (const [roomID, state] of Object.entries(roomStates)) {
       if (state.players.includes(socket.id)) {
         socket.to(roomID).emit('opponent-disconnected');
-  
+
         const clients = io.sockets.adapter.rooms.get(roomID);
         const remaining = clients ? clients.size : 0;
-  
+
         if (remaining === 0) {
           // Room empty — schedule cleanup after 10 minutes
           // (gives players a chance to rejoin)
@@ -349,7 +359,7 @@ io.on('connection', (socket) => {
       }
     }
   });
-  
+
 
   // Handle camera status updates
   socket.on('camera-status', (data) => {
@@ -374,7 +384,7 @@ io.on('connection', (socket) => {
     if (state) {
       const clients = io.sockets.adapter.rooms.get(cleanRoom);
       for (const clientID of clients) {
-        io.to(clientID).emit('game-init', sanitizeState(state, clientID));
+        io.to(clientID).emit('game-init', sanitizeState(state, clientID, cleanRoom));
       }
     }
   });
