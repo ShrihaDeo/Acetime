@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node --env-file=.env server/index.js"
   },
   "dependencies": {
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
     "peerjs": "^1.5.5",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
