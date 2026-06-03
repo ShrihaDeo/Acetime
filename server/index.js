@@ -1,16 +1,25 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { createGame, playTurn, drawCard, forceDraw } from './game.js';
+import { createGame, playTurn, drawCard, forceDraw, hit, stand, placeBet, double, nextRound, scoreHand } from './game.js';
 import rateLimit from 'express-rate-limit';
+import cors from 'cors';
 
 const app = express();
+// allows AI chat to talk to this server
+app.use(cors({
+  origin: "*", 
+  methods: ["GET", "POST"]
+}));
+app.use(express.json());
+
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST']
+    origin: "*",
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 })
 
@@ -50,22 +59,49 @@ function cancelRoomCleanup(roomID) {
   }
 }
 
-// build a per-player view of the game state. we hide:
-//  - the opponent's hand (only send a count)
-//  - the actual deck array (only send a count)
-// otherwise anyone could open devtools and read what cards are coming up
-function sanitizeState(state, playerID) {
+// replaces any socket IDs in the log string with their nicknames (from main)
+function formatLog(log, roomID) {
+  if (!log) return log;
+  for (const [id, name] of Object.entries(roomNicknames[roomID] || {})) {
+    log = log.replace(id, name);
+  }
+  return log;
+}
+
+// build a per-player view of the game state. what gets hidden depends on the game.
+//   LastCard: opponent hand → just a count. dealer doesn't exist.
+//   Blackjack: opponent hand → just a count. dealer hole card stays hidden until
+//   the dealer plays (dealerHoleHidden flag flips false).
+// the deck array is hidden in both games — only a count goes out.
+// roomID is passed in so logs can be rewritten to use nicknames instead of raw socket ids.
+function sanitizeState(state, playerID, roomID) {
+  const isBlackjack = state.selectedGame === "Blackjack";
+
+
   const safeHands = {};
   for (const id of state.players) {
-    safeHands[id] = id === playerID ? state.hands[id] : state.hands[id].length;
+    safeHands[id] = id === playerID
+      ? (state.hands[id] || [])
+      : (state.hands[id] || []).length;
   }
+
+  let dealerHand = state.dealerHand;
+  let dealerScore = state.dealerScore;
+  if (isBlackjack && state.dealerHoleHidden && Array.isArray(dealerHand) && dealerHand.length >= 2) {
+    dealerHand = [dealerHand[0], { hidden: true, id: "hole" }];
+    dealerScore = scoreHand([state.dealerHand[0]]); // only the upcard counts
+  }
+
   const { deck, ...rest } = state;
   return {
     ...rest,
     hands: safeHands,
+    dealerHand,
+    dealerScore,
     deckCount: deck.length,
     yourID: playerID,
     isYourTurn: state.players[state.currIndex] === playerID,
+    log: formatLog(state.log, roomID),
   };
 }
 
@@ -74,19 +110,69 @@ app.use(express.json())
 
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100, 
+  max: 100,
   message: { error: 'Too many requests - please wait a minute.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
 
-// Groq proxy route
-  app.post('/api/ask', aiLimiter, async (req, res) => {
-  const { question, playerNames, handSize } = req.body
+// per-game system prompts. each one explains the rules of that game so the LLM can give
+// accurate advice without us having to put the whole rulebook in the user's prompt.
+const SYSTEM_PROMPTS = {
+  lastcard: `You are a helpful game assistant for "Last Card" (a Crazy-Eights / Uno-style game).
+Rules:
+- Match the top card by suit or by value.
+- First to empty their hand wins.
+- If you can't play, draw 1 card and your turn ends.
+- Special cards: 2 makes the next player draw 2 (stackable with 2s/3s); 3 makes them draw 3 (stackable); 8 reverses direction; J skips the next player; A is wild — the player declares the new suit.
+- When you reach exactly 1 card you must call "Last Card!" — if you forget and your opponent catches it before they act, you draw 2 as a penalty.
+- You cannot win by playing an Ace as your last card.
+- When the draw pile runs out, the discard pile (minus the top card) is shuffled back into the deck.
+Answer briefly in 2–3 sentences. If they ask for tactical advice, use the game context to be specific.`,
+
+  blackjack: `You are a helpful game assistant for Blackjack (each player plays against the dealer).
+Rules:
+- Each player starts with 500 chips. Minimum bet is 10. Both players bet before each round.
+- Both players get 2 face-up cards; the dealer gets 1 face-up and 1 face-down "hole" card.
+- Card values: 2–10 face value, J/Q/K = 10, Ace = 11 (or 1 if 11 would bust).
+- Actions on your turn: Hit (take a card), Stand (keep score), Double (double the bet, take exactly one more card, then stand — only on first 2 cards).
+- Both players act in parallel against the same dealer.
+- After both players are done, the dealer reveals the hole card and must hit until 17 or higher.
+- Payouts: a natural Blackjack (Ace + 10 on first 2 cards) pays 3:2; a normal win pays 1:1; a push (tie) returns your bet; a bust or loss loses your bet.
+Answer briefly in 2–3 sentences. If they ask for tactical advice, use basic strategy and the game context.`,
+
+  general: `You are a friendly assistant for AceTime — a video-calling app with built-in card games (Last Card and Blackjack).
+The user is in a video call right now and may not have a game running yet.
+Answer briefly in 2–3 sentences. If they ask how to start a game, tell them to use the "Play Games" button.`,
+};
+
+// take whatever the client sent as context and format it as a short readable block
+// for the system prompt. unknown keys are still included so we don't have to keep
+// the server in sync every time the client adds a field.
+function formatContext(ctx) {
+  if (!ctx || typeof ctx !== 'object') return '';
+  const entries = Object.entries(ctx).filter(([, v]) =>
+    v !== undefined && v !== null && v !== '' &&
+    !(Array.isArray(v) && v.length === 0)
+  );
+  if (entries.length === 0) return '';
+  const lines = entries.map(([k, v]) => `- ${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`);
+  return `\n\nCurrent game state:\n${lines.join('\n')}`;
+}
+
+// Groq proxy route. Accepts { question, game, context }.
+// `game` is "lastcard" | "blackjack" | anything else (treated as general).
+// `context` is a small object the client builds from gameState — chip count, hand size, etc.
+app.post('/api/ask', aiLimiter, async (req, res) => {
+  const { question, game, context } = req.body
+
 
   if (!question || question.trim() === '') {
     return res.status(400).json({ error: 'Question is required' })
   }
+
+  const key = game === 'lastcard' || game === 'blackjack' ? game : 'general';
+  const systemContent = SYSTEM_PROMPTS[key] + formatContext(context);
 
   try {
     const response = await fetch(
@@ -100,24 +186,15 @@ const aiLimiter = rateLimit({
         body: JSON.stringify({
           model: 'llama-3.1-8b-instant',
           messages: [
-            {
-              role: 'system',
-              content: `You are a helpful game assistant for LastCard (like Uno).
-              Rules: match suit or value, Jacks are wild, 2s force draw 2, empty hand wins.
-              Players: ${playerNames}. Cards in hand: ${handSize}.
-              Answer briefly in 2-3 sentences.`
-            },
-            {
-              role: 'user',
-              content: question
-            }
+            { role: 'system', content: systemContent },
+            { role: 'user',   content: question },
           ],
-          max_tokens: 150,
-          temperature: 0.7,
+          max_tokens: 200,
+          temperature: 0.6,
         })
       }
     )
-  
+
     if (!response.ok) {
       const err = await response.json()
       console.error('Groq error:', err)
@@ -157,7 +234,7 @@ io.on('connection', (socket) => {
       socket.emit('room-full');
       return; // Don't let them join
     }
-    
+
     socket.join(cleanRoom);
     const isHost = currentSize === 0;
     socket.emit('player-joined', { isHost })
@@ -191,18 +268,29 @@ io.on('connection', (socket) => {
         if (ghostId && newId) {
           console.log(`Remapping player ${ghostId} → ${newId}`);
 
-          // Remap the hand
-          const newHands = { ...existingState.hands };
-          newHands[newId] = newHands[ghostId];
-          delete newHands[ghostId];
+          // remap every dict that's keyed by player ID. for LastCard only `hands` exists,
+          // for Blackjack we also have chips/bets/scores/status/results — without these
+          // a player who reconnects would suddenly be missing chips and the game would stick
+          const remap = (dict) => {
+            if (!dict || typeof dict !== 'object') return dict;
+            if (!(ghostId in dict)) return dict;
+            const copy = { ...dict };
+            copy[newId] = copy[ghostId];
+            delete copy[ghostId];
+            return copy;
+          };
 
-          // Remap the players array
           const newPlayers = oldPlayerIds.map(id => id === ghostId ? newId : id);
 
           roomStates[cleanRoom] = {
             ...existingState,
             players: newPlayers,
-            hands: newHands,
+            hands:   remap(existingState.hands),
+            chips:   remap(existingState.chips),
+            bets:    remap(existingState.bets),
+            scores:  remap(existingState.scores),
+            status:  remap(existingState.status),
+            results: remap(existingState.results),
           };
           // Remap nickname too
           if (roomNicknames[cleanRoom][ghostId]) {
@@ -215,12 +303,12 @@ io.on('connection', (socket) => {
       // sends sanitized state to each player individually
       const clientsForInit = io.sockets.adapter.rooms.get(cleanRoom)
       for (const clientID of clientsForInit) {
-        io.to(clientID).emit('game-init', sanitizeState(roomStates[cleanRoom], clientID))
+        io.to(clientID).emit('game-init', sanitizeState(roomStates[cleanRoom], clientID, cleanRoom))
       }
       io.to(cleanRoom).emit('request-peer-id');
 
     } else if (roomStates[cleanRoom]) {
-      socket.emit('game-init', sanitizeState(roomStates[cleanRoom], socket.id));
+      socket.emit('game-init', sanitizeState(roomStates[cleanRoom], socket.id, cleanRoom));
     }
 
     console.log(`${nickname} (${socket.id}) joined room: ${cleanRoom}`);
@@ -242,18 +330,40 @@ io.on('connection', (socket) => {
       return
     }
 
-    // Once the opponent acts, the call-out window closes
+    // Once the opponent acts, the call-out window closes (LastCard only)
     if (roomCallable[cleanRoom] && roomCallable[cleanRoom] !== socket.id) {
       delete roomCallable[cleanRoom]
       io.to(cleanRoom).emit('callable-cleared')
     }
 
+    // ── Blackjack actions (handled before the turn-check because bet/next-round
+    //    aren't turn-bound; hit/stand/double validate the turn themselves)
+    if (state.selectedGame === 'Blackjack') {
+      let result
+      if      (data.action === 'bet')        result = placeBet(state, socket.id, data.amount)
+      else if (data.action === 'hit')        result = hit(state, socket.id)
+      else if (data.action === 'stand')      result = stand(state, socket.id)
+      else if (data.action === 'double')     result = double(state, socket.id)
+      else if (data.action === 'next-round') result = nextRound(state, socket.id)
+      else { socket.emit('game-error', 'Unknown action'); return }
+
+      if (result.error) { socket.emit('game-error', result.error); return }
+
+      roomStates[cleanRoom] = result.newState
+      const clients = io.sockets.adapter.rooms.get(cleanRoom)
+      for (const clientID of clients) {
+        io.to(clientID).emit('game-state-update', sanitizeState(result.newState, clientID, cleanRoom))
+      }
+      return
+    }
+
+    // LastCard from here on — turn order enforced
     const currentPlayerId = state.players[state.currIndex]
     if (socket.id !== currentPlayerId) {
       socket.emit('game-error', "It's not your turn!")
       return
     }
-  
+
     // Player wants to draw
     if (data.action === 'draw') {
       const { newState, error } = drawCard(state, socket.id, 'LastCard')
@@ -266,7 +376,7 @@ io.on('connection', (socket) => {
       roomStates[cleanRoom] = newState
       const clients = io.sockets.adapter.rooms.get(cleanRoom)
       for (const clientID of clients) {
-        io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+        io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID, cleanRoom))
       }
       return
     }
@@ -292,7 +402,7 @@ io.on('connection', (socket) => {
     roomStates[cleanRoom] = newState
     const clients = io.sockets.adapter.rooms.get(cleanRoom)
     for (const clientID of clients) {
-      io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID))
+      io.to(clientID).emit('game-state-update', sanitizeState(newState, clientID, cleanRoom))
     }
   })
 
@@ -324,10 +434,10 @@ io.on('connection', (socket) => {
     io.to(cleanRoom).emit('called-out', { caller: socket.id, victim })
     const clients = io.sockets.adapter.rooms.get(cleanRoom)
     for (const clientID of clients) {
-      io.to(clientID).emit('game-state-update', sanitizeState(roomStates[cleanRoom], clientID))
+      io.to(clientID).emit('game-state-update', sanitizeState(roomStates[cleanRoom], clientID, cleanRoom))
     }
   })
-  
+
 
   // Clean up room data after both players leave
   socket.on('disconnect', () => {
@@ -335,10 +445,10 @@ io.on('connection', (socket) => {
     for (const [roomID, state] of Object.entries(roomStates)) {
       if (state.players.includes(socket.id)) {
         socket.to(roomID).emit('opponent-disconnected');
-  
+
         const clients = io.sockets.adapter.rooms.get(roomID);
         const remaining = clients ? clients.size : 0;
-  
+
         if (remaining === 0) {
           // Room empty — schedule cleanup after 10 minutes
           // (gives players a chance to rejoin)
@@ -349,32 +459,31 @@ io.on('connection', (socket) => {
       }
     }
   });
-  
+
 
   // Handle camera status updates
   socket.on('camera-status', (data) => {
     socket.to(data.room.trim().toLowerCase()).emit('camera-status', data);
   });
 
-  // someone picked a game from the menu. if the previous game already ended we
-  // build a fresh game so "Play again" actually deals new hands
+  // someone picked a game from the menu. always start a fresh game for the chosen
+  // type — that way switching games and "play again" both work cleanly
   socket.on('game-selected', (data) => {
     const cleanRoom = data.room.trim().toLowerCase();
+    const gameType = data.game === 'blackjack' ? 'Blackjack' : 'LastCard';
+
     io.to(cleanRoom).emit('game-selected', { game: data.game });
 
-    const existing = roomStates[cleanRoom];
-    if (existing?.winner) {
-      const playerIds = Array.from(io.sockets.adapter.rooms.get(cleanRoom) || []);
-      roomStates[cleanRoom] = createGame(playerIds, 'LastCard');
-      delete roomLastCard[cleanRoom];
-      delete roomCallable[cleanRoom];
-    }
+    const playerIds = Array.from(io.sockets.adapter.rooms.get(cleanRoom) || []);
+    roomStates[cleanRoom] = createGame(playerIds, gameType);
+    delete roomLastCard[cleanRoom];
+    delete roomCallable[cleanRoom];
 
     const state = roomStates[cleanRoom];
     if (state) {
       const clients = io.sockets.adapter.rooms.get(cleanRoom);
       for (const clientID of clients) {
-        io.to(clientID).emit('game-init', sanitizeState(state, clientID));
+        io.to(clientID).emit('game-init', sanitizeState(state, clientID, cleanRoom));
       }
     }
   });
