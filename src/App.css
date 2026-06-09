@@ -334,3 +334,122 @@
   flex-wrap: wrap;
   padding-top: 10px;
 }
+/* ── Blackjack / game animations (feature/backend-sync) ─────── */
+
+@keyframes turnPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.0),
+                0 0 24px rgba(0, 212, 255, 0.0);
+    border-color: rgba(0, 212, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.25),
+                0 0 36px rgba(0, 212, 255, 0.45);
+    border-color: rgba(0, 212, 255, 0.85);
+  }
+}
+
+@keyframes cardDeal {
+  0%   { opacity: 0; transform: translateY(-30px) rotate(-4deg) scale(0.9); }
+  60%  { opacity: 1; transform: translateY(4px) rotate(1deg) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+}
+
+@keyframes turnBannerIn {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  40%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+/* container around your hand area while it's your turn */
+.turn-active {
+  border: 2px solid rgba(0, 212, 255, 0.5);
+  border-radius: 18px;
+  padding: 14px 26px;
+  animation: turnPulseGlow 1.8s ease-in-out infinite;
+}
+
+.card-deal {
+  animation: cardDeal 0.35s cubic-bezier(.2,.9,.3,1.2) both;
+}
+
+.turn-banner {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  z-index: 240;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(180,77,255,0.18));
+  border: 1px solid rgba(0,212,255,0.5);
+  border-radius: 999px;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  animation: turnBannerIn 1.4s ease-out forwards;
+  box-shadow: 0 12px 40px rgba(0,212,255,0.35);
+}
+
+.status-blink {
+  animation: statusBlink 1.3s ease-in-out infinite;
+}
+
+/* a smaller in-game control button used when the call controls move to the side */
+.control-btn.compact {
+  width: 38px;
+  height: 38px;
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.control-btn.compact img {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Card deal / play animations (from main, used by Card.jsx) ── */
+
+@keyframes dealCard {
+  from {
+    transform: translateY(-60px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes playCard {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-80px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.card-draw {
+  animation: dealCard 0.35s ease forwards;
+  opacity: 0;
+}
+
+.card-play {
+  animation: playCard 0.25s ease forwards;
+  pointer-events: none;
+}
+
+/* stop hover fighting the animations */
+.card-draw:hover,
+.card-play:hover {
+  transform: none;
+}

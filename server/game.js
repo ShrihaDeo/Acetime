@@ -36,31 +36,343 @@ export function createGame(playerIDS, selectedGame) {
   const hands = {};
   let startCard = null;
 
-  //Some games may have different starting hands, etc.
   if (selectedGame == "LastCard") {
-    //For each of the players give 7 cards each (does it by P1-> gives 7 cards, then P2)
+    //For each of the players give 7 cards each
     for (const id of playerIDS) {
       hands[id] = [];
       for (let i = 0; i < 7; i++) {
-        hands[id].push(deck.shift()); //there should be 38 cards remaining at this stage
+        hands[id].push(deck.shift());
       }
     }
-
+    
     startCard = deck[0];
-    deck.shift(); // now there should be 37 cards remaining
+    deck.shift();
+
+    return {
+      players: playerIDS,
+      hands,
+      deck,
+      discard: [startCard],
+      currSuit: startCard.suit,
+      currIndex: 0,
+      direction: 1,
+      drawStack: 0,
+      winner: null,
+      log: "Game Started!",
+      selectedGame: "LastCard",
+    };
+  }
+
+  if (selectedGame === "Blackjack") {
+    // start in betting phase — no cards dealt until both players bet
+    return {
+      players: playerIDS,
+      hands: Object.fromEntries(playerIDS.map(id => [id, []])),
+      scores: Object.fromEntries(playerIDS.map(id => [id, 0])),
+      status: Object.fromEntries(playerIDS.map(id => [id, "waiting"])),
+      bets: {},
+      chips: Object.fromEntries(playerIDS.map(id => [id, STARTING_CHIPS])),
+      dealerHand: [],
+      dealerScore: 0,
+      dealerHoleHidden: true,
+      deck,
+      currIndex: 0,
+      direction: 1,
+      phase: "betting", // "betting" | "playing" | "resolved"
+      winner: null,
+      results: null,    // { p1: 'win'|'lose'|'push'|'blackjack'|'bust', ... }
+      log: "Place your bets to start the round.",
+      selectedGame: "Blackjack",
+    };
+  }
+}
+
+// ─── Blackjack ─────────────────────────────────────────────────────────────
+// players play against a server-controlled dealer. flow:
+//   betting  → both players place a bet
+//   playing  → cards dealt; each player hits/stands/doubles in turn
+//   (auto)   → dealer reveals hole card and hits to 17
+//   resolved → payouts applied; "next round" returns to betting
+//
+// payouts: blackjack pays 3:2, win pays 1:1, push returns bet, lose/bust loses bet
+
+const STARTING_CHIPS = 500;
+const MIN_BET = 10;
+
+// score a Blackjack hand. Aces count as 11 unless that busts, then they drop to 1
+export function scoreHand(hand) {
+  let total = 0;
+  let aces = 0;
+  for (const c of hand) {
+    if (c.value === 'A') { aces += 1; total += 11; }
+    else if (c.value === 'J' || c.value === 'Q' || c.value === 'K') total += 10;
+    else total += parseInt(c.value, 10);
+  }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces -= 1;
+  }
+  return total;
+}
+
+// place a bet during the betting phase. once both players have bet, the round deals automatically
+export function placeBet(state, playerID, amount) {
+  if (state.selectedGame !== "Blackjack") return { newState: state, error: "Not Blackjack" };
+  if (state.phase !== "betting")          return { newState: state, error: "Not in betting phase" };
+  if (!state.players.includes(playerID))  return { newState: state, error: "Not a player" };
+  if (state.bets[playerID])               return { newState: state, error: "Bet already placed" };
+
+  const a = parseInt(amount, 10);
+  if (!Number.isFinite(a) || a < MIN_BET) {
+    return { newState: state, error: `Bet must be at least ${MIN_BET}` };
+  }
+  if (a > state.chips[playerID]) {
+    return { newState: state, error: "Not enough chips" };
+  }
+
+  const newBets  = { ...state.bets,  [playerID]: a };
+  const newChips = { ...state.chips, [playerID]: state.chips[playerID] - a };
+  let newState = {
+    ...state,
+    bets: newBets,
+    chips: newChips,
+    log: `${playerID} bet ${a}`,
+  };
+
+  // both bets in — deal the round
+  if (state.players.every(id => newBets[id])) {
+    newState = dealRound(newState);
+  }
+  return { newState, error: null };
+}
+
+// deal 2 cards to each player and 2 to the dealer (hole card stays hidden client-side)
+function dealRound(state) {
+  let deck = [...state.deck];
+
+  // reshuffle if we don't have enough for the round (worst case ~6 cards)
+  const needed = state.players.length * 2 + 2;
+  if (deck.length < needed) deck = buildDeck();
+
+  const hands = {};
+  for (const id of state.players) {
+    hands[id] = [deck.shift(), deck.shift()];
+  }
+  const dealerHand = [deck.shift(), deck.shift()];
+
+  const scores = {};
+  const status = {};
+  for (const id of state.players) {
+    scores[id] = scoreHand(hands[id]);
+    status[id] = scores[id] === 21 ? "blackjack" : "playing";
+  }
+
+  let newState = {
+    ...state,
+    deck,
+    hands,
+    scores,
+    status,
+    dealerHand,
+    dealerScore: scoreHand(dealerHand),
+    dealerHoleHidden: true,
+    phase: "playing",
+    log: "Cards dealt.",
+  };
+
+  // if everyone got a natural blackjack, no decisions to make — go straight to dealer
+  if (!state.players.some(id => status[id] === "playing")) {
+    return playDealer(newState);
+  }
+
+  // start with the first player who's still playing
+  for (let i = 0; i < state.players.length; i++) {
+    if (status[state.players[i]] === "playing") {
+      newState = { ...newState, currIndex: i };
+      break;
+    }
+  }
+  return newState;
+}
+
+// player takes another card. both players can act independently — Blackjack is
+// each-player-vs-dealer, so turn order doesn't matter the way it does in LastCard
+export function hit(state, playerID) {
+  if (state.phase !== "playing") return { newState: state, error: "Not in playing phase" };
+  if (state.status[playerID] !== "playing") {
+    return { newState: state, error: "You're not playing anymore" };
+  }
+  if (state.deck.length === 0) {
+    return { newState: state, error: "Deck is empty" };
+  }
+
+  const newDeck = [...state.deck];
+  const card = newDeck.shift();
+  const newHand = [...state.hands[playerID], card];
+  const newScore = scoreHand(newHand);
+
+  let newStatus = "playing";
+  let log = `${playerID} hit — ${card.value}${card.suit} (${newScore})`;
+  if (newScore > 21)        { newStatus = "busted";   log = `${playerID} busted at ${newScore}!`; }
+  else if (newScore === 21) { newStatus = "standing"; log = `${playerID} hit 21!`; }
+
+  let newState = {
+    ...state,
+    deck: newDeck,
+    hands:  { ...state.hands,  [playerID]: newHand },
+    scores: { ...state.scores, [playerID]: newScore },
+    status: { ...state.status, [playerID]: newStatus },
+    log,
+  };
+  if (newStatus !== "playing") newState = endTurnOrRound(newState);
+  return { newState, error: null };
+}
+
+// player locks in their score
+export function stand(state, playerID) {
+  if (state.phase !== "playing") return { newState: state, error: "Not in playing phase" };
+  if (state.status[playerID] !== "playing") {
+    return { newState: state, error: "You're already done" };
+  }
+
+  let newState = {
+    ...state,
+    status: { ...state.status, [playerID]: "standing" },
+    log: `${playerID} stands at ${state.scores[playerID]}`,
+  };
+  return { newState: endTurnOrRound(newState), error: null };
+}
+
+// double down — only allowed on the first 2 cards. doubles the bet, draws exactly 1 card, then stands
+export function double(state, playerID) {
+  if (state.phase !== "playing") return { newState: state, error: "Not in playing phase" };
+  if (state.status[playerID] !== "playing") {
+    return { newState: state, error: "Can't double now" };
+  }
+  if (state.hands[playerID].length !== 2) {
+    return { newState: state, error: "Can only double on first 2 cards" };
+  }
+  if (state.chips[playerID] < state.bets[playerID]) {
+    return { newState: state, error: "Not enough chips to double" };
+  }
+  if (state.deck.length === 0) {
+    return { newState: state, error: "Deck is empty" };
+  }
+
+  const newChips = { ...state.chips, [playerID]: state.chips[playerID] - state.bets[playerID] };
+  const newBets  = { ...state.bets,  [playerID]: state.bets[playerID] * 2 };
+
+  const newDeck = [...state.deck];
+  const card = newDeck.shift();
+  const newHand = [...state.hands[playerID], card];
+  const newScore = scoreHand(newHand);
+  const newStatus = newScore > 21 ? "busted" : "standing";
+
+  let newState = {
+    ...state,
+    deck: newDeck,
+    chips: newChips,
+    bets:  newBets,
+    hands:  { ...state.hands,  [playerID]: newHand },
+    scores: { ...state.scores, [playerID]: newScore },
+    status: { ...state.status, [playerID]: newStatus },
+    log: `${playerID} doubled — drew ${card.value}${card.suit} (${newScore})`,
+  };
+  return { newState: endTurnOrRound(newState), error: null };
+}
+
+// once a player's action finishes, run the dealer iff everyone else is also done.
+// no currIndex bookkeeping — both players play in parallel against the same dealer
+function endTurnOrRound(state) {
+  const allDone = state.players.every(id => state.status[id] !== "playing");
+  return allDone ? playDealer(state) : state;
+}
+
+// reveal the hole card and hit until the dealer has 17 or more, then resolve all bets
+function playDealer(state) {
+  let deck = [...state.deck];
+  let dealerHand = [...state.dealerHand];
+  let dealerScore = scoreHand(dealerHand);
+
+  // if every player busted, the dealer doesn't actually need to draw — but for transparency, we still flip
+  const anyPlayerStanding = state.players.some(id =>
+    state.status[id] === "standing" || state.status[id] === "blackjack"
+  );
+
+  while (anyPlayerStanding && dealerScore < 17 && deck.length > 0) {
+    dealerHand.push(deck.shift());
+    dealerScore = scoreHand(dealerHand);
+  }
+
+  // payouts
+  const dealerBlackjack = dealerScore === 21 && state.dealerHand.length === 2;
+  const results = {};
+  const newChips = { ...state.chips };
+
+  for (const id of state.players) {
+    const ps = state.scores[id];
+    const bet = state.bets[id];
+    const playerBlackjack = state.status[id] === "blackjack";
+
+    let result;
+    if (state.status[id] === "busted") {
+      result = "bust"; // bet already taken
+    } else if (playerBlackjack && dealerBlackjack) {
+      result = "push";
+      newChips[id] += bet;
+    } else if (playerBlackjack) {
+      result = "blackjack";
+      newChips[id] += bet + Math.floor(bet * 1.5);   // 3:2 payout + bet back
+    } else if (dealerBlackjack) {
+      result = "lose";
+    } else if (dealerScore > 21) {
+      result = "win";
+      newChips[id] += bet * 2;                       // bet back + winnings
+    } else if (ps > dealerScore) {
+      result = "win";
+      newChips[id] += bet * 2;
+    } else if (ps < dealerScore) {
+      result = "lose";
+    } else {
+      result = "push";
+      newChips[id] += bet;
+    }
+    results[id] = result;
   }
 
   return {
-    players: playerIDS,
-    hands,
-    deck, //Just as clarification 'deck' is the pile of cards you draw from
-    discard: [startCard], //And discard or the discardpile is the pile of cards you actually play on e.g 2, you play 2
-    currSuit: startCard.suit,
-    currIndex: 0,
-    direction: 1,
-    drawStack: 0,
-    winner: null,
-    log: "Game Started!",
+    ...state,
+    deck,
+    dealerHand,
+    dealerScore,
+    dealerHoleHidden: false,
+    chips: newChips,
+    phase: "resolved",
+    results,
+    log: "Round resolved.",
+  };
+}
+
+// clear the table and return to the betting phase. anyone can trigger this from the resolved screen
+export function nextRound(state, playerID) {
+  if (state.selectedGame !== "Blackjack") return { newState: state, error: "Not Blackjack" };
+  if (state.phase !== "resolved")         return { newState: state, error: "Round not over" };
+
+  return {
+    newState: {
+      ...state,
+      hands:  Object.fromEntries(state.players.map(id => [id, []])),
+      scores: Object.fromEntries(state.players.map(id => [id, 0])),
+      status: Object.fromEntries(state.players.map(id => [id, "waiting"])),
+      bets: {},
+      dealerHand: [],
+      dealerScore: 0,
+      dealerHoleHidden: true,
+      phase: "betting",
+      results: null,
+      log: "Place your bets.",
+    },
+    error: null,
   };
 }
 

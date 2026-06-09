@@ -6,10 +6,11 @@ import RoomPage from './pages/RoomPage'
 import './App.css'
 import { io } from 'socket.io-client'
 
-const socket = io(window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000' 
-  : 'https://acetime-backend.onrender.com' 
-);
+const isLocal = window.location.hostname === 'localhost';
+const socket = io(isLocal ? 'http://localhost:3000' : 'https://acetime-backend.onrender.com', {
+  transports: ['websocket'],
+  upgrade: false
+});
 
 function App() {
   const [page, setPage] = useState('landing')
