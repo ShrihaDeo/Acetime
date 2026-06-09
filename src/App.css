@@ -457,44 +457,44 @@
 }
 
 @media(max-width: 768px) {
-    .call-screen{
-    flex-direction: column;
-    height: auto;
-    }
-    .left-panel,
-    .right-panel{
-      width: 100%;
-      height: auto;
-    }
-
-    .video-container{
-      height: 40vh;
-    }
-
-    .self-view{
-      width: 30%;
-      height: auto;
-      bottom: 10px;
-      right: 10px;
-    }
-
-    .player-hand,
-      .opponent-hand {
-      flex-wrap: wrap;
-      justify-content: center;
+    
+  /* make video smaller*/
+  video{
+    width: 100% !important; 
+    height: auto !important;
+    object-fit: cover;
   }
 
-    .card{
-      transform:scale(0.8);
-    }
-    
-    .game-area{
-      padding-bottom: 40px;
-    }
+  /* make local camera smaller*/
+  .self-view {
+    width: 30% !important;
+    height: auto !important;
+    bottom: 10px !important;
+    right: 10px !important;
+  }
 
-    video{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    /* move the play game button*/
+    .play-games-btn {
+    top: 10px !important;
+    right: 10px !important;
+    transform: scale(0.9);
+  }
+
+  /*move the option settings button*/
+  .call-settings-btn {
+    margin-top: 10px !important;
+    transform: scale(0.9);
+  }
+
+  /* makes controlls smaller*/
+  .controls-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .control-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
 }

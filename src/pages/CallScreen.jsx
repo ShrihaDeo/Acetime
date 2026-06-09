@@ -132,7 +132,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [callableOpponent, setCallableOpponent] = useState(null) // opponent socket id you can catch
   const [showRules, setShowRules] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const [showCallSettings, setShowCallSettings] = useState(false);
+  const [optionSettings, setOptionSettings] = useState(false);
   const [bgIndex, setBgIndex] = useState(0)
   const [isOpponentJoined, setIsOpponentJoined] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
@@ -958,9 +958,12 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             🎮 Play Games
           </button>
 
-          {/* new settings button for callscreen */}
+          <button className="play-games-btn">🎮</button>
+          <button className="call-settings-btn">⚙ Settings</button>
+
+          {/* option settings in callscreen */}
           <button
-            onClick={() => setShowCallSettings(s => !s)}
+            onClick={() => setOptionSettings(s => !s)}
             style={{
               marginTop: "10px",
               padding: "8px 12px",
@@ -975,7 +978,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           </button>
 
           {/* NEW: Standalone CallScreen Settings Panel */}
-          {showCallSettings && (
+          {optionSettings && (
             <div
               style={{
                 marginTop: "10px",
