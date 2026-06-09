@@ -1,145 +1,155 @@
-import { useEffect, useRef } from 'react'
 import CardLogo from '../assets/ace_logo.svg'
-
-// Generates floating particles on a canvas for the background
-function ParticleCanvas() {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-
-    const resize = () => {
-      canvas.width  = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-    resize()
-    window.addEventListener('resize', resize)
-
-    const COLORS = ['#b44dff', '#00d4ff', '#ff3dac', '#00ffb3', '#ffd700']
-    const SUITS  = ['♠', '♥', '♦', '♣']
-
-    const particles = Array.from({ length: 38 }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight + window.innerHeight,
-      size: Math.random() * 14 + 6,
-      speed: Math.random() * 0.5 + 0.15,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      suit: Math.random() > 0.5 ? SUITS[Math.floor(Math.random() * SUITS.length)] : null,
-      opacity: Math.random() * 0.4 + 0.1,
-      drift: (Math.random() - 0.5) * 0.3,
-      wobble: Math.random() * Math.PI * 2,
-      wobbleSpeed: Math.random() * 0.02 + 0.005,
-    }))
-
-    let animId
-    const tick = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      for (const p of particles) {
-        p.y -= p.speed
-        p.wobble += p.wobbleSpeed
-        p.x += Math.sin(p.wobble) * p.drift
-
-        if (p.y < -40) {
-          p.y = canvas.height + 40
-          p.x = Math.random() * canvas.width
-        }
-
-        ctx.save()
-        ctx.globalAlpha = p.opacity
-        ctx.fillStyle = p.color
-        ctx.shadowBlur = 12
-        ctx.shadowColor = p.color
-        ctx.font = `${p.size}px sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(p.suit ?? '·', p.x, p.y)
-        ctx.restore()
-      }
-
-      animId = requestAnimationFrame(tick)
-    }
-    tick()
-
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', resize)
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
-    />
-  )
-}
+import { playGenericClick } from '../utils/sounds'
 
 function LandingPage({ onStart }) {
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Animated background layers */}
-      <div className="mesh-bg" />
-      <div className="grid-overlay" />
-      <div className="noise" />
-      <ParticleCanvas />
-
-      {/* Suit watermarks */}
-      <div className="suits-bg">
-        <span className="suit">♥</span>
-        <span className="suit">♠</span>
-        <span className="suit">♦</span>
-        <span className="suit">♣</span>
-      </div>
-
-      <div className="landing-page">
-        {/* Logo */}
-        <img src={CardLogo} alt="AceTime" className="landing-logo" />
-
-        {/* Eyebrow */}
-        <p className="landing-eyebrow">Video · Cards · Friends</p>
-
-        {/* Title */}
-        <h1 className="landing-title">
-          <span className="line1">Play Together</span>
-          <span className="line2">Stay Connected</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="landing-sub">
-          Video call your friends and play card games <strong>live</strong>.<br />
-          No account. No download. Just a <strong>room code</strong>.
-        </p>
-
-        {/* CTA */}
-        <div className="landing-cta-row">
-          <button className="btn-neon" onClick={onStart}>
-            Create or Join a Room →
-          </button>
-          <span className="landing-hint">Share a 4-digit code and you're in</span>
+    <div>
+      <nav className="nav">
+        <div className="nav-logo">
+          <span className="nav-mark">A</span>
+          ACETIME
         </div>
+        <div className="nav-links">
+          <a href="#how">How it works</a>
+          <a href="#support">Support</a>
+          <a href="#about">About</a>
+        </div>
+      </nav>
 
-        {/* Stats strip */}
-        <div className="landing-stats">
-          <div className="stat-item">
-            <span className="stat-num blue">P2P</span>
-            <span className="stat-label">Video call</span>
+      <section className="band cream">
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 64, alignItems: 'center' }}>
+          <div>
+            <span className="eyebrow fade-up">↓ press start ↓</span>
+            <h1 className="h1 fade-up d1">
+              Game night<br />
+              with the squad.<br />
+              <span style={{ color: 'var(--red)' }}>From anywhere.</span>
+            </h1>
+            <p className="body-md fade-up d2" style={{ marginTop: 24, maxWidth: 460 }}>
+              Hop into a room, fire up the cam, deal a hand. Last Card. Blackjack. More on the way. No accounts, no installs — just a room code and a vibe.
+            </p>
+            <div className="fade-up d3" style={{ display: 'flex', gap: 14, marginTop: 32, flexWrap: 'wrap' }}>
+              <button className="btn btn-xl btn-red" onClick={() => { playGenericClick(); onStart() }}>▶ START PLAYING</button>
+              <button className="btn btn-xl" onClick={() => { playGenericClick(); onStart() }}>Got a room code?</button>
+            </div>
+            <div className="fade-up d4" style={{ marginTop: 28, display: 'flex', gap: 12 }}>
+              <span className="badge">⚡ INSTANT</span>
+              <span className="badge new">FREE</span>
+              <span className="badge hot">2 GAMES</span>
+            </div>
           </div>
-          <div className="stat-item">
-            <span className="stat-num purple">Live</span>
-            <span className="stat-label">Card games</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-num pink">Zero</span>
-            <span className="stat-label">Account needed</span>
+
+          <HeroCardStack />
+        </div>
+      </section>
+
+      <section id="how" className="band" style={{ background: '#fff', paddingTop: 64, paddingBottom: 64, scrollMarginTop: 64 }}>
+        <div className="container">
+          <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            <ValueProp eyebrow="HD video" title="See every reaction" body="WebRTC video and audio between you and your friend — works straight in the browser." />
+            <ValueProp eyebrow="Real-time" title="Synced card play" body="Every move mirrors across both screens instantly. No turn delays, no spectator view." />
+            <ValueProp eyebrow="Zero friction" title="Share a room code" body="Type a name, share any number, start playing. No account, no install, no wait." />
           </div>
         </div>
+      </section>
+
+      <footer id="support" className="footer">
+        <div className="footer-cols">
+          <div>
+            <div className="nav-logo" style={{ marginBottom: 14, color: 'var(--bg-main)' }}>
+              <span className="nav-mark" style={{ background: 'var(--yellow)', color: 'var(--ink)' }}>A</span>
+              ACETIME
+            </div>
+            <p className="body-sm" style={{ opacity: 0.85, maxWidth: 280 }}>
+              Card games over video, for friends who don't live next door.
+            </p>
+          </div>
+          <FooterCol title="SUPPORT" items={[
+            { label: '📧 Email us',     href: 'mailto:ya357@waikato.students.ac.nz' },
+            { label: '🐞 Report a bug', href: 'https://github.com/ShrihaDeo/Acetime/issues/new', external: true },
+            { label: '📡 Status',       href: 'https://github.com/ShrihaDeo/Acetime',           external: true },
+          ]} />
+          <FooterCol id="about" title="ABOUT" items={[
+            { label: '💻 GitHub',   href: 'https://github.com/ShrihaDeo/Acetime',                       external: true },
+            { label: '👥 The team', href: 'https://github.com/ShrihaDeo/Acetime/graphs/contributors', external: true },
+            { label: '👋 Contact',  href: 'mailto:ya357@waikato.students.ac.nz' },
+          ]} />
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+function ValueProp({ eyebrow, title, body }) {
+  return (
+    <div>
+      <p className="eyebrow blue" style={{ marginBottom: 12 }}>{eyebrow}</p>
+      <h3 className="h3" style={{ marginBottom: 12 }}>{title}</h3>
+      <p className="body-md muted">{body}</p>
+    </div>
+  )
+}
+
+function FooterCol({ id, title, items }) {
+  return (
+    <div id={id}>
+      <h4>{title}</h4>
+      <ul>
+        {items.map(item => (
+          <li key={item.label}>
+            <a
+              href={item.href}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function HeroCardStack() {
+  const cards = [
+    { v: 'A',  s: '♠', red: false, r: -12 },
+    { v: 'K',  s: '♥', red: true,  r: -3 },
+    { v: '10', s: '♣', red: false, r: 6 },
+    { v: 'J',  s: '♦', red: true,  r: 14 },
+  ]
+  return (
+    <div className="fade-up d4" style={{
+      aspectRatio: '1 / 1',
+      background: 'var(--bg-yellow)',
+      border: 'var(--border-w) solid var(--ink)',
+      boxShadow: 'var(--shadow)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {cards.map((c, i) => (
+          <div key={i} style={{
+            width: 96, height: 132,
+            background: '#fff',
+            color: c.red ? 'var(--red)' : 'var(--ink)',
+            border: 'var(--border-w) solid var(--ink)',
+            boxShadow: 'var(--shadow-sm)',
+            padding: 8,
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            fontFamily: '"Press Start 2P", monospace',
+            fontSize: 14,
+            transform: `rotate(${c.r}deg)`,
+            marginLeft: i === 0 ? 0 : -22,
+          }}>
+            <span style={{ fontSize: 18 }}>{c.v}{c.s}</span>
+            <span style={{ fontSize: 18, textAlign: 'right', transform: 'rotate(180deg)' }}>{c.v}{c.s}</span>
+          </div>
+        ))}
       </div>
+      <img src={CardLogo} alt="" style={{ position: 'absolute', bottom: 12, right: 12, width: 24, opacity: 0.5 }} />
     </div>
   )
 }
 
 export default LandingPage
-
