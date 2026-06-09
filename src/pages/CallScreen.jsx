@@ -122,43 +122,51 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [chatLoading, setChatLoading] = useState(false);
   // ref attached to an invisible div at the bottom of the chat
   // used to auto scroll down when new messages arrive
-  const chatEndRef = useRef(null);
-  const [cameraError, setCameraError] = useState(null);
 
-  const [syncStatus, setSyncStatus] = useState("Waiting for opponent...");
-  const [pendingWild, setPendingWild] = useState(null);
-  const [lastCardCalled, setLastCardCalled] = useState(false);
-  const [callableOpponent, setCallableOpponent] = useState(null); // opponent socket id you can catch
-  const [showRules, setShowRules] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [bgIndex, setBgIndex] = useState(0);
-  const [isOpponentJoined, setIsOpponentJoined] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
-  const [isOpponentCameraOff, setIsOpponentCameraOff] = useState(false);
-  const [gameState, setGameState] = useState(null);
-  const [nicknames, setNicknames] = useState({});
-  const [copied, setCopied] = useState(false);
-  const [localStream, setLocalStream] = useState(null);
-  const [gameMode, setGameMode] = useState("call"); // 'call' | 'menu' | 'lastcard'
-  const [isHost, setIsHost] = useState(false);
+  const chatEndRef = useRef(null)
+  const [cameraError, setCameraError] = useState(null) 
 
-  const playSound = (sound) => {
-    new Audio(sound).play().catch(() => {});
-  };
+  const [syncStatus, setSyncStatus] = useState('Waiting for opponent...')
+  const [pendingWild, setPendingWild] = useState(null)
+  const [lastCardCalled, setLastCardCalled] = useState(false)
+  const [callableOpponent, setCallableOpponent] = useState(null) // opponent socket id you can catch
+  const [showRules, setShowRules] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [optionSettings, setOptionSettings] = useState(false);
+  const [bgIndex, setBgIndex] = useState(0)
+  const [isOpponentJoined, setIsOpponentJoined] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isCameraOff, setIsCameraOff] = useState(false)
+  const [isOpponentCameraOff, setIsOpponentCameraOff] = useState(false)
+  const [gameState, setGameState] = useState(null)
+  const [nicknames, setNicknames] = useState({})
+  const [copied, setCopied] = useState(false)
+  const [localStream, setLocalStream] = useState(null)
+  const [gameMode, setGameMode] = useState('call') // 'call' | 'menu' | 'lastcard'
+  const [isHost, setIsHost] = useState(false)
+  const [resolution, setResolution] = useState("1080p");
+  const [fps, setFps] = useState("60");
+  const [noiseSuppression, setNoiseSuppression] = useState(true);
+  const [echoCancellation, setEchoCancellation] = useState(true);
 
-  const myStreamRef = useRef(null);
-  const remoteStreamRef = useRef(null);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const pendingPeerIdRef = useRef(null);
-  const prevHandRef = useRef([]);
+  const playSound = (sound) => 
+  {
+  new Audio(sound).play().catch(() => {})
+  }
 
-  const myNickname = nicknames[socket.id] || nickname || "You";
-  const opponentNickname =
-    Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] ||
-    "Opponent";
-  const { accent } = backgrounds[bgIndex];
+  const myStreamRef = useRef(null)
+  const remoteStreamRef = useRef(null)
+  const localVideoRef = useRef(null)
+  const remoteVideoRef = useRef(null)
+  const pendingPeerIdRef = useRef(null)
+  const prevHandRef = useRef([])
+  
+
+  const myNickname = nicknames[socket.id] || nickname || 'You'
+  const opponentNickname = Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] || 'Opponent'
+  const { accent } = backgrounds[bgIndex]
+
+
 
   // keep the local <video> attached to the stream. gameMode is in here because
   // when we switch screens react remounts the video tag and srcObject is gone
@@ -207,6 +215,22 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
     })
     socket.on('camera-status', ({ isCameraOff: off }) => setIsOpponentCameraOff(off))
+
+    //updatecamera quality
+    socket.on("opponent-camera-updated", () => {
+      console.log("Opponent camera updated");
+      if (remoteVideoRef.current && remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      }
+    });
+    //update audio quality
+    socket.on("opponent-audio-updated", () => {
+      console.log("Opponent audio updated");
+      if (remoteVideoRef.current && remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      }
+    });
+
     socket.on('player-joined', ({ isHost: host }) => setIsHost(host))
     socket.on('game-selected', ({ game }) => {
       setGameMode(game)
@@ -372,6 +396,96 @@ function CallScreen({ socket, room, nickname, onLeave }) {
 
   const [drawingCardId, setDrawingCardId] = useState(null);
   const [playingCardId, setPlayingCardId] = useState(null);
+
+  const updateVideoSettings = async (width, height, fps) => {
+    try{
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video : {
+          width: { ideal: width },
+          height: { ideal: height },
+          frameRate: { ideal: fps }
+        },
+        audio: false
+    });
+    const newTrack = newStream.getVideoTracks()[0];
+    const oldTrack = myStreamRef.current.getVideoTracks()[0];
+
+    //replace track in local stream
+    myStreamRef.current.removeTrack(oldTrack);
+    myStreamRef.current.addTrack(newTrack);
+      
+    //new local preview
+    if(localVideoRef.current) {
+      localVideoRef.current.srcObject = myStreamRef.current;
+    }
+
+    //tell camera has changed
+    socket.emit("camera-setting-has-changed", {room});
+
+      } catch(err){
+        console.error("video settings failed", err);
+    }
+  }
+
+  const updateAudioSettings = async (noiseSuppression, echoCancellation) => {
+    try{
+      const newStream = await navigator.mediaDevices.getUserMedia({
+      video: false,
+      audio: {
+        noiseSuppression,
+        echoCancellation
+      }
+      });
+
+      const newTrack = newStream.getAudioTracks()[0];
+      const oldTrack = myStreamRef.current.getAudioTracks()[0];
+
+      myStreamRef.current.removeTrack(oldTrack);
+      myStreamRef.current.addTrack(newTrack);
+
+      socket.emit("audio-setting-has-changed", {room})
+
+    }catch(err){
+      console.error("audio-settings-change-has-failed", err);
+    }
+  }
+
+
+  const toggleSettings = () => {
+    if(resolution === "1080p"){
+      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+    }else {
+      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+    }
+    updateAudioSettings(noiseSuppression, echoCancellation);
+  } 
+
+  //apply only fps
+  const applyfps = () => {
+    if (resolution === "1080p") {
+      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+    } else {
+      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+    }
+  };
+//apply on camera settings
+  const applyCameraSettings = () => {
+    if (resolution === "1080p") {
+      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
+    } else {
+      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
+    }
+  }
+//only noise cancellation
+  const applyNoiseCancellation = () => {
+    updateAudioSettings(noiseSuppression, echoCancellation);
+  };
+//apply on echo
+  const applyEchoCancellation = () => {
+    updateAudioSettings( noiseSuppression, echoCancellation);
+  };
+
+
 
   // When a card is clicked in the game UI, emit the move to the server if it's the player's turn.
   const handleCardClick = (card) => {
@@ -821,6 +935,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
 
           {/* Game menu button — top right */}
           <button
+            className="play-games-btn"
             onClick={() => setGameMode("menu")}
             style={{
               position: "absolute",
@@ -843,6 +958,61 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           >
             🎮 Play Games
           </button>
+
+          
+          
+
+          {/* option settings in callscreen */}
+          <button
+            className="call-settings-btn"
+            onClick={() => setOptionSettings(s => !s)}
+            style={{
+              marginTop: "10px",
+              padding: "8px 12px",
+              background: "rgba(0,0,0,0.4)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "white",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            ⚙ Settings
+          </button>
+
+          {/* NEW: Standalone CallScreen Settings Panel */}
+          {optionSettings && (
+            <div
+              style={{
+                marginTop: "10px",
+                padding: "10px",
+                background: "rgba(15,15,26,0.97)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px",
+                width: "180px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <h4 style={{ margin: 0, fontSize: "14px", color: "white" }}>Call Settings</h4>
+
+              <button onClick={applyCameraSettings} style={settingsItemStyle}>
+                Change Resolution
+              </button>
+
+              <button onClick={applyfps} style={settingsItemStyle}>
+                Change FPS
+              </button>
+
+              <button onClick={applyNoiseCancellation} style={settingsItemStyle}>
+                Change Noise Suppression
+              </button>
+
+              <button onClick={applyEchoCancellation} style={settingsItemStyle}>
+                Change Echo Cancellation
+              </button>
+            </div>
+          )}
         </>
       )}
 
@@ -1188,6 +1358,114 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     >
                       📞 <span>Back to call</span>
                     </button>
+
+
+                    //used some ai to help me learn how to do the ui to add this to the panel
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Camera Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>Resolution</label>
+                    <select
+                      value={resolution}
+                      onChange={(e) => setResolution(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="720p">720p</option>
+                      <option value="1080p">1080p</option>
+                    </select>
+
+                    <button
+                      onClick={applyCameraSettings}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Resolution
+                    </button>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>FPS</label>
+                    <select
+                      value={fps}
+                      onChange={(e) => setFps(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="30">30 FPS</option>
+                      <option value="60">60 FPS</option>
+                    </select>
+
+                    <button
+                      onClick={applyfps}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change FPS
+                    </button>
+
+
+                    /* AUDIO SETTINGS */
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Audio Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={noiseSuppression}
+                        onChange={() => setNoiseSuppression(!noiseSuppression)}
+                      />
+                      Noise Suppression
+                    </label>
+
+                    <button
+                      onClick={applyNoiseCancellation}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Noise Suppression
+                    </button>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={echoCancellation}
+                        onChange={() => setEchoCancellation(!echoCancellation)}
+                      />
+                      Echo Cancellation
+                    </label>
+
+                    <button
+                      onClick={applyEchoCancellation}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Echo Cancellation
+                    </button>
+                   
+
                   </div>
                 )}
               </div>
@@ -1800,6 +2078,114 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                   }}>
                     <button onClick={() => { setShowSettings(false); setGameMode('menu') }} style={settingsItemStyle}>🎮 <span>Change game</span></button>
                     <button onClick={() => { setShowSettings(false); setGameMode('call') }} style={settingsItemStyle}>📞 <span>Back to call</span></button>
+
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Camera Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>Resolution</label>
+                    <select
+                      value={resolution}
+                      onChange={(e) => setResolution(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="720p">720p</option>
+                      <option value="1080p">1080p</option>
+                    </select>
+
+                    <button
+                      onClick={applyCameraSettings}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Resolution
+                    </button>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>FPS</label>
+                    <select
+                      value={fps}
+                      onChange={(e) => setFps(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="30">30 FPS</option>
+                      <option value="60">60 FPS</option>
+                    </select>
+
+                    <button
+                      onClick={applyfps}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change FPS
+                    </button>
+
+
+                    {/* audio settings for buttons*/}
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Audio Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={noiseSuppression}
+                        onChange={() => setNoiseSuppression(!noiseSuppression)}
+                      />
+                      Noise Suppression
+                    </label>
+
+                    <button
+                      onClick={applyNoiseCancellation}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Noise Suppression
+                    </button>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={echoCancellation}
+                        onChange={() => setEchoCancellation(!echoCancellation)}
+                      />
+                      Echo Cancellation
+                    </label>
+
+                    <button
+                      onClick={applyEchoCancellation}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Echo Cancellation
+                    </button>
+                   
+
+                    
+
                   </div>
                 )}
               </div>

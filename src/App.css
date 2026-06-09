@@ -334,6 +334,8 @@
   flex-wrap: wrap;
   padding-top: 10px;
 }
+
+
 /* ── Blackjack / game animations (feature/backend-sync) ─────── */
 
 @keyframes turnPulseGlow {
@@ -452,4 +454,47 @@
 .card-draw:hover,
 .card-play:hover {
   transform: none;
+}
+
+@media(max-width: 768px) {
+    
+  /* make video smaller*/
+  video{
+    width: 100% !important; 
+    height: auto !important;
+    object-fit: cover;
+  }
+
+  /* make local camera smaller*/
+  .self-view {
+    width: 30% !important;
+    height: auto !important;
+    bottom: 10px !important;
+    right: 10px !important;
+  }
+
+    /* move the play game button*/
+    .play-games-btn {
+    top: 10px !important;
+    right: 10px !important;
+    transform: scale(0.9);
+  }
+
+  /*move the option settings button*/
+  .call-settings-btn {
+    margin-top: 10px !important;
+    transform: scale(0.9);
+  }
+
+  /* makes controlls smaller*/
+  .controls-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .control-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
 }
