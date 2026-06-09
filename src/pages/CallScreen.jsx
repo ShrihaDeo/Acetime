@@ -935,6 +935,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
 
           {/* Game menu button — top right */}
           <button
+            className="play-games-btn"
             onClick={() => setGameMode("menu")}
             style={{
               position: "absolute",
@@ -958,11 +959,12 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             🎮 Play Games
           </button>
 
-          <button className="play-games-btn">🎮</button>
-          <button className="call-settings-btn">⚙ Settings</button>
+          
+          
 
           {/* option settings in callscreen */}
           <button
+            className="call-settings-btn"
             onClick={() => setOptionSettings(s => !s)}
             style={{
               marginTop: "10px",
