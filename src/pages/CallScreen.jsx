@@ -132,6 +132,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [callableOpponent, setCallableOpponent] = useState(null) // opponent socket id you can catch
   const [showRules, setShowRules] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showCallSettings, setShowCallSettings] = useState(false);
   const [bgIndex, setBgIndex] = useState(0)
   const [isOpponentJoined, setIsOpponentJoined] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
@@ -956,6 +957,57 @@ function CallScreen({ socket, room, nickname, onLeave }) {
           >
             🎮 Play Games
           </button>
+
+          {/* new settings button for callscreen */}
+          <button
+            onClick={() => setShowCallSettings(s => !s)}
+            style={{
+              marginTop: "10px",
+              padding: "8px 12px",
+              background: "rgba(0,0,0,0.4)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "white",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            ⚙ Settings
+          </button>
+
+          {/* NEW: Standalone CallScreen Settings Panel */}
+          {showCallSettings && (
+            <div
+              style={{
+                marginTop: "10px",
+                padding: "10px",
+                background: "rgba(15,15,26,0.97)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px",
+                width: "180px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <h4 style={{ margin: 0, fontSize: "14px", color: "white" }}>Call Settings</h4>
+
+              <button onClick={applyCameraSettings} style={settingsItemStyle}>
+                Change Resolution
+              </button>
+
+              <button onClick={applyfps} style={settingsItemStyle}>
+                Change FPS
+              </button>
+
+              <button onClick={applyNoiseCancellation} style={settingsItemStyle}>
+                Change Noise Suppression
+              </button>
+
+              <button onClick={applyEchoCancellation} style={settingsItemStyle}>
+                Change Echo Cancellation
+              </button>
+            </div>
+          )}
         </>
       )}
 
@@ -1357,7 +1409,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     </button>
 
 
-                    {/* AUDIO SETTINGS */}
+                    /* AUDIO SETTINGS */
                     <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
                       Audio Settings
                     </h4>
@@ -2021,6 +2073,114 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                   }}>
                     <button onClick={() => { setShowSettings(false); setGameMode('menu') }} style={settingsItemStyle}>🎮 <span>Change game</span></button>
                     <button onClick={() => { setShowSettings(false); setGameMode('call') }} style={settingsItemStyle}>📞 <span>Back to call</span></button>
+
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Camera Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>Resolution</label>
+                    <select
+                      value={resolution}
+                      onChange={(e) => setResolution(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="720p">720p</option>
+                      <option value="1080p">1080p</option>
+                    </select>
+
+                    <button
+                      onClick={applyCameraSettings}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Resolution
+                    </button>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>FPS</label>
+                    <select
+                      value={fps}
+                      onChange={(e) => setFps(e.target.value)}
+                      style={{ padding: "5px", borderRadius: "5px" }}
+                    >
+                      <option value="30">30 FPS</option>
+                      <option value="60">60 FPS</option>
+                    </select>
+
+                    <button
+                      onClick={applyfps}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change FPS
+                    </button>
+
+
+                    {/* audio settings for buttons*/}
+                    <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
+                      Audio Settings
+                    </h4>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={noiseSuppression}
+                        onChange={() => setNoiseSuppression(!noiseSuppression)}
+                      />
+                      Noise Suppression
+                    </label>
+
+                    <button
+                      onClick={applyNoiseCancellation}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Noise Suppression
+                    </button>
+
+                    <label style={{ fontSize: "12px", color: "white" }}>
+                      <input
+                        type="checkbox"
+                        checked={echoCancellation}
+                        onChange={() => setEchoCancellation(!echoCancellation)}
+                      />
+                      Echo Cancellation
+                    </label>
+
+                    <button
+                      onClick={applyEchoCancellation}
+                      style={{
+                        padding: "6px",
+                        borderRadius: "5px",
+                        background: "purple",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Change Echo Cancellation
+                    </button>
+                   
+
+                    
+
                   </div>
                 )}
               </div>
