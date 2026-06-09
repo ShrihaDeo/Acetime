@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import bgMusic from './assets/580045__migfus20__lo-fi-music-guitar-loop-version.mp3'
+import bgMusic from './assets/8bit loop song.wav'
 import LandingPage from './pages/LandingPage'
 import CallScreen from './pages/CallScreen'
 import RoomPage from './pages/RoomPage'

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import { playGenericClick } from '../utils/sounds'
 // This component renders the room entry page where users can input their nickname and a room ID to join or create a game room. 
 // It also handles basic validation and displays error messages.
 function RoomPage({ onJoin, defaultRoom = '', serverError = '', onClearError}) {
@@ -76,7 +76,10 @@ function RoomPage({ onJoin, defaultRoom = '', serverError = '', onClearError}) {
           </div>
 
           {/* Join button */}
-          <button className="room-join-btn" onClick={handleJoin}>
+          <button className="room-join-btn" onClick={() => {
+            playGenericClick();
+            handleJoin();
+          }}>
             Join / Create Room →
           </button>
 

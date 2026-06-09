@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import CardLogo from '../assets/ace_logo.svg'
+import { playGenericClick } from '../utils/sounds'
 
 // Generates floating particles on a canvas for the background
 function ParticleCanvas() {
@@ -115,7 +116,10 @@ function LandingPage({ onStart }) {
 
         {/* CTA */}
         <div className="landing-cta-row">
-          <button className="btn-neon" onClick={onStart}>
+          <button className="btn-neon" onClick={() => {
+            playGenericClick();
+            onStart();
+          }}>
             Create or Join a Room →
           </button>
           <span className="landing-hint">Share a 4-digit code and you're in</span>
