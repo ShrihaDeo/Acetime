@@ -185,6 +185,22 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null
     })
     socket.on('camera-status', ({ isCameraOff: off }) => setIsOpponentCameraOff(off))
+
+    //updatecamera quality
+    socket.on("opponent-camera-updated", () => {
+      console.log("Opponent camera updated");
+      if (remoteVideoRef.current && remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      }
+    });
+    //update audio quality
+    socket.on("opponent-audio-updated", () => {
+      console.log("Opponent audio updated");
+      if (remoteVideoRef.current && remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      }
+    });
+
     socket.on('player-joined', ({ isHost: host }) => setIsHost(host))
     socket.on('game-selected', ({ game }) => {
       setGameMode(game)
@@ -372,7 +388,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       myStreamRef.current.removeTrack(oldTrack);
       myStreamRef.current.addTrack(newTrack);
 
-      socket.emit("audio-settings-has-changed", {room})
+      socket.emit("audio-setting-has-changed", {room})
 
     }catch(err){
       console.error("audio-settings-change-has-failed", err);
@@ -901,7 +917,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     </select>
 
                     <button
-                      onClick={applyResolution}
+                      onClick={applyCameraSettings}
                       style={{
                         padding: "6px",
                         borderRadius: "5px",
@@ -925,7 +941,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     </select>
 
                     <button
-                      onClick={applyFPS}
+                      onClick={applyfps}
                       style={{
                         padding: "6px",
                         borderRadius: "5px",
@@ -954,7 +970,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     </label>
 
                     <button
-                      onClick={applyNoiseSuppression}
+                      onClick={applyNoiseCancellation}
                       style={{
                         padding: "6px",
                         borderRadius: "5px",
