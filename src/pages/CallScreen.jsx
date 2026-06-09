@@ -433,39 +433,19 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   }
 
 
-  const toggleSettings = () => {
-    if(resolution === "1080p"){
-      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
-    }else {
-      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
-    }
-    updateAudioSettings(noiseSuppression, echoCancellation);
-  } 
+  const applyVideoSettings = () => {
+    const [w, h] = resolution === "1080p" ? [1920, 1080] : [1280, 720];
+    updateVideoSettings(w, h, fps === "60" ? 60 : 30);
+  };
 
-  //apply only fps
-  const applyfps = () => {
-    if (resolution === "1080p") {
-      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
-    } else {
-      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
-    }
-  };
-//apply on camera settings
-  const applyCameraSettings = () => {
-    if (resolution === "1080p") {
-      updateVideoSettings(1920, 1080, fps === "60" ? 60 : 30);
-    } else {
-      updateVideoSettings(1280, 720, fps === "60" ? 60 : 30);
-    }
-  }
-//only noise cancellation
-  const applyNoiseCancellation = () => {
+  const applyAudioSettings = () => {
     updateAudioSettings(noiseSuppression, echoCancellation);
   };
-//apply on echo
-  const applyEchoCancellation = () => {
-    updateAudioSettings( noiseSuppression, echoCancellation);
-  };
+
+  const applyResolution = applyVideoSettings;
+  const applyFPS = applyVideoSettings;
+  const applyNoiseSuppression = applyAudioSettings;
+  const applyEchoCancellation = applyAudioSettings;
 
 
 
@@ -1286,7 +1266,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     </button>
 
 
-                    //used some ai to help me learn how to do the ui to add this to the panel
+                    {/* Camera/audio quality controls */}
                     <h4 style={{ marginTop: "10px", fontSize: "14px", color: "white" }}>
                       Camera Settings
                     </h4>
