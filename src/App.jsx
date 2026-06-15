@@ -12,10 +12,17 @@ const socket = io(isLocal ? 'http://localhost:3000' : 'https://acetime-backend.o
   upgrade: false
 });
 
+// Read ?room= once at module load — used to pre-fill the room field when a
+// friend clicks a shared link
+const urlRoom = (() => {
+  try { return new URLSearchParams(window.location.search).get('room') || '' }
+  catch { return '' }
+})()
+
 function App() {
-  const [page, setPage] = useState('landing')
+  const [page, setPage] = useState(urlRoom ? 'room' : 'landing')
   const [roomID, setRoomID] = useState("")
-  const [nickname, setNickname] = useState("") 
+  const [nickname, setNickname] = useState("")
   const [roomError, setRoomError] = useState("")
   const [isMusicMuted, setIsMusicMuted] = useState(false)
 
@@ -37,11 +44,24 @@ function App() {
     audio.loop = true
     audio.volume = 0.3
     bgMusicRef.current = audio
-    audio.play().catch(() => {})
+
+    // browsers block autoplay until the user interacts. try once for the case
+    // where they already did (e.g. HMR reload), otherwise start on first click.
+    const tryPlay = () => audio.play().catch(() => {})
+    tryPlay()
+    const onGesture = () => {
+      tryPlay()
+      window.removeEventListener('click', onGesture)
+      window.removeEventListener('keydown', onGesture)
+    }
+    window.addEventListener('click', onGesture)
+    window.addEventListener('keydown', onGesture)
 
     return () => {
       audio.pause()
       audio.currentTime = 0
+      window.removeEventListener('click', onGesture)
+      window.removeEventListener('keydown', onGesture)
     }
   }, [])
 
@@ -73,7 +93,12 @@ function App() {
       
       {/* Page 2: Room Entry */}
       {page === 'room' && (
-        <RoomPage onJoin={handleStartCall} />
+        <RoomPage
+          onJoin={handleStartCall}
+          defaultRoom={urlRoom}
+          serverError={roomError}
+          onClearError={() => setRoomError("")}
+        />
       )}
       
       {/* Page 3: The actual Game/Video Screen */}
@@ -86,16 +111,11 @@ function App() {
         />
       )}
 
-      <button 
+      <button
+        className="ctrl-btn"
         onClick={toggleMusic}
-        style={{
-          position: 'fixed', bottom: '20px', right: '20px',
-          zIndex: 999, width: '40px', height: '40px',
-          borderRadius: '50%', border: 'none',
-          background: 'rgba(255,255,255,0.1)',
-          fontSize: '18px', cursor: 'pointer',
-          backdropFilter: 'blur(10px)',
-        }}
+        style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 999, width: 48, height: 48 }}
+        title={isMusicMuted ? 'Unmute music' : 'Mute music'}
       >
         {isMusicMuted ? '🔇' : '🎵'}
       </button>

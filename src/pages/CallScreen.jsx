@@ -4,105 +4,19 @@ import EndCall from "../assets/end_call.svg";
 import VideoOff from "../assets/video_off.svg";
 import Mute from "../assets/mute.svg";
 import Card from "../components/Card";
+import { Cat, Fox } from "../components/Pets";
+import Avatar from "../components/Avatar";
+import EndGameModal from "../components/EndGameModal";
+import RulesModal from "../components/RulesModal";
+import AICoach from "../components/AICoach";
+import CallSettings from "../components/CallSettings";
+import { playGameClick } from "../utils/sounds";
 
 import cardPlaySound from '../assets/817551__silverdubloons__pickupcard05.wav'
 import winSound from '../assets/274183__littlerobotsoundfactory__jingle_win_synth_04.wav'
 import loseSound from '../assets/364929__jofae__game-die.mp3'
-import { playGameClick } from '../utils/sounds'
 
-const backgrounds = [
-  {
-    bg: "radial-gradient(circle at 30% 40%, #0d3d20 0%, #050f08 100%)",
-    suits: ["♠", "♣"],
-    accent: "#00ffb3",
-  },
-  {
-    bg: "radial-gradient(circle at 70% 30%, #3d0d2a 0%, #0f0508 100%)",
-    suits: ["♥", "♦"],
-    accent: "#ff3dac",
-  },
-  {
-    bg: "radial-gradient(circle at 40% 60%, #0d1a40 0%, #05080f 100%)",
-    suits: ["♣", "♠"],
-    accent: "#00d4ff",
-  },
-  {
-    bg: "radial-gradient(circle at 60% 40%, #2a0d3d 0%, #08050f 100%)",
-    suits: ["♦", "♥"],
-    accent: "#b44dff",
-  },
-  {
-    bg: "radial-gradient(circle at 50% 50%, #3d2a00 0%, #0f0a00 100%)",
-    suits: ["♠", "♦"],
-    accent: "#ffd700",
-  },
-];
-
-// games for the menu screen
-const GAMES = [
-  {
-    id: "lastcard",
-    name: "Last Card",
-    description: "Match suit or value. First to empty hand wins.",
-    emoji: "🃏",
-    color: "rgba(180,77,255,0.3)",
-    border: "rgba(180,77,255,0.5)",
-    available: true,
-  },
-  {
-    id: 'blackjack',
-    name: 'Blackjack',
-    description: "Get closer to 21 than your opponent — but don't go over.",
-    emoji: '♠',
-    color: 'rgba(0,212,255,0.25)',
-    border: 'rgba(0,212,255,0.5)',
-    available: true,
-  },
-  {
-    id: 'comingsoon',
-    name: 'Coming Soon',
-    description: 'More games are on the way.',
-    emoji: '✨',
-    color: 'rgba(255,255,255,0.04)',
-    border: 'rgba(255,255,255,0.08)',
-    available: false,
-  },
-];
-
-function Avatar({ name, size = 72 }) {
-  const initial = name ? name.charAt(0).toUpperCase() : "?";
-  const palettes = [
-    ["#b44dff", "#7c00ff"],
-    ["#ff3dac", "#c0006e"],
-    ["#00d4ff", "#0088cc"],
-    ["#00ffb3", "#00aa77"],
-    ["#ffd700", "#cc9900"],
-    ["#ff6b35", "#cc3300"],
-  ];
-  const [a, b] = palettes[name ? name.charCodeAt(0) % palettes.length : 0];
-  return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: `linear-gradient(135deg, ${a}, ${b})`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: size * 0.38,
-        fontWeight: "800",
-        color: "white",
-        userSelect: "none",
-        flexShrink: 0,
-        fontFamily: "'Syne', sans-serif",
-        boxShadow: `0 0 24px ${a}55, 0 0 60px ${a}22`,
-      }}
-    >
-      {initial}
-    </div>
-  );
-}
+import { GAMES, backgrounds } from "../constants/games";
 
 function CallScreen({ socket, room, nickname, onLeave }) {
   // Tracks whether the chat panel is visible or hidden. Start as false.
@@ -122,43 +36,55 @@ function CallScreen({ socket, room, nickname, onLeave }) {
   const [chatLoading, setChatLoading] = useState(false);
   // ref attached to an invisible div at the bottom of the chat
   // used to auto scroll down when new messages arrive
-  const chatEndRef = useRef(null);
-  const [cameraError, setCameraError] = useState(null);
 
-  const [syncStatus, setSyncStatus] = useState("Waiting for opponent...");
-  const [pendingWild, setPendingWild] = useState(null);
-  const [lastCardCalled, setLastCardCalled] = useState(false);
-  const [callableOpponent, setCallableOpponent] = useState(null); // opponent socket id you can catch
-  const [showRules, setShowRules] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [bgIndex, setBgIndex] = useState(0);
-  const [isOpponentJoined, setIsOpponentJoined] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
-  const [isOpponentCameraOff, setIsOpponentCameraOff] = useState(false);
-  const [gameState, setGameState] = useState(null);
-  const [nicknames, setNicknames] = useState({});
-  const [copied, setCopied] = useState(false);
-  const [localStream, setLocalStream] = useState(null);
-  const [gameMode, setGameMode] = useState("call"); // 'call' | 'menu' | 'lastcard'
-  const [isHost, setIsHost] = useState(false);
+  const chatEndRef = useRef(null)
+  const [cameraError, setCameraError] = useState(null) 
 
-  const playSound = (sound) => {
-    new Audio(sound).play().catch(() => {});
-  };
+  const [syncStatus, setSyncStatus] = useState('Waiting for opponent...')
+  const [pendingWild, setPendingWild] = useState(null)
+  const [lastCardCalled, setLastCardCalled] = useState(false)
+  const [callableOpponent, setCallableOpponent] = useState(null) // opponent socket id you can catch
+  const [showRules, setShowRules] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [bgIndex, setBgIndex] = useState(0)
+  const [isOpponentJoined, setIsOpponentJoined] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isCameraOff, setIsCameraOff] = useState(false)
+  const [isOpponentCameraOff, setIsOpponentCameraOff] = useState(false)
+  const [gameState, setGameState] = useState(null)
+  const [nicknames, setNicknames] = useState({})
+  const [copied, setCopied] = useState(false)
+  const [localStream, setLocalStream] = useState(null)
+  const [gameMode, setGameMode] = useState('call') // 'call' | 'menu' | 'lastcard'
+  const [isHost, setIsHost] = useState(false)
+  const [resolution, setResolution] = useState("1080p");
+  const [fps, setFps] = useState("60");
+  const [noiseSuppression, setNoiseSuppression] = useState(true);
+  const [echoCancellation, setEchoCancellation] = useState(true);
 
-  const myStreamRef = useRef(null);
-  const remoteStreamRef = useRef(null);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const pendingPeerIdRef = useRef(null);
-  const prevHandRef = useRef([]);
+  const playSound = (sound) => 
+  {
+  new Audio(sound).play().catch(() => {})
+  }
 
-  const myNickname = nicknames[socket.id] || nickname || "You";
-  const opponentNickname =
-    Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] ||
-    "Opponent";
-  const { accent } = backgrounds[bgIndex];
+  const myStreamRef = useRef(null)
+  const remoteStreamRef = useRef(null)
+  const localVideoRef = useRef(null)
+  const remoteVideoRef = useRef(null)
+  const pendingPeerIdRef = useRef(null)
+  const prevHandRef = useRef([])
+  // the active PeerJS MediaConnection. we hold onto it so quality changes can
+  // call RTCRtpSender.replaceTrack() — otherwise only the local preview updates
+  // and the opponent keeps seeing the original encoding.
+  const activeCallRef = useRef(null)
+  const [showCallSettings, setShowCallSettings] = useState(false)
+  
+
+  const myNickname = nicknames[socket.id] || nickname || 'You'
+  const opponentNickname = Object.entries(nicknames).find(([id]) => id !== socket.id)?.[1] || 'Opponent'
+  const { accent } = backgrounds[bgIndex]
+
+
 
   // keep the local <video> attached to the stream. gameMode is in here because
   // when we switch screens react remounts the video tag and srcObject is gone
@@ -293,6 +219,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       console.log("Calling peer:", otherId);
       const call = peer.call(otherId, myStreamRef.current);
       if (!call) return;
+      activeCallRef.current = call;
       call.on("stream", (s) => {
         remoteStreamRef.current = s;
         if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s;
@@ -318,6 +245,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
         }
         peer.on("call", (call) => {
           call.answer(stream);
+          activeCallRef.current = call;
           call.on("stream", (s) => {
             remoteStreamRef.current = s;
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = s;
@@ -372,6 +300,60 @@ function CallScreen({ socket, room, nickname, onLeave }) {
 
   const [drawingCardId, setDrawingCardId] = useState(null);
   const [playingCardId, setPlayingCardId] = useState(null);
+
+  // swap a track on our MediaStream AND on the live peer connection so the
+  // opponent actually receives the new encoding. without the replaceTrack call
+  // only our own preview would update.
+  const swapTrack = async (kind, newTrack) => {
+    const stream = myStreamRef.current
+    if (!stream) return
+    const oldTrack = stream.getTracks().find(t => t.kind === kind)
+    if (oldTrack) {
+      stream.removeTrack(oldTrack)
+      oldTrack.stop()
+    }
+    stream.addTrack(newTrack)
+
+    const pc = activeCallRef.current?.peerConnection
+    if (pc) {
+      const sender = pc.getSenders().find(s => s.track?.kind === kind)
+      if (sender) await sender.replaceTrack(newTrack)
+    }
+  }
+
+  const applyCameraSettings = async () => {
+    try {
+      const [w, h] = resolution === '1080p' ? [1920, 1080] : [1280, 720]
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width:     { ideal: w },
+          height:    { ideal: h },
+          frameRate: { ideal: fps === '60' ? 60 : 30 },
+        },
+        audio: false,
+      })
+      const newTrack = newStream.getVideoTracks()[0]
+      await swapTrack('video', newTrack)
+      if (localVideoRef.current) localVideoRef.current.srcObject = myStreamRef.current
+    } catch (err) {
+      console.error('camera-settings-failed', err)
+    }
+  }
+
+  const applyAudioSettings = async () => {
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: { noiseSuppression, echoCancellation },
+      })
+      const newTrack = newStream.getAudioTracks()[0]
+      await swapTrack('audio', newTrack)
+    } catch (err) {
+      console.error('audio-settings-failed', err)
+    }
+  }
+
+
 
   // When a card is clicked in the game UI, emit the move to the server if it's the player's turn.
   const handleCardClick = (card) => {
@@ -469,51 +451,16 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     })
   }, [gameMode, gameState?.chips?.[socket.id]])
 
-  // briefly flash a "Your turn!" banner each time a fresh Blackjack round starts
-  // (so you notice the deal). both players play in parallel against the dealer
-  const [turnFlash, setTurnFlash] = useState(0)
-  const prevCanActRef = useRef(false)
-  useEffect(() => {
-    const canActNow = gameMode === 'blackjack'
-      && gameState?.phase === 'playing'
-      && gameState?.status?.[socket.id] === 'playing'
-    if (canActNow && !prevCanActRef.current) {
-      setTurnFlash(c => c + 1)
-    }
-    prevCanActRef.current = canActNow
-  }, [gameState, gameMode, socket.id])
-
   // styles reused inside the settings dropdown / rules modal
   const settingsItemStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
+    display: "flex", alignItems: "center", gap: 10,
     padding: "8px 12px",
-    background: "transparent",
-    border: "none",
-    color: "rgba(255,255,255,0.85)",
-    fontSize: "13px",
+    background: "transparent", border: "none",
+    color: "var(--ink)",
+    fontSize: 14, fontWeight: 600,
     cursor: "pointer",
-    borderRadius: "8px",
     textAlign: "left",
-    fontFamily: "'Inter', sans-serif",
-  };
-
-  const rulesSectionStyle = {
-    fontFamily: "'Syne', sans-serif",
-    fontSize: "13px",
-    color: "var(--neon-purple)",
-    textTransform: "uppercase",
-    letterSpacing: "1px",
-    marginTop: "18px",
-    marginBottom: "8px",
-  };
-  const rulesListStyle = {
-    color: "rgba(255,255,255,0.7)",
-    fontSize: "13px",
-    lineHeight: "1.7",
-    paddingLeft: "18px",
-    margin: 0,
+    fontFamily: '"Fredoka", sans-serif',
   };
 
   const copyRoom = () => {
@@ -615,392 +562,242 @@ function CallScreen({ socket, room, nickname, onLeave }) {
     >
       {/* ── MODE: VIDEO CALL (no game) ── */}
       {gameMode === "call" && (
-        <>
-          {/* Friend's face — full screen */}
-          <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
+        <div style={{ position: "absolute", inset: 0, padding: 24, background: "var(--bg-main)" }}>
+          {/* opponent video stage */}
+          <div style={{
+            position: "absolute", top: 24, left: 24, right: 24, bottom: 100,
+            background: "var(--bg-blue)",
+            border: "var(--border-w) solid var(--ink)",
+            boxShadow: "var(--shadow)",
+            overflow: "hidden",
+          }}>
             {!isOpponentJoined ? (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "16px",
-                  background: "#08080f",
-                }}
-              >
-                <div className="waiting-pulse" />
-                <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-                  Waiting for opponent...
-                </p>
-                <p style={{ color: "rgba(255,255,255,0.2)", fontSize: "12px" }}>
-                  Share room code:{" "}
-                  <span
-                    style={{ color: "var(--neon-blue)", letterSpacing: "2px" }}
-                  >
-                    {room}
-                  </span>
+              <div style={{
+                width: "100%", height: "100%",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                gap: 18,
+              }}>
+                <div style={{
+                  width: 96, height: 96,
+                  background: "var(--yellow)",
+                  border: "var(--border-w) solid var(--ink)",
+                  boxShadow: "var(--shadow-sm)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: '"Press Start 2P", monospace',
+                  fontSize: 32, color: "var(--ink)",
+                }}>?</div>
+                <p className="pixel" style={{ fontSize: 14 }}>WAITING FOR OPPONENT</p>
+                <p className="body-sm muted">
+                  Share room <span className="pixel" style={{ fontSize: 14, color: "var(--ink)" }}>{room}</span>
                 </p>
               </div>
             ) : isOpponentCameraOff ? (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "16px",
-                  background: "#08080f",
-                }}
-              >
+              <div style={{
+                width: "100%", height: "100%",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 16,
+              }}>
                 <Avatar name={opponentNickname} size={100} />
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
-                  {opponentNickname} turned off camera
-                </p>
+                <p className="body-sm muted">{opponentNickname} turned off camera</p>
               </div>
             ) : (
               <video
                 ref={remoteVideoRef}
-                autoPlay
-                playsInline
+                autoPlay playsInline
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             )}
           </div>
 
-          {/* My cam — bottom right corner */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "140px",
-              right: "20px",
-              width: "160px",
-              height: "120px",
-              borderRadius: "14px",
-              overflow: "hidden",
-              border: `2px solid ${accent}66`,
-              background: "#05050a",
-              zIndex: 10,
-              boxShadow: "0 8px 32px rgba(0,0,0,0.7)",
-            }}
-          >
+          {/* my self-view, bottom-right of stage */}
+          <div className="cam-tile self" style={{
+            position: "absolute", right: 40, bottom: 130,
+            width: 200, aspectRatio: "4 / 3",
+            zIndex: 10,
+          }}>
             {cameraError ? (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#0d0b10",
-                  padding: "8px",
-                  textAlign: "center",
-                  gap: "6px",
-                }}
-              >
-                <span style={{ fontSize: "20px" }}>🚫</span>
-                <span
-                  style={{
-                    fontSize: "9px",
-                    color: "#ff6b6b",
-                    lineHeight: "1.3",
-                  }}
-                >
-                  {cameraError}
-                </span>
+              <div style={{
+                width: "100%", height: "100%",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                padding: 10, textAlign: "center", gap: 6,
+              }}>
+                <span style={{ fontSize: 20 }}>🚫</span>
+                <span className="body-sm" style={{ color: "var(--red)" }}>{cameraError}</span>
               </div>
             ) : isCameraOff ? (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "6px",
-                  background: "#0d0b10",
-                }}
-              >
-                <Avatar name={myNickname} size={40} />
-                <span
-                  style={{ color: "rgba(255,255,255,0.4)", fontSize: "10px" }}
-                >
-                  Camera off
-                </span>
+              <div style={{
+                width: "100%", height: "100%",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 6,
+              }}>
+                <Avatar name={myNickname} size={44} />
+                <span className="body-sm">Camera off</span>
               </div>
             ) : (
-              <video
-                ref={localVideoRef}
-                autoPlay
-                muted
-                playsInline
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transform: "scaleX(-1)",
-                }}
-              />
+              <video ref={localVideoRef} autoPlay muted playsInline />
             )}
-            <div
-              className="name-tag"
-              style={{ fontSize: "10px", padding: "2px 8px" }}
-            >
-              {myNickname} (you)
-            </div>
+            <span className="cam-name">{myNickname.toUpperCase()} (you)</span>
           </div>
 
-          {/* Room strip — top left */}
-          <div
-            style={{
-              position: "absolute",
-              top: "16px",
-              left: "16px",
-              zIndex: 20,
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-            <div className="room-strip">
-              <span className="room-strip-label">Room</span>
-              <span className="room-strip-id">{room}</span>
-              <button
-                className={`room-strip-copy ${copied ? "copied" : ""}`}
-                onClick={copyRoom}
-              >
-                {copied ? "✓ Copied!" : "Copy"}
-              </button>
-            </div>
-          </div>
-
-          {/* Controls — bottom centre */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "24px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              gap: "10px",
-              zIndex: 20,
-            }}
-          >
-            <button
-              className={`control-btn ${isMuted ? "active" : ""}`}
-              onClick={toggleMute}
-            >
-              <img src={Mute} alt="Mute" />
-            </button>
-            <button
-              className={`control-btn ${isCameraOff ? "active" : ""}`}
-              onClick={toggleCamera}
-            >
-              <img src={VideoOff} alt="Camera" />
-            </button>
-            <button
-              className={`control-btn ${chatOpen ? "active" : ""}`}
-              onClick={() => setChatOpen((p) => !p)}
-              style={{
-                fontSize: "18px",
-                backgroundColor: chatOpen ? "rgba(180,77,255,0.3)" : "",
-              }}
-            >
-              🤖
-            </button>
-            <button className="control-btn end-call" onClick={onLeave}>
-              <img src={EndCall} alt="End" />
+          {/* room strip — top left */}
+          <div className="room-strip" style={{ position: "absolute", top: 40, left: 40, zIndex: 20 }}>
+            <span className="label">Room</span>
+            <span className="id">{room}</span>
+            <button className={`btn btn-md ${copied ? "" : "btn-yellow"}`} onClick={copyRoom}>
+              {copied ? "✓ Copied" : "Copy"}
             </button>
           </div>
 
-          {/* Game menu button — top right */}
+          {/* controls — bottom centre */}
+          <div style={{
+            position: "absolute", bottom: 24, left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex", gap: 12, zIndex: 20,
+          }}>
+            <button className={`ctrl-btn ${isMuted ? "active" : ""}`} onClick={toggleMute} title="Mute">
+              <img src={Mute} alt="" />
+            </button>
+            <button className={`ctrl-btn ${isCameraOff ? "active" : ""}`} onClick={toggleCamera} title="Camera">
+              <img src={VideoOff} alt="" />
+            </button>
+            <button className={`ctrl-btn ${chatOpen ? "active" : ""}`} onClick={() => setChatOpen(p => !p)} title="Assistant">
+              💬
+            </button>
+            <button
+              className={`ctrl-btn ${showCallSettings ? "active" : ""}`}
+              onClick={() => setShowCallSettings(s => !s)}
+              title="Call quality"
+            >
+              ⚙
+            </button>
+            <button className="ctrl-btn end-call" onClick={onLeave} title="End call">
+              <img src={EndCall} alt="" />
+            </button>
+          </div>
+
+          {/* play games */}
           <button
             onClick={() => setGameMode("menu")}
-            style={{
-              position: "absolute",
-              top: "16px",
-              right: "16px",
-              zIndex: 20,
-              padding: "10px 20px",
-              background:
-                "linear-gradient(135deg, var(--neon-purple), var(--neon-blue))",
-              border: "none",
-              borderRadius: "980px",
-              color: "white",
-              fontWeight: "600",
-              fontSize: "13px",
-              cursor: "pointer",
-              fontFamily: "'Inter', sans-serif",
-              boxShadow: "0 0 20px rgba(180,77,255,0.4)",
-              marginTop: 0,
-            }}
+            className="btn btn-red"
+            style={{ position: "absolute", top: 40, right: 40, zIndex: 20 }}
           >
-            🎮 Play Games
+            🎮 Play a game
           </button>
-        </>
+        </div>
       )}
 
       {/* ── MODE: GAME MENU ── */}
       {gameMode === "menu" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 30,
-            background: "rgba(5,5,8,0.96)",
-            backdropFilter: "blur(20px)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "32px",
-            padding: "40px",
-          }}
-        >
-          {/* Back button */}
-          <button
-            onClick={() => setGameMode("call")}
-            style={{
-              position: "absolute",
-              top: "20px",
-              left: "20px",
-              padding: "8px 16px",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "20px",
-              color: "rgba(255,255,255,0.6)",
-              fontSize: "13px",
-              cursor: "pointer",
-              fontFamily: "'Inter', sans-serif",
-              marginTop: 0,
-            }}
-          >
-            ← Back to call
-          </button>
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 30,
+          background: "var(--bg-yellow)",
+          overflowY: "auto",
+          padding: "56px 48px",
+        }}>
+          <Fox style={{ top: 56, right: '5%', width: 82, height: 82 }} />
 
-          {/* Header */}
-          <div style={{ textAlign: "center" }}>
-            <h2
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: "32px",
-                fontWeight: "800",
-                color: "white",
-                marginBottom: "8px",
-              }}
-            >
-              Choose a Game
-            </h2>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)" }}>
-              {isHost
-                ? isOpponentJoined
-                  ? "Pick a game — your opponent will join automatically"
-                  : "Waiting for opponent before you can start..."
-                : "Waiting for host to pick a game..."}
-            </p>
-          </div>
-
-          {/* game cards grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '20px',
-            width: '100%',
-            maxWidth: '760px',
-          }}>
-            {GAMES.map(game => (
-              <div
-                key={game.id}
-                onClick={() => {
-                  if (!game.available || !isHost || !isOpponentJoined) return;
-                  console.log("clicking game:", game.id);
-                  socket.emit("game-selected", { room, game: game.id });
-                }}
-                style={{
-                  borderRadius: "16px",
-                  border: `1px solid ${game.available && isHost && isOpponentJoined ? game.border : "rgba(255,255,255,0.07)"}`,
-                  background:
-                    game.available && isHost && isOpponentJoined
-                      ? game.color
-                      : "rgba(255,255,255,0.02)",
-                  padding: "28px 20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "14px",
-                  cursor:
-                    game.available && isHost && isOpponentJoined
-                      ? "pointer"
-                      : "not-allowed",
-                  opacity: game.available ? 1 : 0.4,
-                  transition: "all 0.2s ease",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Big emoji as the "image" */}
-                <div
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "16px",
-                    background: "rgba(255,255,255,0.06)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "44px",
-                  }}
-                >
-                  {game.emoji}
-                </div>
-
-                <div style={{ textAlign: "center" }}>
-                  <p
-                    style={{
-                      fontFamily: "'Syne', sans-serif",
-                      fontSize: "16px",
-                      fontWeight: "700",
-                      color: "white",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    {game.name}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "rgba(255,255,255,0.4)",
-                      lineHeight: "1.4",
-                    }}
-                  >
-                    {game.description}
-                  </p>
-                </div>
-
-                {!game.available && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "10px",
-                      right: "10px",
-                      fontSize: "10px",
-                      color: "rgba(255,255,255,0.3)",
-                      background: "rgba(255,255,255,0.06)",
-                      padding: "2px 8px",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    Soon
-                  </div>
-                )}
+          <div className="container">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 40 }}>
+              <div>
+                <span className="eyebrow orange">choose a game ↓</span>
+                <h2 className="h2">What are we playing?</h2>
+                <p className="body-md muted" style={{ marginTop: 12 }}>
+                  {isOpponentJoined
+                    ? "Pick a game — your opponent joins automatically."
+                    : "Waiting for opponent before you can start…"}
+                </p>
               </div>
-            ))}
+              <button className="btn" onClick={() => setGameMode("call")}>← Back to call</button>
+            </div>
+
+            <div className="stagger" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
+              {GAMES.map(game => {
+                const selectable = game.available && isOpponentJoined
+                const artBg = game.id === "lastcard" ? "var(--bg-blue)"
+                            : game.id === "blackjack" ? "var(--bg-green)"
+                            : "#e7e3d0"
+                const badgeClass = game.id === "lastcard" ? "hot"
+                                 : game.id === "blackjack" ? "new"
+                                 : "soon"
+                const badgeText  = game.id === "lastcard" ? "POPULAR"
+                                 : game.id === "blackjack" ? "NEW"
+                                 : "SOON"
+                return (
+                  <div
+                    key={game.id}
+                    onClick={() => {
+                      if (!selectable) return
+                      playGameClick()
+                      socket.emit("game-selected", { room, game: game.id })
+                    }}
+                    style={{
+                      background: "#fff",
+                      border: "var(--border-w) solid var(--ink)",
+                      boxShadow: "var(--shadow)",
+                      cursor: selectable ? "pointer" : "not-allowed",
+                      opacity: game.available ? 1 : 0.55,
+                      transition: "transform .15s ease, box-shadow .15s ease",
+                      overflow: "hidden",
+                      display: "flex", flexDirection: "column",
+                    }}
+                    onMouseEnter={e => {
+                      if (!selectable) return
+                      e.currentTarget.style.transform = "translate(-3px, -3px)"
+                      e.currentTarget.style.boxShadow = "9px 9px 0 var(--ink)"
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = "translate(0, 0)"
+                      e.currentTarget.style.boxShadow = "var(--shadow)"
+                    }}
+                  >
+                    <div style={{
+                      background: artBg,
+                      borderBottom: "var(--border-w) solid var(--ink)",
+                      padding: 36, textAlign: "center",
+                      fontSize: 92, lineHeight: 1,
+                    }}>
+                      {game.emoji}
+                    </div>
+                    <div style={{ padding: "18px 22px" }}>
+                      <span className={`badge ${badgeClass}`} style={{ marginBottom: 8 }}>{badgeText}</span>
+                      <p className="h4" style={{ marginTop: 8 }}>{game.name}</p>
+                      <p className="body-sm muted" style={{ marginTop: 2 }}>{game.description}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* assistant invite — speech bubble */}
+            <div style={{
+              marginTop: 40,
+              background: "#fff",
+              border: "var(--border-w) solid var(--ink)",
+              boxShadow: "var(--shadow)",
+              padding: "24px 28px",
+              display: "grid",
+              gridTemplateColumns: "72px 1fr auto",
+              alignItems: "center",
+              gap: 20,
+            }}>
+              <div style={{
+                width: 72, height: 72,
+                background: "var(--blue)",
+                border: "var(--border-w) solid var(--ink)",
+                boxShadow: "var(--shadow-sm)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 36,
+              }}>🤖</div>
+              <div>
+                <h4 className="h4">Stuck on a rule? Ask the table coach.</h4>
+                <p className="body-sm muted" style={{ marginTop: 4 }}>
+                  It knows your hand, your chips, your turn — and gives advice for your moment.
+                </p>
+              </div>
+              <button className="btn btn-blue" onClick={() => setChatOpen(true)}>Try it</button>
+            </div>
           </div>
         </div>
       )}
@@ -1012,25 +809,24 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             position: "absolute",
             inset: 0,
             zIndex: 10,
-            ...backgrounds[bgIndex],
             background: backgrounds[bgIndex].bg,
-            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px), ${backgrounds[bgIndex].bg}`,
-            backgroundSize: "28px 28px, 100% 100%",
+            color: "var(--ink)",
+            transition: "background 0.5s ease",
           }}
         >
-          {/* Decorative suits */}
-          <div className="table-suits">
-            <span className="table-suit" style={{ color: accent }}>
-              {backgrounds[bgIndex].suits[0]}
-            </span>
-            <span className="table-suit" style={{ color: accent }}>
-              {backgrounds[bgIndex].suits[1]}
-            </span>
-          </div>
-          <span className="corner tl" style={{ color: accent }} />
-          <span className="corner tr" style={{ color: accent }} />
-          <span className="corner bl" style={{ color: accent }} />
-          <span className="corner br" style={{ color: accent }} />
+          <span style={{
+            position: "absolute", top: 16, left: 24,
+            fontFamily: '"Press Start 2P", monospace',
+            fontSize: 72, color: backgrounds[bgIndex].accent, opacity: 0.18,
+            pointerEvents: "none",
+          }}>{backgrounds[bgIndex].suits[0]}</span>
+          <span style={{
+            position: "absolute", bottom: 16, right: 24,
+            fontFamily: '"Press Start 2P", monospace',
+            fontSize: 72, color: backgrounds[bgIndex].accent, opacity: 0.18,
+            transform: "rotate(180deg)",
+            pointerEvents: "none",
+          }}>{backgrounds[bgIndex].suits[1]}</span>
 
           {/* Game area — leaves space at bottom for cams */}
           <div
@@ -1056,112 +852,52 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                 justifyContent: "space-between",
               }}
             >
-              {/* CHANGED: Turn indicator moved to top-centre as large white text, last action below */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "20px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  textAlign: "center",
-                  zIndex: 2,
-                  pointerEvents: "none",
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontSize: "22px",
-                    fontWeight: "700",
-                    color: "white",
-                    margin: 0,
-                    whiteSpace: "nowrap",
-                  }}
-                >
+              {/* Turn banner — pixel font on chunky ink chip */}
+              <div style={{
+                position: "absolute", top: 16, left: "50%",
+                transform: "translateX(-50%)", zIndex: 2,
+                textAlign: "center", pointerEvents: "none",
+              }}>
+                <span className={`turn-banner ${gameState?.isYourTurn ? "red" : ""}`}>
                   {gameState
                     ? gameState.isYourTurn
-                      ? `Your turn, ${myNickname}`
-                      : `${opponentNickname}'s turn`
-                    : syncStatus}
-                </p>
-                {/* ADDED: Last action log — smaller and muted to distinguish from turn text */}
+                      ? `▶ YOUR TURN, ${myNickname.toUpperCase()}`
+                      : `${opponentNickname.toUpperCase()}'S TURN`
+                    : syncStatus.toUpperCase()}
+                </span>
                 {gameState && syncStatus && (
-                  <p
-                    style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: "12px",
-                      color: "rgba(255,255,255,0.45)",
-                      margin: "4px 0 0 0",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  <p className="body-sm muted" style={{ marginTop: 6, whiteSpace: "nowrap" }}>
                     {syncStatus}
                   </p>
                 )}
               </div>
-              {/* spacer so settings buttons stay right-aligned */}
               <div />
-              <div
-                style={{ display: "flex", gap: "8px", position: "relative" }}
-              >
-                <button
-                  onClick={() => setShowRules(true)}
-                  title="How to play"
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    padding: 0,
-                    background: "rgba(0,0,0,0.35)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    color: "rgba(255,255,255,0.8)",
-                    borderRadius: "50%",
-                    fontSize: "14px",
-                    fontWeight: "700",
-                    cursor: "pointer",
-                    fontFamily: "'Inter', sans-serif",
-                  }}
-                >
-                  ?
+              <div style={{ display: "flex", gap: 8, position: "relative" }}>
+                <button className="btn btn-md" onClick={() => setShowRules(true)} title="How to play">
+                  ? Rules
+                </button>
+                <button className="btn btn-md btn-blue" onClick={() => setChatOpen(true)} title="Coach">
+                  🤖 Coach
                 </button>
                 <button
-                  onClick={() => setShowSettings((s) => !s)}
+                  className={`btn btn-md ${showSettings ? "btn-yellow" : ""}`}
+                  onClick={() => setShowSettings(s => !s)}
                   title="Settings"
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    padding: 0,
-                    background: showSettings
-                      ? "rgba(180,77,255,0.25)"
-                      : "rgba(0,0,0,0.35)",
-                    border: `1px solid ${showSettings ? "rgba(180,77,255,0.5)" : "rgba(255,255,255,0.12)"}`,
-                    color: "rgba(255,255,255,0.8)",
-                    borderRadius: "50%",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    fontFamily: "'Inter', sans-serif",
-                  }}
                 >
                   ⚙
                 </button>
 
                 {showSettings && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "40px",
-                      right: 0,
-                      zIndex: 60,
-                      minWidth: "180px",
-                      background: "rgba(15,15,26,0.97)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "12px",
-                      padding: "6px",
-                      boxShadow: "0 12px 36px rgba(0,0,0,0.6)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "2px",
-                    }}
-                  >
+                  <div style={{
+                    position: "absolute",
+                    top: 50, right: 0, zIndex: 60,
+                    minWidth: 200,
+                    background: "#fff",
+                    border: "var(--border-w) solid var(--ink)",
+                    boxShadow: "var(--shadow)",
+                    padding: 6,
+                    display: "flex", flexDirection: "column", gap: 2,
+                  }}>
                     <button
                       onClick={() => {
                         setBgIndex((p) => (p + 1) % backgrounds.length);
@@ -1187,6 +923,14 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                       style={settingsItemStyle}
                     >
                       📞 <span>Back to call</span>
+                    </button>
+
+
+                    <button
+                      onClick={() => { setShowSettings(false); setShowCallSettings(true) }}
+                      style={settingsItemStyle}
+                    >
+                      📷 <span>Call quality…</span>
                     </button>
                   </div>
                 )}
@@ -1391,49 +1135,26 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                         socket.emit("call-last-card", { room });
                         setLastCardCalled(true);
                       }}
-                      style={{
-                        marginTop: "10px",
-                        padding: "8px 22px",
-                        background: "linear-gradient(135deg, #ff3dac, #b44dff)",
-                        border: "none",
-                        borderRadius: "20px",
-                        fontSize: "12px",
-                        fontWeight: "700",
-                        color: "white",
-                        cursor: "pointer",
-                        fontFamily: "'Inter', sans-serif",
-                        boxShadow: "0 0 16px rgba(255,61,172,0.5)",
-                      }}
+                      className="btn btn-md btn-red"
+                      style={{ marginTop: 12 }}
                     >
-                      🃏 Last Card!
+                      🃏 LAST CARD!
                     </button>
                   )}
 
-                {/* catch the opponent if they forgot. button disappears once you make your move */}
+                {/* catch them if they forgot to call last card */}
                 {callableOpponent && callableOpponent !== socket.id && (
                   <button
                     onClick={() => socket.emit("call-out-opponent", { room })}
-                    style={{
-                      marginTop: "10px",
-                      padding: "8px 22px",
-                      background: "linear-gradient(135deg, #ffd700, #ff6b35)",
-                      border: "none",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: "700",
-                      color: "#1a1000",
-                      cursor: "pointer",
-                      fontFamily: "'Inter', sans-serif",
-                      boxShadow: "0 0 18px rgba(255,215,0,0.55)",
-                    }}
+                    className="btn btn-md btn-yellow"
+                    style={{ marginTop: 12 }}
                   >
-                    ⚠️ Catch! They forgot Last Card
+                    ⚠ Catch! they forgot
                   </button>
                 )}
                 {gameState &&
                   gameState.isYourTurn &&
                   (() => {
-                    // ADDED: compute whether any card is playable so we can highlight draw when none are JB
                     const topCard =
                       gameState.discard[gameState.discard.length - 1];
                     const drawStack = gameState.drawStack ?? 0;
@@ -1448,31 +1169,14 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                         );
                       },
                     );
-                    // ADDED: when no card can be played, glow the draw button so the player knows what to do JB
                     const mustDraw = !hasAnyPlayable;
                     return (
                       <button
                         onClick={handleDraw}
-                        style={{
-                          marginTop: "8px",
-                          padding: "8px 22px",
-                          background: mustDraw
-                            ? `${accent}22`
-                            : "rgba(255,255,255,0.08)",
-                          border: mustDraw
-                            ? `1px solid ${accent}`
-                            : "1px solid rgba(255,255,255,0.15)",
-                          color: "white",
-                          borderRadius: "20px",
-                          fontSize: "12px",
-                          cursor: "pointer",
-                          fontFamily: "'Inter', sans-serif",
-                          marginBottom: 0,
-                          boxShadow: mustDraw ? `0 0 12px ${accent}66` : "none",
-                          transition: "all 0.2s ease",
-                        }}
+                        className={`btn btn-md ${mustDraw ? "btn-green" : ""}`}
+                        style={{ marginTop: 10 }}
                       >
-                        {mustDraw ? "⬆ Draw card" : "Draw card"}
+                        {mustDraw ? "⬆ DRAW CARD" : "Draw card"}
                       </button>
                     );
                   })()}
@@ -1611,12 +1315,11 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               style={{
                 width: "150px",
                 height: "110px",
-                borderRadius: "12px",
+                borderRadius: 8,
                 overflow: "hidden",
-                border: `2px solid ${accent}55`,
-                background: "#05050a",
+                border: "1px solid var(--hairline-dark)",
+                background: "var(--canvas-dark)",
                 position: "relative",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
               }}
             >
               {isCameraOff ? (
@@ -1676,19 +1379,19 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             }}
           >
             <button
-              className={`control-btn ${isMuted ? "active" : ""}`}
+              className={`ctrl-btn ${isMuted ? "active" : ""}`}
               onClick={toggleMute}
             >
               <img src={Mute} alt="Mute" />
             </button>
             <button
-              className={`control-btn ${isCameraOff ? "active" : ""}`}
+              className={`ctrl-btn ${isCameraOff ? "active" : ""}`}
               onClick={toggleCamera}
             >
               <img src={VideoOff} alt="Camera" />
             </button>
             <button
-              className={`control-btn ${chatOpen ? "active" : ""}`}
+              className={`ctrl-btn ${chatOpen ? "active" : ""}`}
               onClick={() => setChatOpen((p) => !p)}
               style={{
                 fontSize: "18px",
@@ -1698,7 +1401,7 @@ function CallScreen({ socket, room, nickname, onLeave }) {
             >
               🤖
             </button>
-            <button className="control-btn end-call" onClick={onLeave}>
+            <button className="ctrl-btn end-call" onClick={onLeave}>
               <img src={EndCall} alt="End" />
             </button>
           </div>
@@ -1751,52 +1454,52 @@ function CallScreen({ socket, room, nickname, onLeave }) {
         return (
           <div style={{
             position: 'absolute', inset: 0, zIndex: 10,
-            background: 'radial-gradient(circle at 50% 50%, #0a2a1a 0%, #04100a 100%)',
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px), radial-gradient(circle at 50% 50%, #0a2a1a 0%, #04100a 100%)',
-            backgroundSize: '28px 28px, 100% 100%',
+            background: 'var(--bg-orange)',
+            color: 'var(--ink)',
           }}>
+            <span style={{
+              position: 'absolute', top: 16, left: 24,
+              fontFamily: '"Press Start 2P", monospace',
+              fontSize: 72, color: 'var(--red-d)', opacity: 0.15,
+              pointerEvents: 'none',
+            }}>♦</span>
+            <span style={{
+              position: 'absolute', bottom: 16, right: 24,
+              fontFamily: '"Press Start 2P", monospace',
+              fontSize: 72, color: 'var(--red-d)', opacity: 0.15,
+              transform: 'rotate(180deg)',
+              pointerEvents: 'none',
+            }}>♣</span>
+
             {/* header */}
             <div style={{
-              position: 'absolute', top: '20px', left: '30px', right: '30px',
+              position: 'absolute', top: 24, left: 32, right: 32,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 5,
             }}>
-              <div
-                className={`status-pill ${
-                  phase === 'playing' && myStatus === 'playing' ? 'status-blink' : ''
-                }`}
-                style={{ color: '#00d4ff' }}
-              >
-                <span className="status-dot" style={{ backgroundColor: '#00d4ff' }} />
-                {phase === 'betting'    ? 'Place your bet'
-                 : phase === 'resolved' ? 'Round over'
-                 : myStatus === 'playing' ? '🟢 Your move'
-                 : oppStatus === 'playing' ? `⏳ ${opponentNickname} still playing…`
-                 : 'Dealer playing…'}
-              </div>
-              <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
-                <button onClick={() => setShowRules(true)} title="How to play" style={{
-                  width: '32px', height: '32px', padding: 0,
-                  background: 'rgba(0,0,0,0.35)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  color: 'rgba(255,255,255,0.8)', borderRadius: '50%',
-                  fontSize: '14px', fontWeight: '700', cursor: 'pointer',
-                }}>?</button>
-                <button onClick={() => setShowSettings(s => !s)} title="Settings" style={{
-                  width: '32px', height: '32px', padding: 0,
-                  background: showSettings ? 'rgba(180,77,255,0.25)' : 'rgba(0,0,0,0.35)',
-                  border: `1px solid ${showSettings ? 'rgba(180,77,255,0.5)' : 'rgba(255,255,255,0.12)'}`,
-                  color: 'rgba(255,255,255,0.8)', borderRadius: '50%',
-                  fontSize: '14px', cursor: 'pointer',
-                }}>⚙</button>
+              <span className={`turn-banner ${myStatus === 'playing' ? 'green' : ''}`}>
+                {phase === 'betting'    ? 'PLACE YOUR BET'
+                 : phase === 'resolved' ? 'ROUND OVER'
+                 : myStatus === 'playing' ? '▶ YOUR MOVE'
+                 : oppStatus === 'playing' ? `${opponentNickname.toUpperCase()} PLAYING…`
+                 : 'DEALER PLAYING…'}
+              </span>
+              <div style={{ display: 'flex', gap: 8, position: 'relative' }}>
+                <button className="btn btn-md" onClick={() => setShowRules(true)} title="How to play">? Rules</button>
+                <button className="btn btn-md btn-blue" onClick={() => setChatOpen(true)} title="Coach">🤖 Coach</button>
+                <button
+                  className={`btn btn-md ${showSettings ? 'btn-yellow' : ''}`}
+                  onClick={() => setShowSettings(s => !s)}
+                  title="Settings"
+                >⚙</button>
                 {showSettings && (
                   <div style={{
-                    position: 'absolute', top: '40px', right: 0, zIndex: 60,
-                    minWidth: '180px',
-                    background: 'rgba(15,15,26,0.97)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px', padding: '6px',
-                    boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
-                    display: 'flex', flexDirection: 'column', gap: '2px',
+                    position: 'absolute', top: 50, right: 0, zIndex: 60,
+                    minWidth: 200,
+                    background: '#fff',
+                    border: 'var(--border-w) solid var(--ink)',
+                    boxShadow: 'var(--shadow)',
+                    padding: 6,
+                    display: 'flex', flexDirection: 'column', gap: 2,
                   }}>
                     <button onClick={() => { setShowSettings(false); setGameMode('menu') }} style={settingsItemStyle}>🎮 <span>Change game</span></button>
                     <button onClick={() => { setShowSettings(false); setGameMode('call') }} style={settingsItemStyle}>📞 <span>Back to call</span></button>
@@ -2010,68 +1713,36 @@ function CallScreen({ socket, room, nickname, onLeave }) {
                     <button
                       onClick={() => handleBet(betAmount)}
                       disabled={!canPlace}
-                      style={{
-                        padding: '10px 28px', borderRadius: '22px',
-                        background: 'linear-gradient(135deg, #ffd700, #ff6b35)',
-                        border: 'none', color: '#1a1000',
-                        fontWeight: '700', fontSize: '13px',
-                        cursor: canPlace ? 'pointer' : 'not-allowed',
-                        opacity: canPlace ? 1 : 0.5,
-                        fontFamily: "'Inter', sans-serif",
-                        boxShadow: '0 0 18px rgba(255,215,0,0.4)',
-                      }}>Place bet · {betAmount}</button>
+                      className="btn btn-red"
+                    >
+                      ▶ PLACE BET · {betAmount}
+                    </button>
                   </div>
                 )
               })()}
 
               {phase === 'betting' && gameState?.bets?.[socket.id] && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', marginTop: '12px' }}>
+                <p className="body-sm muted" style={{ marginTop: 12 }}>
                   Waiting for {opponentNickname} to bet…
                 </p>
               )}
 
-              {/* ── playing phase — buttons appear for whichever player is still "playing".
-                  both can act in parallel; the dealer plays once both are done ── */}
+              {/* playing phase — both players act in parallel, dealer settles after */}
               {phase === 'playing' && myStatus === 'playing' && (
-                <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                  <button onClick={handleHit} style={{
-                    padding: '10px 24px', borderRadius: '22px',
-                    background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
-                    border: 'none', color: 'white',
-                    fontWeight: '700', fontSize: '13px', cursor: 'pointer',
-                    fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 0 16px rgba(0,212,255,0.4)',
-                  }}>Hit</button>
-                  <button onClick={handleStand} style={{
-                    padding: '10px 24px', borderRadius: '22px',
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    color: 'white', fontWeight: '700', fontSize: '13px',
-                    cursor: 'pointer', fontFamily: "'Inter', sans-serif",
-                  }}>Stand</button>
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  <button onClick={handleHit} className="btn btn-red">▶ HIT</button>
+                  <button onClick={handleStand} className="btn">STAND</button>
                   {canDouble && (
-                    <button onClick={handleDouble} style={{
-                      padding: '10px 24px', borderRadius: '22px',
-                      background: 'linear-gradient(135deg, #ffd700, #ff6b35)',
-                      border: 'none', color: '#1a1000',
-                      fontWeight: '700', fontSize: '13px', cursor: 'pointer',
-                      fontFamily: "'Inter', sans-serif",
-                    }}>Double</button>
+                    <button onClick={handleDouble} className="btn btn-yellow">DOUBLE</button>
                   )}
                 </div>
               )}
 
-              {/* ── resolved phase ── */}
+              {/* round over */}
               {phase === 'resolved' && (
-                <button onClick={handleNextRound} style={{
-                  marginTop: '12px',
-                  padding: '12px 32px', borderRadius: '22px',
-                  background: 'linear-gradient(135deg, var(--neon-purple), var(--neon-blue))',
-                  border: 'none', color: 'white',
-                  fontWeight: '700', fontSize: '14px', cursor: 'pointer',
-                  fontFamily: "'Inter', sans-serif",
-                  boxShadow: '0 0 18px rgba(180,77,255,0.4)',
-                }}>Next round</button>
+                <button onClick={handleNextRound} className="btn btn-green" style={{ marginTop: 12 }}>
+                  ▶ NEXT ROUND
+                </button>
               )}
             </div>
 
@@ -2133,31 +1804,25 @@ function CallScreen({ socket, room, nickname, onLeave }) {
               borderRadius: '999px',
               backdropFilter: 'blur(8px)',
             }}>
-              <button className={`control-btn compact ${isMuted ? 'active' : ''}`} onClick={toggleMute} title="Mute">
+              <button className={`ctrl-btn compact ${isMuted ? 'active' : ''}`} onClick={toggleMute} title="Mute">
                 <img src={Mute} alt="Mute" />
               </button>
-              <button className={`control-btn compact ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera} title="Camera">
+              <button className={`ctrl-btn compact ${isCameraOff ? 'active' : ''}`} onClick={toggleCamera} title="Camera">
                 <img src={VideoOff} alt="Camera" />
               </button>
               <button
-                className={`control-btn compact ${chatOpen ? 'active' : ''}`}
+                className={`ctrl-btn compact ${chatOpen ? 'active' : ''}`}
                 onClick={() => setChatOpen(p => !p)}
                 style={{ fontSize: '16px', backgroundColor: chatOpen ? 'rgba(180,77,255,0.3)' : '' }}
                 title="Game assistant"
               >
                 🤖
               </button>
-              <button className="control-btn compact end-call" onClick={onLeave} title="Leave">
+              <button className="ctrl-btn compact end-call" onClick={onLeave} title="Leave">
                 <img src={EndCall} alt="End" />
               </button>
             </div>
 
-            {/* "your turn!" banner — re-fires each new deal so you know you can act */}
-            {turnFlash > 0 && phase === 'playing' && myStatus === 'playing' && (
-              <div key={turnFlash} className="turn-banner">
-                🟢 Your move!
-              </div>
-            )}
           </div>
         )
       })()}
@@ -2244,410 +1909,77 @@ function CallScreen({ socket, room, nickname, onLeave }) {
       )}
 
       {/* "?" rules modal */}
-      {showRules && (
-        <div
-          onClick={() => setShowRules(false)}
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 220,
-            background: "rgba(5,5,10,0.85)",
-            backdropFilter: "blur(10px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px",
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: "480px",
-              width: "100%",
-              background: "rgba(15,15,26,0.98)",
-              border: "1px solid rgba(180,77,255,0.25)",
-              borderRadius: "18px",
-              padding: "28px 32px",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
-              maxHeight: "80vh",
-              overflowY: "auto",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "14px",
-              }}
-            >
-              <h2
-                style={{
-                  fontFamily: "'Syne', sans-serif",
-                  fontSize: "22px",
-                  fontWeight: "800",
-                  color: "white",
-                  margin: 0,
-                }}
-              >
-                Last Card — how to play
-              </h2>
-              <button
-                onClick={() => setShowRules(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: "22px",
-                  cursor: "pointer",
-                  padding: 0,
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
+      <RulesModal show={showRules} onClose={() => setShowRules(false)} />
 
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.6', marginTop: 0 }}>
-              Two games are available. <strong>Last Card</strong> is the default; <strong>Blackjack</strong> is the second mode.
-            </p>
+      <CallSettings
+        open={showCallSettings}
+        onClose={() => setShowCallSettings(false)}
+        resolution={resolution} setResolution={setResolution}
+        fps={fps} setFps={setFps}
+        noiseSuppression={noiseSuppression} setNoiseSuppression={setNoiseSuppression}
+        echoCancellation={echoCancellation} setEchoCancellation={setEchoCancellation}
+        onApplyCamera={applyCameraSettings}
+        onApplyAudio={applyAudioSettings}
+      />
 
-            <h3 style={rulesSectionStyle}>Last Card — basics</h3>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', lineHeight: '1.6', marginTop: 0 }}>
-              Match the top card by suit or rank. First to empty their hand wins. If you can't play, draw one card and your turn ends.
-            </p>
+      {/* end-of-game modal — Last Card has a single winner, Blackjack ends on resolved phase */}
+      <EndGameModal
+        show={gameMode === 'lastcard' && !!gameState?.winner}
+        kind={
+          gameState?.winner === 'tie'        ? 'tie'  :
+          gameState?.winner === socket.id    ? 'win'  : 'lose'
+        }
+        title={
+          gameState?.winner === 'tie'     ? "IT'S A TIE!" :
+          gameState?.winner === socket.id ? 'YOU WIN!'   :
+                                            'GOOD GAME'
+        }
+        subtitle={
+          gameState?.winner === 'tie'     ? 'Equal score. Another round?' :
+          gameState?.winner === socket.id ? 'Nicely played. GG.'          :
+                                            `${nicknames[gameState?.winner] || 'Opponent'} took this round.`
+        }
+        onPlayAgain={() => socket.emit('game-selected', { room, game: 'lastcard' })}
+        onBack={() => setGameMode('call')}
+      />
 
-            <h3 style={rulesSectionStyle}>Special cards</h3>
-            <ul style={rulesListStyle}>
-              <li>
-                <b>2</b> — next player draws 2 (stackable with other 2s/3s)
-              </li>
-              <li>
-                <b>3</b> — next player draws 3 (stackable)
-              </li>
-              <li>
-                <b>8</b> — reverses direction
-              </li>
-              <li>
-                <b>J</b> — skips the next player
-              </li>
-              <li>
-                <b>A</b> — wild; pick the suit when you play it
-              </li>
-            </ul>
+      {/* same modal for Blackjack — fires once a round resolves */}
+      <EndGameModal
+        show={gameMode === 'blackjack' && gameState?.phase === 'resolved'}
+        kind={
+          gameState?.results?.[socket.id] === 'blackjack' ? 'win'  :
+          gameState?.results?.[socket.id] === 'win'       ? 'win'  :
+          gameState?.results?.[socket.id] === 'push'      ? 'tie'  : 'lose'
+        }
+        title={
+          gameState?.results?.[socket.id] === 'blackjack' ? 'BLACKJACK!' :
+          gameState?.results?.[socket.id] === 'win'       ? 'YOU WIN!'   :
+          gameState?.results?.[socket.id] === 'push'      ? 'PUSH'       :
+          gameState?.results?.[socket.id] === 'bust'      ? 'BUSTED'     :
+                                                            'GOOD GAME'
+        }
+        subtitle={
+          gameState?.results?.[socket.id] === 'blackjack' ? `Natural 21 — +${Math.floor((gameState?.bets?.[socket.id] ?? 0) * 1.5)} chips!` :
+          gameState?.results?.[socket.id] === 'win'       ? `You took +${gameState?.bets?.[socket.id] ?? 0} chips.` :
+          gameState?.results?.[socket.id] === 'push'      ? 'Bet returned.' :
+                                                            `Lost ${gameState?.bets?.[socket.id] ?? 0} chips. Try again?`
+        }
+        onPlayAgain={() => handleNextRound()}
+        onBack={() => setGameMode('call')}
+      />
 
-            <h3 style={rulesSectionStyle}>Last Card rule</h3>
-            <ul style={rulesListStyle}>
-              <li>
-                Call <b>"Last Card!"</b> when you're about to play down to one
-                card.
-              </li>
-              <li>
-                Forget? Your opponent can catch you before they take their own
-                turn — you draw 2.
-              </li>
-              <li>You can't win with an Ace as your final card.</li>
-            </ul>
-
-            <h3 style={rulesSectionStyle}>Penalties</h3>
-            <ul style={rulesListStyle}>
-              <li>
-                Playing out of turn or an illegal card — your card is rejected.
-              </li>
-              <li>
-                If the draw pile runs out, the discard pile (minus the top card)
-                is shuffled back in.
-              </li>
-            </ul>
-
-            <h3 style={rulesSectionStyle}>Blackjack</h3>
-            <ul style={rulesListStyle}>
-              <li>Each player starts with <b>500 chips</b>. Both players play against the dealer (not each other).</li>
-              <li><b>Bet</b> chips before each round (min 10). Both bets must be in before cards are dealt.</li>
-              <li>Both players get 2 face-up cards. Dealer gets 1 face-up, 1 face-down (hole card).</li>
-              <li>On your turn: <b>Hit</b> (take a card), <b>Stand</b> (keep score), or <b>Double</b> (double bet, take exactly 1 card, then stand).</li>
-              <li>Card values: 2–10 face value · J/Q/K = 10 · Ace = 11 (or 1 if 11 busts).</li>
-              <li>Once both players are done, dealer reveals hole card and must hit until 17+.</li>
-              <li>Payouts: <b>Blackjack</b> (Ace + 10 on first 2 cards) pays 3:2 · <b>Win</b> pays 1:1 · <b>Push</b> returns the bet · <b>Bust or lose</b> loses the bet.</li>
-            </ul>
-
-            <button
-              onClick={() => setShowRules(false)}
-              style={{
-                marginTop: "18px",
-                width: "100%",
-                padding: "10px",
-                borderRadius: "12px",
-                background:
-                  "linear-gradient(135deg, var(--neon-purple), var(--neon-blue))",
-                border: "none",
-                color: "white",
-                fontSize: "13px",
-                fontWeight: "600",
-                cursor: "pointer",
-                fontFamily: "'Inter', sans-serif",
-              }}
-            >
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* winning / losing screen — only for LastCard (Blackjack has per-round results
-          rendered inline rather than a single game-over screen) */}
-      {gameMode === 'lastcard' && gameState?.winner && (
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 250,
-          background: 'rgba(5,5,12,0.94)', backdropFilter: 'blur(14px)',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: '20px',
-          textAlign: 'center', padding: '40px',
-        }}>
-          <div style={{ fontSize: '88px' }}>
-            {gameState.winner === 'tie' ? '🤝'
-              : gameState.winner === socket.id ? '🏆' : '😭'}
-          </div>
-          <h2 style={{
-            fontFamily: "'Syne', sans-serif", fontSize: '40px',
-            fontWeight: '800', color: 'white', margin: 0,
-            background: gameState.winner === 'tie'
-              ? 'linear-gradient(135deg, #00d4ff, #00ffb3)'
-              : gameState.winner === socket.id
-                ? 'linear-gradient(135deg, #ffd700, #ff6b35)'
-                : 'linear-gradient(135deg, #b44dff, #00d4ff)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            {gameState.winner === 'tie'
-              ? "It's a tie!"
-              : gameState.winner === socket.id
-                ? 'You won!'
-                : `${nicknames[gameState.winner] || 'Opponent'} won`}
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
-            {gameState.winner === 'tie'
-              ? 'Equal score. Another round?'
-              : gameState.winner === socket.id
-                ? 'Nicely played. GG.'
-                : 'Better luck next round.'}
-          </p>
-          <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-            <button
-              onClick={() => setGameMode("menu")}
-              style={{
-                padding: "10px 24px",
-                borderRadius: "24px",
-                background:
-                  "linear-gradient(135deg, var(--neon-purple), var(--neon-blue))",
-                border: "none",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "13px",
-                cursor: "pointer",
-                fontFamily: "'Inter', sans-serif",
-              }}
-            >
-              Play again
-            </button>
-            <button
-              onClick={() => setGameMode("call")}
-              style={{
-                padding: "10px 24px",
-                borderRadius: "24px",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.7)",
-                fontSize: "13px",
-                cursor: "pointer",
-                fontFamily: "'Inter', sans-serif",
-              }}
-            >
-              Back to call
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── AI CHAT PANEL (always available) ── */}
-      {chatOpen && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "90px",
-            left: "20px",
-            width: "320px",
-            zIndex: 100,
-            display: "flex",
-            flexDirection: "column",
-            background: "rgba(15,15,26,0.97)",
-            border: "1px solid rgba(180,77,255,0.25)",
-            borderRadius: "16px",
-            overflow: "hidden",
-            maxHeight: "400px",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.8)",
-          }}
-        >
-          {/* Chat header */}
-          <div
-            style={{
-              padding: "10px 14px",
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <span>🤖</span>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--neon-purple)' }}>
-              {gameMode === 'blackjack' ? 'Blackjack assistant'
-                : gameMode === 'lastcard' ? 'Last Card assistant'
-                : 'AceTime assistant'}
-            </span>
-            <span
-              style={{
-                marginLeft: "auto",
-                fontSize: "10px",
-                color: "var(--text-muted)",
-                background: "rgba(180,77,255,0.1)",
-                padding: "2px 8px",
-                borderRadius: "10px",
-                border: "1px solid rgba(180,77,255,0.2)",
-              }}
-            >
-              Powered by Groq
-            </span>
-            <button
-              onClick={() => setChatOpen(false)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "rgba(255,255,255,0.4)",
-                cursor: "pointer",
-                fontSize: "16px",
-                padding: "0 4px",
-                marginTop: 0,
-              }}
-            >
-              ×
-            </button>
-          </div>
-
-          {/* Messages */}
-          <div
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "10px 12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-              minHeight: "160px",
-              maxHeight: "260px",
-            }}
-          >
-            {chatMessages.map((msg, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  justifyContent:
-                    msg.role === "user" ? "flex-end" : "flex-start",
-                }}
-              >
-                <div
-                  style={{
-                    maxWidth: "85%",
-                    padding: "7px 11px",
-                    borderRadius:
-                      msg.role === "user"
-                        ? "12px 12px 2px 12px"
-                        : "12px 12px 12px 2px",
-                    background:
-                      msg.role === "user"
-                        ? "linear-gradient(135deg, var(--neon-purple), var(--neon-blue))"
-                        : "rgba(255,255,255,0.06)",
-                    border:
-                      msg.role === "assistant"
-                        ? "1px solid rgba(255,255,255,0.08)"
-                        : "none",
-                    fontSize: "12px",
-                    lineHeight: "1.4",
-                    color: "var(--text-primary)",
-                  }}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-            {chatLoading && (
-              <div style={{ display: "flex", gap: "4px", padding: "4px 0" }}>
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: "6px",
-                      height: "6px",
-                      borderRadius: "50%",
-                      background: "var(--neon-purple)",
-                      animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Input */}
-          <div
-            style={{
-              padding: "8px 10px",
-              borderTop: "1px solid rgba(255,255,255,0.06)",
-              display: "flex",
-              gap: "8px",
-            }}
-          >
-            <input
-              style={{
-                flex: 1,
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: "8px",
-                padding: "7px 12px",
-                color: "var(--text-primary)",
-                fontSize: "12px",
-                outline: "none",
-                fontFamily: "'Inter', sans-serif",
-              }}
-              placeholder="Ask about the rules..."
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && askAI()}
-              disabled={chatLoading}
-            />
-            <button
-              onClick={askAI}
-              disabled={chatLoading}
-              style={{
-                padding: "7px 12px",
-                background: chatLoading
-                  ? "rgba(180,77,255,0.2)"
-                  : "linear-gradient(135deg, var(--neon-purple), var(--neon-blue))",
-                border: "none",
-                borderRadius: "8px",
-                color: "white",
-                fontSize: "12px",
-                cursor: chatLoading ? "not-allowed" : "pointer",
-                fontFamily: "'Inter', sans-serif",
-                marginTop: 0,
-                flexShrink: 0,
-              }}
-            >
-              {chatLoading ? "..." : "Ask"}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* AI coach panel */}
+      <AICoach
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        gameMode={gameMode}
+        messages={chatMessages}
+        loading={chatLoading}
+        input={chatInput}
+        onInputChange={setChatInput}
+        onSend={askAI}
+        endRef={chatEndRef}
+      />
     </div>
   );
 }

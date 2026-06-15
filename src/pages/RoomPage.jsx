@@ -1,96 +1,95 @@
 import { useState } from 'react'
+import { Frog } from '../components/Pets'
 import { playGenericClick } from '../utils/sounds'
-// This component renders the room entry page where users can input their nickname and a room ID to join or create a game room. 
-// It also handles basic validation and displays error messages.
-function RoomPage({ onJoin, defaultRoom = '', serverError = '', onClearError}) {
+
+function RoomPage({ onJoin, defaultRoom = '', serverError = '', onClearError }) {
   const [room, setRoom]         = useState(defaultRoom)
   const [nickname, setNickname] = useState('')
   const [error, setError]       = useState('')
 
   const handleJoin = () => {
-    if (!nickname.trim())      { setError('Please enter a nickname.'); return }
-    if (!room.trim())          { setError('Please enter a room ID.');  return }
-    if (!/^\d+$/.test(room))   { setError('Room ID must be numbers only.'); return }
+    if (!nickname.trim())     { setError('Please enter a nickname.'); return }
+    if (!room.trim())         { setError('Please enter a room ID.');  return }
+    if (!/^\d+$/.test(room))  { setError('Room ID must be numbers only.'); return }
     setError('')
     onJoin(room, nickname.trim())
   }
 
+  const displayError = error || serverError
+
   return (
-    <div style={{ position: 'relative' }}>
-      <div className="mesh-bg" />
-      <div className="grid-overlay" />
-      <div className="noise" />
+    <div>
+      <nav className="nav">
+        <div className="nav-logo">
+          <span className="nav-mark">A</span>
+          ACETIME
+        </div>
+        <div className="nav-links" />
+      </nav>
 
-      <div className="suits-bg">
-        <span className="suit">♥</span>
-        <span className="suit">♠</span>
-        <span className="suit">♦</span>
-        <span className="suit">♣</span>
-      </div>
+      <section className="band blue">
+        <Frog style={{ bottom: 32, right: '5%', width: 84, height: 84 }} />
 
-      <div className="room-page">
-        <div className="glass-card room-card">
-
-          {/* Header */}
-          <div className="room-card-header">
-            <span className="room-card-icon">🃏</span>
-            <h2 className="room-card-title">Join a Room</h2>
-            <p className="room-card-sub">Enter your name and a room code to start playing</p>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
+          <div>
+            <span className="eyebrow blue fade-up">⌒ pull up a chair ⌒</span>
+            <h2 className="h2 fade-up d1">
+              Pick a handle<br />
+              &amp; a room code.
+            </h2>
+            <p className="body-md muted fade-up d2" style={{ marginTop: 16, maxWidth: 380 }}>
+              Type any number, share it with your crew, and you're all at the same table in seconds.
+            </p>
           </div>
 
-          <hr className="neon-divider" />
-
-          {/* local error or server error */}
-          {(error || serverError) && (
-            <p className="error-msg">⚠ {error || serverError}</p>
-          )}
-
-          {/* Nickname input */}
-          <div className="input-group">
-            <label className="input-label">Your Nickname</label>
+          <div className="panel fade-up d1">
+            <h4 className="h4" style={{ marginBottom: 10 }}>Your handle</h4>
             <input
-              className="fancy-input"
+              className="input"
               type="text"
-              placeholder="e.g. CardShark99"
+              placeholder="e.g. cardShark99"
               value={nickname}
               onChange={e => setNickname(e.target.value)}
               maxLength={16}
               autoFocus
             />
-          </div>
 
-          {/* Room ID input */}
-          <div className="input-group">
-            <label className="input-label">Room ID</label>
+            <h4 className="h4" style={{ marginTop: 22, marginBottom: 10 }}>Room code</h4>
             <input
-              className="fancy-input"
+              className="input"
               type="text"
-              placeholder="e.g. 1234"
+              inputMode="numeric"
+              placeholder="Any number, e.g. 42"
               value={room}
               onChange={e => {
                 setRoom(e.target.value)
-                if (onClearError) onClearError() // clears server error when they retype
+                if (onClearError) onClearError()
               }}
               onKeyDown={e => e.key === 'Enter' && handleJoin()}
             />
+
+            {displayError && (
+              <p style={{ color: 'var(--red)', marginTop: 12, fontWeight: 600 }} role="alert">
+                ⚠ {displayError}
+              </p>
+            )}
+
+            <button
+              className="btn btn-xl btn-red btn-block"
+              onClick={() => { playGenericClick(); handleJoin() }}
+              style={{ marginTop: 24 }}
+            >
+              ▶ JOIN ROOM
+            </button>
+
+            <p className="body-sm muted center-text" style={{ marginTop: 14 }}>
+              We'll need your cam &amp; mic 📷🎤
+            </p>
           </div>
-
-          {/* Join button */}
-          <button className="room-join-btn" onClick={() => {
-            playGenericClick();
-            handleJoin();
-          }}>
-            Join / Create Room →
-          </button>
-
-          <p className="room-footer-hint">
-            Share the room ID with a friend — they type the same number and you're in
-          </p>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
 
 export default RoomPage
-
