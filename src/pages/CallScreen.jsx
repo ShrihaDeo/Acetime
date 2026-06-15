@@ -12,9 +12,9 @@ import AICoach from "../components/AICoach";
 import CallSettings from "../components/CallSettings";
 import { playGameClick } from "../utils/sounds";
 
-import cardPlaySound from "../assets/817551__silverdubloons__pickupcard05.wav";
-import winSound from "../assets/274183__littlerobotsoundfactory__jingle_win_synth_04.wav";
-import loseSound from "../assets/364929__jofae__game-die.mp3";
+import cardPlaySound from '../assets/817551__silverdubloons__pickupcard05.wav'
+import winSound from '../assets/274183__littlerobotsoundfactory__jingle_win_synth_04.wav'
+import loseSound from '../assets/364929__jofae__game-die.mp3'
 
 import { GAMES, backgrounds } from "../constants/games";
 
